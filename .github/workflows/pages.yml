@@ -42,9 +42,19 @@ jobs:
           # 只发布站点真正需要的东西，避免 node_modules / tests / 配置文件被公开
           mkdir -p _site
           cp index.html _site/
-          cp -r energy ai assets _site/
-          cp LICENSE _site/ 2>/dev/null || true
-          cp README.md _site/ 2>/dev/null || true
+          # 逐个拷贝，缺失时跳过（Git 不保存空目录，ai/ 目前是空的）
+          for d in energy ai assets; do
+            if [ -d "$d" ]; then
+              cp -r "$d" _site/
+            else
+              echo "skip missing dir: $d"
+            fi
+          done
+          for f in LICENSE README.md; do
+            if [ -f "$f" ]; then cp "$f" _site/; fi
+          done
+          echo "--- 站点内容 ---"
+          find _site -type f | sort
       - name: Upload site
         uses: actions/upload-pages-artifact@v3
         with:
