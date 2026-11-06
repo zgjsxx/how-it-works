@@ -66,5 +66,6 @@ node tests/5mwh-bess.test.js
 
 ## 许可证
 
-文字与图表：CC BY-NC 4.0
-代码：MIT
+代码以 [MIT](LICENSE) 发布。
+
+页面里的文字、图表与 3D 模型为原创，欢迎转载与引用，请注明来源；如需商用请先联系。
