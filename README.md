@@ -1,4 +1,4 @@
-# 剖开看 / Cutaways
+# how-it-works
 
 > 把值得理解的系统，一层层拆开给你看。
 > Interactive explanations for things worth understanding.
@@ -40,7 +40,7 @@ python -m http.server 8000
 ## 仓库结构
 
 ```
-cutaway/
+how-it-works/
 ├── index.html              # 首页索引
 ├── assets/
 │   └── three.min.js        # 共享的 3D 库（离线）
