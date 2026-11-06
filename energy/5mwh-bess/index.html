@@ -1,0 +1,1322 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>5 MWh 储能集装箱系统 · 结构与工作原理</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --ink:#e9f0fb; --ink2:#93a6c2; --ink3:#5b6d88;
+  --line:rgba(120,170,235,.14); --line2:rgba(120,170,235,.26);
+  --blue:#4a90ff; --cyan:#28e0d0; --amber:#f5a524; --red:#ff5c4d;
+  --panel:rgba(14,23,38,.66);
+  --mono:ui-monospace,"SF Mono","JetBrains Mono",Consolas,monospace;
+}
+html{scroll-behavior:smooth}
+body{
+  background:#05080f;color:var(--ink);
+  font:15px/1.7 "Inter","HarmonyOS Sans SC","PingFang SC","Microsoft YaHei",system-ui,sans-serif;
+  -webkit-font-smoothing:antialiased;overflow-x:hidden;
+}
+body::before{
+  content:"";position:fixed;inset:0;pointer-events:none;z-index:0;
+  background:
+    radial-gradient(1100px 640px at 52% -8%, rgba(40,90,170,.30), transparent 62%),
+    radial-gradient(820px 560px at 88% 24%, rgba(20,120,140,.14), transparent 60%),
+    radial-gradient(700px 500px at 8% 72%, rgba(60,70,160,.12), transparent 60%);
+}
+body::after{
+  content:"";position:fixed;inset:0;pointer-events:none;z-index:0;
+  background-image:linear-gradient(rgba(90,150,220,.045) 1px,transparent 1px),
+                   linear-gradient(90deg,rgba(90,150,220,.045) 1px,transparent 1px);
+  background-size:70px 70px;
+  -webkit-mask-image:radial-gradient(circle at 50% 26%,#000 22%,transparent 78%);
+  mask-image:radial-gradient(circle at 50% 26%,#000 22%,transparent 78%);
+}
+.wrap{position:relative;z-index:1;max-width:1240px;margin:0 auto;padding:0 28px}
+h1,h2,h3{margin:0;line-height:1.18;letter-spacing:-.026em;font-weight:760}
+
+/* ---------------- hero ---------------- */
+.hero{position:relative;min-height:100vh;display:flex;flex-direction:column;justify-content:flex-start;padding-top:64px;padding-bottom:240px}
+.hero-canvas-wrap{position:absolute;left:0;right:0;bottom:0;top:180px;overflow:hidden}
+#heroCanvas{display:block;width:100%;height:100%}
+.hero-fade{position:absolute;inset:0;pointer-events:none;z-index:1;
+  background:linear-gradient(180deg,rgba(5,8,15,.92) 0%,rgba(5,8,15,.12) 30%,rgba(5,8,15,0) 52%,rgba(5,8,15,.78) 88%,#05080f 100%)}
+.hero-inner{position:relative;z-index:3;pointer-events:none;padding-bottom:120px}
+.hero-inner::before{
+  content:"";position:absolute;left:-12%;top:-90px;width:78%;height:150%;z-index:-1;
+  background:radial-gradient(60% 60% at 26% 34%, rgba(5,8,15,.90), rgba(5,8,15,.55) 46%, rgba(5,8,15,0) 72%);
+  pointer-events:none;
+}
+.kicker{
+  display:inline-flex;align-items:center;gap:9px;font-size:11.5px;font-weight:650;letter-spacing:.18em;
+  color:#8fc4ff;text-transform:uppercase;
+  border:1px solid rgba(80,150,240,.28);background:rgba(30,80,160,.16);
+  padding:7px 14px;border-radius:99px;backdrop-filter:blur(6px);
+}
+.kicker i{width:6px;height:6px;border-radius:50%;background:var(--cyan);box-shadow:0 0 10px var(--cyan);animation:pulse 2s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.35}}
+.hero h1{
+  font-size:clamp(34px,5.3vw,66px);margin:22px 0 0;max-width:15em;
+  background:linear-gradient(170deg,#ffffff 18%,#a9c8f5 58%,#5d82b8 100%);
+  -webkit-background-clip:text;background-clip:text;color:transparent;
+  text-shadow:0 0 60px rgba(80,150,255,.18);
+}
+.hero h1 em{font-style:normal;-webkit-text-fill-color:#5ac8ff;color:#5ac8ff;
+  text-shadow:0 0 34px rgba(60,190,255,.55)}
+.hero .sub{max-width:760px;color:var(--ink2);font-size:15.5px;margin-top:20px;display:inline-block;padding:12px 16px;border-radius:14px;background:linear-gradient(180deg,rgba(6,10,18,.76),rgba(6,10,18,.44));backdrop-filter:blur(6px)}
+.hero .sub b{color:#cfe2ff;font-weight:650}
+.scroll-hint{position:absolute;left:50%;bottom:26px;transform:translateX(-50%);z-index:3;
+  font-size:10.5px;letter-spacing:.22em;color:#5b6d88;display:flex;flex-direction:column;align-items:center;gap:8px}
+.scroll-hint span{width:1px;height:36px;background:linear-gradient(180deg,transparent,#3d6ea8,transparent);animation:drop 2.2s infinite}
+@keyframes drop{0%{opacity:0;transform:translateY(-10px)}40%{opacity:1}100%{opacity:0;transform:translateY(10px)}}
+
+/* ---------------- stats ---------------- */
+.stats{
+  display:grid;grid-template-columns:repeat(5,1fr);gap:1px;background:var(--line);
+  border:1px solid var(--line);border-radius:14px;overflow:hidden;margin:0 0 96px;
+  backdrop-filter:blur(12px);
+}
+.stat{background:rgba(10,17,29,.82);padding:16px 18px}
+.stat b{display:block;font-family:var(--mono);font-size:22px;font-weight:600;letter-spacing:-.03em;color:#eaf3ff}
+.stat b i{font-style:normal;font-size:12px;color:var(--ink3);margin-left:3px}
+.stat span{font-size:11px;color:var(--ink3);letter-spacing:.06em}
+
+/* ---------------- section ---------------- */
+.sec{margin:0 0 108px;position:relative}
+.sec-head{display:flex;align-items:flex-end;justify-content:space-between;gap:30px;margin-bottom:26px;flex-wrap:wrap}
+.sec-num{font-family:var(--mono);font-size:11px;letter-spacing:.24em;color:#4a90ff;display:block;margin-bottom:10px}
+.sec h2{font-size:clamp(23px,2.9vw,34px);letter-spacing:-.03em}
+.sec h2 em{font-style:normal;color:#5ac8ff}
+.sec-desc{max-width:600px;color:var(--ink2);font-size:14px;line-height:1.78}
+.sec-desc b{color:#cfe2ff;font-weight:650}
+
+/* ---------------- 3d stage ---------------- */
+.stage-box{
+  position:relative;border:1px solid var(--line);border-radius:18px;overflow:hidden;
+  background:radial-gradient(120% 100% at 50% 0%,#0d1728 0%,#070c15 62%,#04070d 100%);
+  box-shadow:0 30px 80px -40px rgba(0,0,0,.9),inset 0 1px 0 rgba(150,200,255,.06);
+}
+.stage-box::before{
+  content:"";position:absolute;inset:0;pointer-events:none;z-index:1;
+  background-image:linear-gradient(rgba(90,150,220,.05) 1px,transparent 1px),
+                   linear-gradient(90deg,rgba(90,150,220,.05) 1px,transparent 1px);
+  background-size:48px 48px;
+  -webkit-mask-image:radial-gradient(circle at 50% 45%,#000 10%,transparent 72%);
+  mask-image:radial-gradient(circle at 50% 45%,#000 10%,transparent 72%);
+}
+#mainCanvas{display:block;width:100%;height:clamp(380px,52vw,560px);cursor:grab;touch-action:none}
+#mainCanvas.drag{cursor:grabbing}
+.stage-hud{position:absolute;left:18px;top:16px;z-index:3;display:flex;gap:8px;flex-wrap:wrap}
+.hud-tag{
+  font-size:10.5px;letter-spacing:.1em;font-family:var(--mono);
+  color:#7fa8d8;background:rgba(10,20,34,.72);border:1px solid var(--line2);
+  padding:4px 9px;border-radius:6px;backdrop-filter:blur(6px);
+}
+.hud-tag.on{color:#8fe8dd;border-color:rgba(40,224,208,.4)}
+.stage-note{
+  position:absolute;right:18px;bottom:14px;z-index:3;font-size:11px;color:#5b6d88;
+  display:flex;align-items:center;gap:6px;pointer-events:none;
+}
+.stage-note b{color:#7fa8d8;font-weight:600}
+.crumb{display:flex;gap:6px;align-items:center;position:absolute;left:18px;bottom:14px;z-index:4}
+.crumb button{
+  font:inherit;font-size:11.5px;font-weight:600;cursor:pointer;
+  color:#7e95b5;background:rgba(12,22,38,.8);border:1px solid var(--line2);
+  padding:5px 12px;border-radius:7px;transition:.18s;backdrop-filter:blur(6px);
+}
+.crumb button:hover{color:#dce9fa;border-color:rgba(110,180,255,.5);background:rgba(24,44,74,.9)}
+.crumb button.cur{color:#04101c;background:linear-gradient(180deg,#6fe4d8,#28c9ba);border-color:transparent;cursor:default;box-shadow:0 0 18px rgba(40,210,200,.35)}
+.crumb i{color:#3d516d;font-style:normal;font-size:11px}
+
+.split{display:grid;grid-template-columns:minmax(0,1fr) 300px;gap:20px;align-items:start}
+.icard{
+  border:1px solid var(--line);border-radius:16px;padding:20px;background:var(--panel);
+  backdrop-filter:blur(14px);box-shadow:0 20px 50px -30px #000;
+}
+.icard .lv{font-family:var(--mono);font-size:10px;letter-spacing:.18em;color:#4a90ff;margin-bottom:6px}
+.icard h3{font-size:16px;margin-bottom:14px;letter-spacing:-.01em}
+.irow{display:flex;justify-content:space-between;gap:12px;padding:8px 0;border-top:1px solid rgba(120,170,235,.09);font-size:12.5px}
+.irow:first-of-type{border-top:none}
+.irow dt{color:var(--ink3)}
+.irow dd{font-family:var(--mono);font-weight:600;font-size:12.5px;color:#d8e7fb;text-align:right;margin:0}
+.icard .tip{
+  margin-top:14px;font-size:12px;line-height:1.72;color:#c8b48a;
+  background:rgba(245,165,36,.07);border-left:2px solid rgba(245,165,36,.55);
+  border-radius:0 7px 7px 0;padding:10px 12px;
+}
+
+/* ---------------- 416 ---------------- */
+.strip{
+  position:relative;border:1px solid var(--line);border-radius:16px;overflow:hidden;
+  background:radial-gradient(120% 130% at 50% 0%,#0b1526,#050a12 70%);
+  padding:26px 18px 18px;
+}
+#packSvg{display:block;width:100%;height:auto}
+.strip-foot{display:flex;justify-content:space-between;align-items:center;gap:14px;flex-wrap:wrap;margin-top:16px;padding-top:14px;border-top:1px solid rgba(120,170,235,.1)}
+.legend{display:flex;gap:16px;flex-wrap:wrap;font-size:11.5px;color:var(--ink2)}
+.legend i{display:inline-block;width:9px;height:9px;border-radius:2px;margin-right:6px;vertical-align:-1px;box-shadow:0 0 8px currentColor}
+.seg{display:inline-flex;background:rgba(12,22,38,.9);border:1px solid var(--line2);border-radius:9px;padding:3px}
+.seg button{font:inherit;font-size:12px;font-weight:600;color:#7e95b5;background:none;border:0;padding:5px 13px;border-radius:6px;cursor:pointer;transition:.18s}
+.seg button.on{color:#04101c;background:linear-gradient(180deg,#8fd0ff,#4a90ff);box-shadow:0 0 14px rgba(74,144,255,.4)}
+
+/* ---------------- parallel ---------------- */
+#busSvg{display:block;width:100%;height:auto}
+.readout{display:grid;grid-template-columns:repeat(4,1fr);gap:1px;background:rgba(120,170,235,.12);border:1px solid var(--line);border-radius:12px;overflow:hidden;margin-top:16px}
+.readout div{background:rgba(9,16,27,.9);padding:13px 16px;font-size:11px;color:var(--ink3);letter-spacing:.05em}
+.readout b{display:block;font-family:var(--mono);font-size:18px;color:#e6f1ff;font-weight:600;letter-spacing:-.02em;margin-top:3px}
+#busWarn{margin-top:14px;font-size:12.5px;line-height:1.7;padding:11px 14px;border-radius:10px;
+  background:rgba(34,201,155,.07);border:1px solid rgba(34,201,155,.26);color:#7fe3c4}
+#busWarn.warn{background:rgba(245,165,36,.08);border-color:rgba(245,165,36,.3);color:#f0c98a}
+
+/* ---------------- calc ---------------- */
+.calc{display:grid;grid-template-columns:1fr 1fr;gap:22px}
+.calc-panel{border:1px solid var(--line);border-radius:16px;padding:22px;background:var(--panel);backdrop-filter:blur(12px)}
+.sl{margin-bottom:20px}
+.sl label{display:flex;justify-content:space-between;font-size:12.5px;color:var(--ink2);margin-bottom:9px}
+.sl label output{font-family:var(--mono);font-weight:650;color:#8fd0ff;font-size:13px}
+input[type=range]{-webkit-appearance:none;appearance:none;width:100%;height:3px;border-radius:3px;background:rgba(120,170,235,.2);outline:none}
+input[type=range]::-webkit-slider-thumb{
+  -webkit-appearance:none;width:16px;height:16px;border-radius:50%;cursor:pointer;
+  background:radial-gradient(circle at 35% 30%,#cfe8ff,#4a90ff 60%,#1c5bb8);
+  box-shadow:0 0 0 3px rgba(74,144,255,.18),0 0 14px rgba(74,144,255,.7);
+}
+.res{
+  border:1px solid rgba(90,200,255,.2);border-radius:16px;padding:24px;
+  background:linear-gradient(160deg,rgba(16,34,60,.92),rgba(8,14,26,.96));
+  box-shadow:inset 0 1px 0 rgba(150,210,255,.12),0 24px 60px -38px #000;
+}
+.res .cap{font-family:var(--mono);font-size:10px;letter-spacing:.2em;color:#5f7fa5}
+.res .big{font-family:var(--mono);font-size:46px;font-weight:600;letter-spacing:-.04em;line-height:1.12;margin-top:4px;
+  background:linear-gradient(180deg,#fff,#7fc8ff);-webkit-background-clip:text;background-clip:text;color:transparent}
+.res .big small{font-size:17px;color:#7fa8d8;-webkit-text-fill-color:#7fa8d8;margin-left:5px;font-weight:500}
+.rgrid{display:grid;grid-template-columns:1fr 1fr;gap:16px 20px;margin-top:20px;padding-top:18px;border-top:1px solid rgba(120,170,235,.16)}
+.rgrid div{font-size:10.5px;color:#5f7fa5;letter-spacing:.05em}
+.rgrid b{display:block;font-family:var(--mono);font-size:14.5px;color:#eaf3ff;font-weight:600;margin-top:3px;letter-spacing:-.01em}
+#cWarn{margin-top:18px;font-size:12px;line-height:1.65;padding:10px 12px;border-radius:8px;
+  background:rgba(34,201,155,.08);border:1px solid rgba(34,201,155,.28);color:#7fe3c4}
+#cWarn.bad{background:rgba(255,92,77,.09);border-color:rgba(255,92,77,.34);color:#ff9d92}
+
+/* ---------------- systems ---------------- */
+.sys{display:grid;grid-template-columns:repeat(auto-fit,minmax(238px,1fr));gap:14px}
+.card{
+  position:relative;border:1px solid var(--line);border-radius:14px;padding:20px;
+  background:linear-gradient(170deg,rgba(16,26,44,.7),rgba(9,15,26,.6));overflow:hidden;
+  transition:.25s;
+}
+.card:hover{border-color:rgba(110,180,255,.34);transform:translateY(-2px)}
+.card::after{content:"";position:absolute;left:0;top:0;width:100%;height:1px;background:linear-gradient(90deg,transparent,rgba(120,190,255,.5),transparent)}
+.card h4{font-size:13.5px;margin-bottom:8px;display:flex;align-items:center;gap:8px;letter-spacing:-.01em}
+.card h4 i{width:6px;height:6px;border-radius:2px;background:var(--blue);box-shadow:0 0 10px var(--blue)}
+.card p{font-size:12.5px;color:var(--ink2);line-height:1.76}
+.card p b{color:#cfe2ff;font-weight:650}
+.card.t h4 i{background:var(--cyan);box-shadow:0 0 10px var(--cyan)}
+.card.a h4 i{background:var(--amber);box-shadow:0 0 10px var(--amber)}
+.card.v h4 i{background:#a78bfa;box-shadow:0 0 10px #a78bfa}
+
+table.params{width:100%;border-collapse:collapse;font-size:12.5px;margin-top:22px}
+table.params th,table.params td{padding:10px 12px;text-align:left;border-bottom:1px solid rgba(120,170,235,.1)}
+table.params th{font-size:10px;letter-spacing:.14em;color:#5f7fa5;font-weight:650;text-transform:uppercase}
+table.params td:first-child{color:var(--ink3)}
+table.params td.num{font-family:var(--mono);font-weight:600;color:#d8e7fb}
+
+footer{padding:0 0 70px;color:#4e6080;font-size:12px;line-height:1.85}
+footer b{color:#7e95b5}
+
+.reveal{opacity:0;transform:translateY(18px);transition:opacity .8s cubic-bezier(.2,.8,.3,1),transform .8s cubic-bezier(.2,.8,.3,1)}
+.reveal.in{opacity:1;transform:none}
+
+@media(max-width:980px){
+  .split{grid-template-columns:1fr}
+  .calc{grid-template-columns:1fr}
+  .stats{grid-template-columns:repeat(2,1fr)}
+  .readout{grid-template-columns:repeat(2,1fr)}
+  .sec{margin-bottom:80px}
+  #mainCanvas{height:clamp(300px,74vw,420px)}
+  .crumb{left:12px;bottom:10px}
+  .stage-note{display:none}
+  .hero{min-height:auto;padding-top:40px;padding-bottom:20px}
+  .hero-canvas-wrap{position:relative;top:auto;left:auto;right:auto;bottom:auto;height:56vh}
+  .hero-fade{background:linear-gradient(180deg,rgba(5,8,15,.9),transparent 40%,#05080f 96%)}
+}
+</style>
+</head>
+<body>
+
+<header class="hero">
+  <div class="hero-canvas-wrap">
+    <canvas id="heroCanvas"></canvas>
+    <canvas id="heroGlow" style="position:absolute;inset:0;width:100%;height:100%;pointer-events:none;mix-blend-mode:screen;z-index:1"></canvas>
+    <div class="hero-fade"></div>
+  </div>
+  <div class="wrap hero-inner">
+    <div class="kicker"><i></i>20 ft · 314 Ah · 液冷储能系统</div>
+    <h1>5 MWh 储能集装箱系统<br>由 <em>4 992 颗电芯</em> 组成</h1>
+    <p class="sub">
+      采用 12 簇并联、每簇 416 节电芯串联的拓扑结构，系统由集装箱、柜位、Pack 与电芯四个层级构成。
+      <b>示意布局包括设备舱、6 个机械柜位、12 个 Rack、48 个 Pack 及底部 HVB 高压电气层。</b>
+    </p>
+  </div>
+  <div class="scroll-hint"><span></span>SCROLL</div>
+</header>
+
+<div class="wrap">
+  <div class="stats reveal">
+    <div class="stat"><b>5.016<i>MWh</i></b><span>额定能量 DC</span></div>
+    <div class="stat"><b>1331.2<i>V</i></b><span>额定直流电压</span></div>
+    <div class="stat"><b>4992</b><span>电芯总数</span></div>
+    <div class="stat"><b>416S12P</b><span>成组方式</span></div>
+    <div class="stat"><b>2.5<i>MW</i></b><span>0.5C 额定功率</span></div>
+  </div>
+
+  <section class="sec">
+    <div class="sec-head reveal">
+      <div>
+        <span class="sec-num">01 / STRUCTURE</span>
+        <h2>5 MWh 储能系统的层级构成</h2>
+      </div>
+      <p class="sec-desc">
+        可拖动模型进行旋转观察；点击任一<b>机械柜位</b>可进入下一层级。
+        <b>模型由设备舱、6 个机械柜位、每柜位 2 个 Rack 与 8 个 Pack，以及底部 HVB 高压电气层组成。</b>
+      </p>
+    </div>
+
+    <div class="split">
+      <div class="stage-box reveal">
+        <canvas id="mainCanvas"></canvas>
+        <canvas id="glowCanvas" style="position:absolute;inset:0;width:100%;height:100%;pointer-events:none;mix-blend-mode:screen;z-index:2"></canvas>
+        <div class="stage-hud">
+          <span class="hud-tag on" id="hudMode">12 RACKS · 5.016 MWh</span>
+          <span class="hud-tag" id="hudView">PERSPECTIVE</span>
+        </div>
+        <div class="stage-note" id="stageNote"><b>拖拽</b>旋转 · <b>点击机械柜位</b>下钻</div>
+        <div class="crumb" id="crumb"></div>
+      </div>
+      <aside class="icard reveal" id="info"></aside>
+    </div>
+  </section>
+
+  <section class="sec">
+    <div class="sec-head reveal">
+      <div>
+        <span class="sec-num">02 / SERIES</span>
+        <h2>单簇采用 <em>416 节电芯</em>串联</h2>
+      </div>
+      <p class="sec-desc">
+        串联连接使前一电芯正极与后一电芯负极依次连接，形成连续电流通路。
+        <b>系统标称电压累加至 1 331 V，额定电流为 157 A。</b>
+      </p>
+    </div>
+
+    <div class="strip reveal">
+      <svg id="packSvg" viewBox="0 0 1000 440"></svg>
+      <div class="strip-foot">
+        <div class="legend">
+          <span style="color:#4a90ff"><i style="background:#4a90ff"></i>模组 1 · 1–104 串</span>
+          <span style="color:#28e0d0"><i style="background:#28e0d0"></i>模组 2 · 105–208 串</span>
+          <span style="color:#a78bfa"><i style="background:#a78bfa"></i>模组 3 · 209–312 串</span>
+          <span style="color:#f5a524"><i style="background:#f5a524"></i>模组 4 · 313–416 串</span>
+        </div>
+        <div class="seg" id="flowSeg">
+          <button class="on" data-mode="dis">放电</button>
+          <button data-mode="chg">充电</button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="sec">
+    <div class="sec-head reveal">
+      <div>
+        <span class="sec-num">03 / PARALLEL</span>
+        <h2>12 簇并联汇流：<em>容量叠加，电压保持不变</em></h2>
+      </div>
+      <p class="sec-desc">
+        电压相同才能并联：每簇 DC＋ 接正极铜排、DC－ 接负极铜排。
+        <b>系统容量叠加至 3 768 Ah，电压保持为 1 331 V。</b> 可通过断路器交互观察单簇退出后的运行状态。
+      </p>
+    </div>
+
+    <div class="stage-box reveal" style="padding:22px 18px 18px">
+      <svg id="busSvg" viewBox="0 0 1000 470"></svg>
+    </div>
+    <div class="readout reveal">
+      <div>在线簇数<b id="parOn">12 / 12</b></div>
+      <div>母线电流<b id="parA">1 878 A</b></div>
+      <div>单簇电流 / 倍率<b id="parRack">157 A / 0.50C</b></div>
+      <div>可用能量<b id="parE">5.016 MWh</b></div>
+    </div>
+    <div id="busWarn" class="reveal"></div>
+  </section>
+
+  <section class="sec">
+    <div class="sec-head reveal">
+      <div>
+        <span class="sec-num">04 / SIZING</span>
+        <h2>416S12P 拓扑的设计约束</h2>
+      </div>
+      <p class="sec-desc">
+        1 500 V 直流平台上限、单簇工作电压范围与 20 尺集装箱空间条件，
+        共同约束系统的串并联配置。可调节参数以观察其对电压、容量与能量的影响。
+      </p>
+    </div>
+    <div class="calc">
+      <div class="calc-panel reveal">
+        <div class="sl">
+          <label>单体容量 <output id="oAh">314 Ah</output></label>
+          <input type="range" id="rAh" min="280" max="400" step="1" value="314">
+        </div>
+        <div class="sl">
+          <label>每簇串联数 <output id="oSer">416 S</output></label>
+          <input type="range" id="rSer" min="380" max="432" step="1" value="416">
+        </div>
+        <div class="sl">
+          <label>并联簇数 <output id="oPar">12 P</output></label>
+          <input type="range" id="rPar" min="8" max="16" step="1" value="12">
+        </div>
+        <p style="font-size:12px;color:var(--ink3);line-height:1.75">
+          LFP 单体 3.2 V，充电截止 3.6 V，放电截止 2.8 V。
+          串数 × 3.6 V 就是系统最高电压，它必须压在 1500 V 平台界线以内。
+        </p>
+      </div>
+      <div class="res reveal">
+        <div class="cap">SYSTEM ENERGY</div>
+        <div class="big" id="cEnergy">5.02<small>MWh</small></div>
+        <div class="rgrid">
+          <div>额定直流电压<b id="cVolt">1 331 V</b></div>
+          <div>最高电压<b id="cVmax">1 497.6 V</b></div>
+          <div>电芯总数<b id="cCells">4 992</b></div>
+          <div>0.5C 功率<b id="cPow">2.51 MW</b></div>
+          <div>系统容量<b id="cCap">3 768 Ah</b></div>
+          <div>可用电量 @90% DoD<b id="cUse">4.51 MWh</b></div>
+        </div>
+        <div id="cWarn">416 × 3.6 V = 1 497.6 V，低于 1 500 V 直流平台上限。</div>
+      </div>
+    </div>
+  </section>
+
+  <section class="sec">
+    <div class="sec-head reveal">
+      <div>
+        <span class="sec-num">05 / BALANCE OF PLANT</span>
+        <h2>储能系统辅助设施</h2>
+      </div>
+      <p class="sec-desc">
+        电芯构成系统的能量存储单元。热管理、电池管理、消防与高压配电系统共同保障系统的运行性能与安全性。
+      </p>
+    </div>
+    <div class="sys">
+      <div class="card reveal">
+        <h4><i></i>三级 BMS</h4>
+        <p><b>BMU</b> 在 Pack 内采集 104 节电芯的电压与温度；<b>BCU</b> 位于 Rack 对应的 HVB 内，汇总 4 个 Pack 数据并管理高压回路；<b>SCU</b> 位于系统控制柜内，汇总 12 个 Rack 数据并与 PCS / EMS 通信。</p>
+      </div>
+      <div class="card t reveal">
+        <h4><i></i>液冷</h4>
+        <p>50% 乙二醇水溶液在每只模组底部冷板里循环，把 416 串的温差压在 3 ℃ 内。温差超 5 ℃，寿命差异可能拉到 20% 以上——这是液冷替代风冷的根本原因。</p>
+      </div>
+      <div class="card a reveal">
+        <h4><i></i>消防</h4>
+        <p>温度、烟雾与可燃气体（H₂/CO）监测可触发排风泄压及灭火系统；可采用全氟己酮、气溶胶或 Pack 级喷淋等方案。系统设计通常需满足 UL 9540A、NFPA 855 等适用要求。</p>
+      </div>
+      <div class="card v reveal">
+        <h4><i></i>HVB 高压箱</h4>
+        <p>每个 Rack 配置一个 HVB。高压箱集成接触器、熔断器、电流采样、BCU 与簇级高压控制功能；两个 HVB 位于同一柜位底部的高压电气区。</p>
+      </div>
+    </div>
+
+    <table class="params reveal">
+      <tr><th>层级</th><th>配置</th><th>电压</th><th>能量</th><th>数量</th></tr>
+      <tr><td>电芯 Cell</td><td class="num">LFP 3.2 V / 314 Ah</td><td class="num">3.2 V</td><td class="num">1.005 kWh</td><td class="num">4 992</td></tr>
+      <tr><td>Pack</td><td class="num">1P104S · 104 只串联</td><td class="num">332.8 V</td><td class="num">104.5 kWh</td><td class="num">48</td></tr>
+      <tr><td>Rack</td><td class="num">4 Pack 串联 = 1P416S</td><td class="num">1 331.2 V</td><td class="num">418 kWh</td><td class="num">12</td></tr>
+      <tr><td>集装箱</td><td class="num">12 簇并联 = 416S12P</td><td class="num">1 331.2 V</td><td class="num">5 016 kWh</td><td class="num">1</td></tr>
+    </table>
+  </section>
+
+  <footer>
+    <b>说明：</b>本页面采用 <b>6 柜位 / 12 Rack / 48 Pack</b> 的通用拓扑模型：设备舱配置液冷机组与系统控制柜，电池区由 6 个机械柜位组成，每柜位配置 2 个 Rack，底部为 HVB 高压电气层。内部安装间距、母排细节与柜内板件均为教学示意，不替代工程设计文件。
+  </footer>
+</div>
+
+<script src="../../assets/three.min.js"></script>
+<script>
+/* =================================================================
+   three.js 3D 场景：PBR 金属 + 环境反射 + 剖切箱体
+   ================================================================= */
+
+var M = {};           /* 材质库 */
+var ENV = null;       /* 环境贴图 */
+
+function buildMaterials(){
+  M.shellDark  = new THREE.MeshStandardMaterial({color:0x2b3038, metalness:0.76, roughness:0.52});
+  M.shellMid   = new THREE.MeshStandardMaterial({color:0x39404a, metalness:0.74, roughness:0.48});
+  M.shellLight = new THREE.MeshStandardMaterial({color:0x4d5663, metalness:0.72, roughness:0.44});
+  M.frame      = new THREE.MeshStandardMaterial({color:0x6e7885, metalness:0.90, roughness:0.30});
+  M.rack       = new THREE.MeshStandardMaterial({color:0x3a4a5e, metalness:0.66, roughness:0.46});
+  M.rackTop    = new THREE.MeshStandardMaterial({color:0x44566d, metalness:0.64, roughness:0.42});
+  M.panel      = new THREE.MeshStandardMaterial({color:0x232b36, metalness:0.62, roughness:0.56});
+  M.copper     = new THREE.MeshStandardMaterial({color:0xc8852c, metalness:1.00, roughness:0.22});
+  M.aluminum   = new THREE.MeshStandardMaterial({color:0x9aa9bd, metalness:1.00, roughness:0.28});
+  M.cool       = new THREE.MeshStandardMaterial({color:0x2a7d88, metalness:0.66, roughness:0.36});
+  M.extingu    = new THREE.MeshStandardMaterial({color:0x7a3a3a, metalness:0.74, roughness:0.38});
+  M.bdu        = new THREE.MeshStandardMaterial({color:0x354966, metalness:0.82, roughness:0.34});
+  M.cell       = new THREE.MeshStandardMaterial({color:0x2e5f93, metalness:0.80, roughness:0.34});
+  M.cellTop    = new THREE.MeshStandardMaterial({color:0x3f76bd, metalness:0.84, roughness:0.26});
+  M.pos        = new THREE.MeshStandardMaterial({color:0xd4903a, metalness:1.00, roughness:0.18});
+  M.neg        = new THREE.MeshStandardMaterial({color:0x7c8794, metalness:1.00, roughness:0.22});
+  M.floor      = new THREE.MeshStandardMaterial({color:0x14181e, metalness:0.50, roughness:0.66});
+  M.led        = new THREE.MeshBasicMaterial({color:0x54ffee});
+  M.ledWarn    = new THREE.MeshBasicMaterial({color:0xffab3d});
+  M.glass      = new THREE.MeshPhysicalMaterial({
+    color:0xbfd6ea, metalness:0, roughness:0.05,
+    transparent:true, opacity:0.055, transmission:0.94, thickness:2,
+    side:THREE.DoubleSide, depthWrite:false
+  });
+  if(ENV){ for(var k in M) if(M[k].isMeshStandardMaterial){ M[k].envMap = ENV; M[k].envMapIntensity = 1.5; } }
+}
+
+/* 程序化环境贴图 —— 金属反射的来源 */
+function makeEnvMap(){
+  var S=512, cv=document.createElement('canvas'); cv.width=cv.height=S;
+  var g=cv.getContext('2d');
+  var lg=g.createLinearGradient(0,0,0,S);
+  lg.addColorStop(0.00,'#10151c'); lg.addColorStop(0.38,'#161c24');
+  lg.addColorStop(0.50,'#243040'); lg.addColorStop(0.56,'#1a222c');
+  lg.addColorStop(1.00,'#05090f');
+  g.fillStyle=lg; g.fillRect(0,0,S,S);
+  function blob(x,y,r,c){
+    var rg=g.createRadialGradient(x,y,0,x,y,r);
+    rg.addColorStop(0,c); rg.addColorStop(1,'rgba(0,0,0,0)');
+    g.fillStyle=rg; g.beginPath(); g.arc(x,y,r,0,6.2832); g.fill();
+  }
+  blob(120, 90, 190,'rgba(215,235,255,0.95)');
+  blob(380,140, 140,'rgba(140,170,205,0.62)');
+  blob(250,300, 230,'rgba(60,190,195,0.22)');
+  blob(60, 380, 150,'rgba(70,115,190,0.34)');
+  blob(460,420, 120,'rgba(255,170,90,0.22)');
+  var t=new THREE.CanvasTexture(cv);
+  t.mapping=THREE.EquirectangularReflectionMapping;
+  t.colorSpace=THREE.SRGBColorSpace;
+  return t;
+}
+
+
+/* 径向光晕贴图（用于 LED 辉光 sprite） */
+function makeGlowTex(){
+  var S=128, cv=document.createElement('canvas'); cv.width=cv.height=S;
+  var g=cv.getContext('2d');
+  var rg=g.createRadialGradient(S/2,S/2,0,S/2,S/2,S/2);
+  rg.addColorStop(0.00,'rgba(255,255,255,1)');
+  rg.addColorStop(0.18,'rgba(255,255,255,0.85)');
+  rg.addColorStop(0.42,'rgba(190,255,250,0.34)');
+  rg.addColorStop(1.00,'rgba(120,255,240,0)');
+  g.fillStyle=rg; g.fillRect(0,0,S,S);
+  var t=new THREE.CanvasTexture(cv);
+  t.colorSpace=THREE.SRGBColorSpace;
+  return t;
+}
+var GLOW_TEX=null;
+
+function makeRenderer(canvas){
+  var r=new THREE.WebGLRenderer({canvas:canvas, antialias:true, alpha:true, powerPreference:'high-performance'});
+  r.setPixelRatio(Math.min(2, window.devicePixelRatio||1));
+  r.toneMapping=THREE.ACESFilmicToneMapping;
+  r.toneMappingExposure=1.55;
+  r.outputColorSpace=THREE.SRGBColorSpace;
+  return r;
+}
+
+function addLights(scene){
+  scene.add(new THREE.HemisphereLight(0xd8e4f2, 0x181c22, 1.55));
+  var key=new THREE.DirectionalLight(0xfbfdff, 4.6); key.position.set(-3200,4800,-1600); scene.add(key);
+  var fill=new THREE.DirectionalLight(0x93b8e0, 1.9); fill.position.set(3600,1800,2000); scene.add(fill);
+  var rim=new THREE.DirectionalLight(0x2fe8d4, 1.55); rim.position.set(600,2600,-4600); scene.add(rim);
+  var warm=new THREE.PointLight(0xffbe80, 1.6, 13000); warm.position.set(-2200,800,2400); scene.add(warm);
+}
+
+/* ---------------- 集装箱 ---------------- */
+var CL=6058, CD=2438, CH=2896;
+var RACK_W=376, RACK_GAP=58;
+
+function boxMesh(w,h,d,mat,x,y,z,parent){
+  var m=new THREE.Mesh(new THREE.BoxGeometry(w,h,d), mat);
+  m.position.set(x,y,z);
+  parent.add(m);
+  return m;
+}
+
+function buildContainer(){
+  var G=new THREE.Group();
+  var bays=[], i, b;
+
+  /* 箱底与底梁 */
+  boxMesh(CL+60, 96, CD+60, M.floor, 0, -48, 0, G);
+  for(i=0;i<13;i++) boxMesh(36, 52, CD-80, M.shellDark, -CL/2 + i*(CL/12), -108, 0, G);
+
+  /* 远侧长墙（+Z）与端墙 */
+  var N=16, st=CL/N;
+  for(i=0;i<N;i++) boxMesh(st-13, CH, 70, i%2?M.shellDark:M.shellMid, -CL/2 + st*(i+0.5), CH/2, CD/2, G);
+  boxMesh(70, CH, CD, M.shellMid, -CL/2, CH/2, 0, G);
+
+  /* 框架 */
+  [[-CL/2,CD/2],[-CL/2,-CD/2],[CL/2,CD/2],[CL/2,-CD/2]].forEach(function(p){ boxMesh(118, CH, 118, M.frame, p[0], CH/2, p[1], G); });
+  boxMesh(CL+130, 100, 100, M.frame, 0, CH-50, CD/2, G);
+  boxMesh(CL+130, 100, 100, M.frame, 0, CH-50, -CD/2, G);
+  boxMesh(100, 100, CD+130, M.frame, -CL/2, CH-50, 0, G);
+  boxMesh(100, 100, CD+130, M.frame,  CL/2, CH-50, 0, G);
+  boxMesh(CL, 86, 86, M.frame, 0, 46, CD/2, G);
+  boxMesh(CL, 86, 86, M.frame, 0, 46, -CD/2, G);
+
+  /* 近侧开剖玻璃 */
+  var gl=new THREE.Mesh(new THREE.BoxGeometry(CL-80, CH-190, 8), M.glass);
+  gl.position.set(0, CH/2, -CD/2); G.add(gl);
+  var gl2=new THREE.Mesh(new THREE.BoxGeometry(8, CH-190, CD-80), M.glass);
+  gl2.position.set(CL/2, CH/2, 0); G.add(gl2);
+  for(i=0;i<=N;i+=4) boxMesh(46, CH, 46, M.frame, -CL/2 + st*i, CH/2, -CD/2, G);
+
+  /* 顶部消防/液冷主管 */
+  boxMesh(CL-420, 18, 22, M.extingu, 180, CH-160, -CD/2+150, G);
+  boxMesh(CL-520, 16, 18, M.cool,  220, CH-215,  CD/2-170, G);
+  boxMesh(CL-520, 16, 18, M.aluminum, 220, CH-245,  CD/2-170, G);
+
+  /* 左端设备舱 */
+  var equipX = -CL/2 + 520;
+  boxMesh(760, 1420, 920, M.cool, equipX, 740, -280, G);                     /* 液冷机组 */
+  boxMesh(700, 60, 860, M.shellLight, equipX, 1450, -280, G);
+  for(i=0;i<9;i++) boxMesh(18, 1060, 20, M.shellDark, equipX-280+i*70, 720, -720, G); /* 百叶 */
+  boxMesh(760, 1040, 900, M.bdu, equipX, 2200, 320, G);                      /* Integrated Cabinet 外观 */
+  boxMesh(690, 44, 820, M.shellLight, equipX, 2720, 320, G);
+  for(i=0;i<4;i++) boxMesh(560, 90, 660, M.panel, equipX, 1880+i*170, 320, G); /* 柜内层板示意 */
+
+  /* 6个机械柜位：每柜位 2 Rack / 8 Pack / 1整层HVB */
+  var battStart = -CL/2 + 1320;
+  var battEnd   =  CL/2 - 160;
+  var bayPitch  = (battEnd - battStart) / 6;
+  var bayW = 710, packH = 180, packD = CD - 380, packFrontZ = -(CD/2-186);
+  var ledList=[];
+
+  for(b=0;b<6;b++){
+    var cx = battStart + bayPitch*(b+0.5);
+    var bg = new THREE.Group();
+    bg.position.set(cx,0,0);
+    bg.userData.rackIndex = b;
+    G.add(bg);
+    bays.push({group:bg, x:cx, w:bayW, index:b});
+
+    /* 柜位框架 */
+    boxMesh(bayW, 56, CD-300, M.shellDark, 0, 28, 0, bg);
+    [-1,1].forEach(function(s){
+      boxMesh(34, 2520, 50, M.frame, s*(bayW/2-18), 1260, -1000, bg);
+      boxMesh(34, 2520, 50, M.frame, s*(bayW/2-18), 1260,  1000, bg);
+    });
+    [340,1365,2510].forEach(function(y){ boxMesh(bayW-10, 24, CD-320, M.frame, 0, y, 0, bg); });
+
+    /* 8个Pack: 上下两个Rack各4个Pack */
+    for(i=0;i<8;i++){
+      var py = 430 + i*246;
+      var pack = new THREE.Group(); bg.add(pack);
+      boxMesh(bayW-44, packH, packD, i>=4?M.rackTop:M.rack, 0, py, 0, pack);
+      boxMesh(bayW-90, packH-30, 20, M.panel, 0, py, packFrontZ, pack);
+      boxMesh(bayW-130, 12, 10, M.shellLight, 0, py-50, packFrontZ+12, pack);
+      boxMesh(bayW-130, 12, 10, M.shellLight, 0, py, packFrontZ+12, pack);
+      boxMesh(bayW-130, 12, 10, M.shellLight, 0, py+50, packFrontZ+12, pack);
+      boxMesh(22, 88, 18, M.shellLight, -(bayW/2-40), py, packFrontZ+8, pack);
+      boxMesh(22, 88, 18, M.shellLight,  (bayW/2-40), py, packFrontZ+8, pack);
+      var isWarn = ((b*8+i)%9===4);
+      var ledM = isWarn ? M.ledWarn : M.led;
+      var led = new THREE.Mesh(new THREE.BoxGeometry(bayW-150, 6, 6), ledM);
+      led.position.set(0, py+66, packFrontZ+10); bg.add(led);
+      if(GLOW_TEX){
+        var sp = new THREE.Sprite(new THREE.SpriteMaterial({
+          map:GLOW_TEX, color:isWarn?0xffab3d:0x54ffee,
+          blending:THREE.AdditiveBlending, transparent:true, depthWrite:false,
+          opacity:isWarn?0.52:0.60
+        }));
+        sp.scale.set((bayW-120)*1.3, 115, 1); sp.position.set(0, py+66, packFrontZ+6); bg.add(sp); ledList.push(sp);
+      }
+    }
+
+    /* HVB整层：不是两个半盒子，而是整个底层电气舱 */
+    boxMesh(bayW-40, 260, packD-170, M.shellMid, 0, 140, 0, bg);
+    boxMesh(bayW-42, 230, 26, M.shellLight, 0, 146, packFrontZ+6, bg);
+    /* 前面板上的双接口 */
+    for(i=0;i<2;i++){
+      var rr = new THREE.Mesh(new THREE.TorusGeometry(54, 9, 10, 28), M.aluminum);
+      rr.rotation.x = Math.PI/2; rr.position.set(i?130:-130, 154, packFrontZ+18); bg.add(rr);
+      var pp = new THREE.Mesh(new THREE.CylinderGeometry(38,38,24,22), M.panel);
+      pp.rotation.x = Math.PI/2; pp.position.set(i?130:-130, 154, packFrontZ+20); bg.add(pp);
+    }
+    /* HVB 内部两套 BCU / 高压回路示意 */
+    boxMesh(150, 86, 220, M.bdu, -170, 150, -300, bg);
+    boxMesh(150, 86, 220, M.bdu,  170, 150,  300, bg);
+    boxMesh(26, 120, 26, M.copper, -245, 155, -360, bg);
+    boxMesh(26, 120, 26, M.aluminum, 245, 155, 360, bg);
+
+    /* 柜位背侧液冷板 / 管路 */
+    boxMesh(bayW-88, 2140, 24, M.cool, 0, 1460, CD/2-220, bg);
+  }
+
+  /* 顶部DC汇流铜排（从机械柜位去综合柜） */
+  boxMesh(CL*0.54, 20, 24, M.copper,   320, 2420, -220, G);
+  boxMesh(CL*0.54, 20, 24, M.aluminum, 320, 2420, -170, G);
+
+  return {group:G, racks:bays, leds:ledList};
+}
+
+/* ---------------- 簇 ---------------- */
+function buildRack(){
+  /* 这里展示一个完整机械柜位：2个Rack（上下）+ 8个Pack + 底部一整层HVB */
+  var G=new THREE.Group();
+  var bayW=1180, packD=1220, packH=194, frontZ=-630;
+
+  /* 柜位框架 */
+  boxMesh(bayW, 56, 1420, M.shellDark, 0, 28, 0, G);
+  [-1,1].forEach(function(s){
+    boxMesh(42, 2520, 60, M.frame, s*(bayW/2-24), 1260, -660, G);
+    boxMesh(42, 2520, 60, M.frame, s*(bayW/2-24), 1260,  660, G);
+  });
+  [350,1385,2510].forEach(function(y){ boxMesh(bayW-20, 26, 1380, M.frame, 0, y, 0, G); });
+
+  /* 液冷板 */
+  boxMesh(bayW-120, 2140, 40, M.cool, 0, 1470, 640, G);
+
+  /* 上下两个Rack，共8个Pack */
+  for(var i=0;i<8;i++){
+    var py = 440 + i*246;
+    var packGroup=new THREE.Group(); packGroup.userData.packIndex=i; G.add(packGroup);
+    boxMesh(bayW-70, packH, packD, i>=4?M.rackTop:M.rack, 0, py, 0, packGroup);
+    boxMesh(bayW-130, packH-30, 20, M.panel, 0, py, frontZ, packGroup);
+    for(var q=0;q<3;q++) boxMesh(bayW-180, 12, 10, M.shellLight, 0, py-52+q*52, frontZ+12, packGroup);
+    boxMesh(26, 94, 20, M.shellLight, -(bayW/2-56), py, frontZ+10, packGroup);
+    boxMesh(26, 94, 20, M.shellLight,  (bayW/2-56), py, frontZ+10, packGroup);
+    var led=new THREE.Mesh(new THREE.BoxGeometry(bayW-210, 8, 8), i===3||i===6?M.ledWarn:M.led);
+    led.position.set(0, py+70, frontZ+12); packGroup.add(led);
+    if(i===3){
+      var tri = new THREE.Mesh(new THREE.ConeGeometry(72,110,3), M.pos); tri.rotation.z=Math.PI; tri.position.set(0, py-6, frontZ+22); packGroup.add(tri);
+    }
+  }
+
+  /* HVB整层 */
+  boxMesh(bayW-60, 280, 1120, M.shellMid, 0, 150, 0, G);
+  boxMesh(bayW-62, 238, 28, M.shellLight, 0, 150, frontZ+18, G);
+  /* 两个对外接口 */
+  [-210,210].forEach(function(cx){
+    var ring=new THREE.Mesh(new THREE.TorusGeometry(62, 10, 12, 32), M.aluminum);
+    ring.rotation.x=Math.PI/2; ring.position.set(cx, 160, frontZ+34); G.add(ring);
+    var port=new THREE.Mesh(new THREE.CylinderGeometry(42,42,26,24), M.panel);
+    port.rotation.x=Math.PI/2; port.position.set(cx, 160, frontZ+36); G.add(port);
+  });
+  /* 内部两套BCU示意 */
+  boxMesh(220, 96, 240, M.bdu, -240, 155, -260, G);
+  boxMesh(220, 96, 240, M.bdu,  240, 155,  260, G);
+  boxMesh(120, 56, 120, M.panel, 0, 145, 0, G);
+
+  /* 左右母排 */
+  boxMesh(44, 2280, 42, M.copper,   540, 1320, -560, G);
+  boxMesh(44, 2280, 42, M.aluminum, 540, 1320, -500, G);
+  return G;
+}
+
+/* ---------------- 模组：104 只电芯 ---------------- */
+var CELL_W=74, CELL_D=170, CELL_H=200, GPX=7, GPZ=6, GCC=13;
+function cellPos(i){
+  var r=Math.floor(i/GCC), c=i%GCC;
+  return [(c-(GCC-1)/2)*(CELL_W+GPX), (r-3.5)*(CELL_D+GPZ)];
+}
+function buildModule(){
+  var G=new THREE.Group();
+  boxMesh(1200, 60, 1620, M.floor, 0, -30, 0, G);
+  boxMesh(1200, 74, 1620, M.shellDark, 0, -70, 0, G);
+  var cellGeo=new THREE.BoxGeometry(CELL_W, CELL_H, CELL_D);
+  var capGeo =new THREE.BoxGeometry(CELL_W-10, 8, CELL_D-14);
+  var platGeo=new THREE.BoxGeometry(18, 10, 20);
+  for(var i=0;i<104;i++){
+    var p=cellPos(i);
+    var h=CELL_H + (i%3)*2;
+    var c=new THREE.Mesh(cellGeo, M.cell);
+    c.userData.cellIndex=i;
+    c.position.set(p[0], h/2, p[1]); G.add(c);
+    var cap=new THREE.Mesh(capGeo, M.cellTop);
+    cap.userData.cellIndex=i;
+    cap.position.set(p[0], h-3, p[1]); G.add(cap);
+    var pa=new THREE.Mesh(platGeo, M.pos);
+    pa.userData.cellIndex=i;
+    pa.position.set(p[0], h+7, p[1]-24); G.add(pa);
+    var pb=new THREE.Mesh(platGeo, M.neg);
+    pb.userData.cellIndex=i;
+    pb.position.set(p[0], h+7, p[1]+24); G.add(pb);
+  }
+  return G;
+}
+
+/* ---------------- 电芯特写 ---------------- */
+function buildCell(){
+  var G=new THREE.Group();
+  G.scale.setScalar(2.0);
+  var body=new THREE.Mesh(new THREE.BoxGeometry(CELL_W, CELL_H, CELL_D), M.cell);
+  body.position.set(0, CELL_H/2, 0); G.add(body);
+  var sh=new THREE.Mesh(new THREE.BoxGeometry(CELL_W-10, 8, CELL_D-14), M.cellTop);
+  sh.position.set(0, CELL_H-3, 0); G.add(sh);
+  var pa=new THREE.Mesh(new THREE.BoxGeometry(18, 10, 20), M.pos);
+  pa.position.set(0, 207, -24); G.add(pa);
+  var pb=new THREE.Mesh(new THREE.BoxGeometry(18, 10, 20), M.neg);
+  pb.position.set(0, 207, 24); G.add(pb);
+  return G;
+}
+
+/* =================================================================
+   主场景
+   ================================================================= */
+function makeStage(canvas, opts){
+  opts=opts||{};
+  var renderer=makeRenderer(canvas);
+  var scene=new THREE.Scene();
+  scene.fog = new THREE.Fog(0x050a12, 9000, 26000);
+  addLights(scene);
+  var cam=new THREE.PerspectiveCamera(36, 1, 10, 90000);
+
+  var L0=buildContainer(); scene.add(L0.group);
+  var L1=buildRack();      L1.visible=false; scene.add(L1);
+  var L2=buildModule();    L2.visible=false; scene.add(L2);
+  var L3=buildCell();      L3.visible=false; scene.add(L3);
+
+  var levels=[L0.group, L1, L2, L3];
+  var targets=[
+    {pos:new THREE.Vector3(4600, 4700, -11200), look:new THREE.Vector3(0, 1250, 0)},
+    {pos:new THREE.Vector3(2700, 2000, -3700), look:new THREE.Vector3(180, 1180, 0)},
+    {pos:new THREE.Vector3(1280, 1800, -2800), look:new THREE.Vector3(0, 300, 0)},
+    {pos:new THREE.Vector3(0, 560, -1150), look:new THREE.Vector3(0, 195, 0)}
+  ];
+
+  var cur=0;
+  var camPos=targets[0].pos.clone(), camLook=targets[0].look.clone();
+  var wantPos=targets[0].pos.clone(), wantLook=targets[0].look.clone();
+
+  function resize(){
+    var r=canvas.getBoundingClientRect();
+    var w=Math.max(320, r.width), h=Math.max(240, r.height);
+    renderer.setSize(w, h, false);
+    cam.aspect=w/h; cam.updateProjectionMatrix();
+  }
+  if(window.ResizeObserver) new ResizeObserver(resize).observe(canvas);
+  resize();
+
+  function setLevel(i){
+    cur=i;
+    levels.forEach(function(g,idx){ g.visible = (idx===i); });
+    wantPos.copy(targets[i].pos);
+    wantLook.copy(targets[i].look);
+    /* 切换时直接吸附，避免漫长的插值过渡 */
+    camPos.copy(wantPos);
+    camLook.copy(wantLook);
+  }
+
+  /* 自动转台 */
+  var auto=true, dragging=false, t0=performance.now();
+  var orbitYaw=0, orbitPitch=0;
+  var hoverIdx=-1;
+
+  /* ---- 2D 叠加层：投影 LED 到屏幕，画真实辉光 ---- */
+  var gcanvas = document.getElementById('glowCanvas');
+  var gctx = gcanvas ? gcanvas.getContext('2d') : null;
+  function drawGlow(){
+    if(!gctx) return;
+    var r=canvas.getBoundingClientRect();
+    var w=Math.round(r.width), h=Math.round(r.height);
+    if(gcanvas.width!==w*2 || gcanvas.height!==h*2){
+      gcanvas.width=w*2; gcanvas.height=h*2;
+    }
+    gctx.setTransform(2,0,0,2,0,0);
+    gctx.clearRect(0,0,w,h);
+    if(cur!==0) return;
+    var v=new THREE.Vector3();
+    var pulse=0.6+0.4*Math.sin(performance.now()/700);
+    gctx.globalCompositeOperation='lighter';
+    L0.leds.forEach(function(sp,i){
+      if(!sp.isSprite) return;
+      v.copy(sp.position);
+      sp.parent.localToWorld(v);
+      v.project(cam);
+      if(v.z>1) return;
+      var sx=(v.x*0.5+0.5)*w, sy=(-v.y*0.5+0.5)*h;
+      var warn = (i%7===3);
+      var rad = Math.max(14, Math.min(46, w*0.030));
+      var g=gctx.createRadialGradient(sx,sy,0,sx,sy,rad);
+      if(warn){
+        g.addColorStop(0,'rgba(255,190,110,'+(0.5*pulse)+')');
+        g.addColorStop(0.35,'rgba(255,150,60,'+(0.22*pulse)+')');
+        g.addColorStop(1,'rgba(255,140,40,0)');
+      } else {
+        g.addColorStop(0,'rgba(140,246,238,'+(0.42*pulse)+')');
+        g.addColorStop(0.30,'rgba(40,200,192,'+(0.15*pulse)+')');
+        g.addColorStop(1,'rgba(40,220,205,0)');
+      }
+      gctx.fillStyle=g;
+      gctx.beginPath(); gctx.arc(sx,sy,rad,0,6.2832); gctx.fill();
+    });
+  }
+
+  function raf(){
+    var now=performance.now();
+    camPos.lerp(wantPos, 0.045);
+    camLook.lerp(wantLook, 0.09);
+    if(camPos.distanceTo(wantPos) < wantPos.length()*0.004) camPos.copy(wantPos);
+    if(camLook.distanceTo(wantLook) < 4) camLook.copy(wantLook);
+    cam.position.copy(camPos);
+    cam.lookAt(camLook);
+
+    /* 使用相对目标点的球坐标：自动展示与手势拖拽共用同一套轨道。 */
+    var offset=new THREE.Vector3().copy(camPos).sub(camLook);
+    var radius=offset.length();
+    var baseYaw=Math.atan2(offset.x,offset.z);
+    var basePitch=Math.acos(THREE.MathUtils.clamp(offset.y/radius,-1,1));
+    var sway=(auto && cur===0) ? Math.sin((now-t0)/9000)*0.10 : 0;
+    var yaw=baseYaw+orbitYaw+sway;
+    var pitch=THREE.MathUtils.clamp(basePitch+orbitPitch,0.20,1.38);
+    cam.position.set(
+      camLook.x + radius*Math.sin(pitch)*Math.sin(yaw),
+      camLook.y + radius*Math.cos(pitch),
+      camLook.z + radius*Math.sin(pitch)*Math.cos(yaw)
+    );
+    cam.lookAt(camLook);
+    /* LED 呼吸 */
+    var pulse=0.62+0.38*Math.sin(now/680);
+    L0.leds.forEach(function(sp,i){
+      sp.material.opacity = (i%7===3?0.42:0.62)*pulse;
+    });
+
+    renderer.render(scene, cam);
+    drawGlow();
+    requestAnimationFrame(raf);
+  }
+  requestAnimationFrame(raf);
+
+  /* 交互 */
+  function ndc(e){
+    var r=canvas.getBoundingClientRect();
+    return new THREE.Vector2(
+      ((e.clientX-r.left)/r.width)*2-1,
+      -((e.clientY-r.top)/r.height)*2+1
+    );
+  }
+  function taggedHit(hits, key){
+    for(var hi=0;hi<hits.length;hi++){
+      var obj=hits[hi].object;
+      while(obj && !Object.prototype.hasOwnProperty.call(obj.userData,key)) obj=obj.parent;
+      if(obj) return obj;
+    }
+    return null;
+  }
+  var ray=new THREE.Raycaster();
+  function stopDragging(e){
+    dragging=false;
+    canvas.classList.remove('drag');
+    if(canvas._pointerId===e.pointerId && canvas.hasPointerCapture && canvas.hasPointerCapture(e.pointerId)) canvas.releasePointerCapture(e.pointerId);
+    canvas._pointerId=null;
+  }
+  canvas.addEventListener('pointermove', function(e){
+    if(canvas._pointerId===e.pointerId){
+      var dx=e.clientX-canvas._px, dy=e.clientY-canvas._py;
+      canvas._px=e.clientX; canvas._py=e.clientY;
+      canvas._moved += Math.abs(dx)+Math.abs(dy);
+      if(canvas._moved>3){
+        dragging=true; auto=false;
+        canvas.classList.add('drag');
+        orbitYaw -= dx*0.006;
+        orbitPitch=Math.max(-0.42,Math.min(0.42,orbitPitch-dy*0.004));
+      }
+      if(dragging) return;
+    }
+    if(cur!==0) return;
+    ray.setFromCamera(ndc(e), cam);
+    var hits=ray.intersectObjects(L0.racks.map(function(r){return r.group;}), true);
+    var idx=-1;
+    if(hits.length){
+      var o=hits[0].object;
+      while(o && (!(o.userData && Object.prototype.hasOwnProperty.call(o.userData,'rackIndex'))) && o.parent) o=o.parent;
+      idx = (o && o.userData && Object.prototype.hasOwnProperty.call(o.userData,'rackIndex')) ? o.userData.rackIndex : -1;
+    }
+    if(idx!==hoverIdx){
+      hoverIdx=idx;
+      canvas.style.cursor = idx>=0 ? 'pointer' : 'grab';
+      L0.racks.forEach(function(r,i){
+        r.group.scale.setScalar(i===idx? 1.035 : 1);
+      });
+    }
+  });
+  canvas.addEventListener('pointerdown', function(e){
+    dragging=false;
+    canvas._pointerId=e.pointerId;
+    canvas._sx=e.clientX; canvas._sy=e.clientY;
+    canvas._px=e.clientX; canvas._py=e.clientY; canvas._moved=0;
+    canvas.setPointerCapture && canvas.setPointerCapture(e.pointerId);
+  });
+  canvas.addEventListener('pointerup', function(e){
+    var moved=canvas._moved || Math.abs(e.clientX-canvas._sx)+Math.abs(e.clientY-canvas._sy);
+    stopDragging(e);
+    if(moved>8) return;
+    ray.setFromCamera(ndc(e), cam);
+    if(cur===0){
+      var hits=ray.intersectObjects(L0.racks.map(function(r){return r.group;}), true);
+      if(hits.length && opts.onRack) opts.onRack();
+      return;
+    }
+    if(cur===1){
+      var packHits=ray.intersectObjects(L1.children, true);
+      var packMesh=taggedHit(packHits,'packIndex');
+      if(packMesh && opts.onPack) opts.onPack();
+      return;
+    }
+    if(cur===2){
+      var cellHits=ray.intersectObjects(L2.children, true);
+      var cellMesh=taggedHit(cellHits,'cellIndex');
+      if(cellMesh && opts.onCell) opts.onCell();
+    }
+  });
+  canvas.addEventListener('pointercancel', stopDragging);
+
+  return {setLevel:setLevel, scene:scene, cam:cam};
+}
+
+/* =================================================================
+   Hero
+   ================================================================= */
+function makeHero(canvas){
+  var renderer=makeRenderer(canvas);
+  var scene=new THREE.Scene();
+  scene.fog = new THREE.Fog(0x050a12, 13000, 34000);
+  addLights(scene);
+  var cam=new THREE.PerspectiveCamera(34,1,10,120000);
+
+  var G=buildContainer();
+  scene.add(G.group);
+
+  /* 地面网格（增强空间感） */
+  var grid=new THREE.GridHelper(26000, 34, 0x1b3352, 0x102030);
+  grid.position.y=-120;
+  scene.add(grid);
+
+  function resize(){
+    var r=canvas.getBoundingClientRect();
+    var w=Math.max(320,r.width), h=Math.max(240,r.height);
+    renderer.setSize(w,h,false);
+    cam.aspect=w/h; cam.updateProjectionMatrix();
+  }
+  if(window.ResizeObserver) new ResizeObserver(resize).observe(canvas);
+  resize();
+
+  var hg=document.getElementById('heroGlow');
+  var hgx=hg?hg.getContext('2d'):null;
+  function drawHGlow(){
+    if(!hgx) return;
+    var r=canvas.getBoundingClientRect();
+    var w=Math.round(r.width), h=Math.round(r.height);
+    if(hg.width!==w*2||hg.height!==h*2){ hg.width=w*2; hg.height=h*2; }
+    hgx.setTransform(2,0,0,2,0,0);
+    hgx.clearRect(0,0,w,h);
+    var v=new THREE.Vector3();
+    var pulse=0.6+0.4*Math.sin(performance.now()/700);
+    hgx.globalCompositeOperation='lighter';
+    (G.leds||[]).forEach(function(sp,i){
+      if(!sp.isSprite) return;
+      v.copy(sp.position); sp.parent.localToWorld(v); v.project(cam);
+      if(v.z>1) return;
+      var sx=(v.x*0.5+0.5)*w, sy=(-v.y*0.5+0.5)*h;
+      var rad=Math.max(8, Math.min(26, w*0.017));
+      var warn=(i%7===3);
+      var g=hgx.createRadialGradient(sx,sy,0,sx,sy,rad);
+      g.addColorStop(0, warn?'rgba(255,195,115,'+(0.62*pulse)+')':'rgba(170,255,248,'+(0.62*pulse)+')');
+      g.addColorStop(1,'rgba(0,0,0,0)');
+      hgx.fillStyle=g;
+      hgx.beginPath(); hgx.arc(sx,sy,rad,0,6.2832); hgx.fill();
+    });
+  }
+
+  var t0=performance.now(), baseY=2300, R=11600;
+  function raf(){
+    var now=performance.now();
+    var a=(now-t0)/16000;
+    var ang=-0.62 + Math.sin(a)*0.34;
+    cam.position.set(Math.sin(ang)*R, baseY + Math.sin(a*0.7)*280, -Math.cos(ang)*R);
+    cam.lookAt(0, 2450, 0);
+    var pulse=0.62+0.38*Math.sin(now/680);
+    if(G.leds) G.leds.forEach(function(sp,i){ sp.material.opacity=(i%7===3?0.42:0.62)*pulse; });
+    renderer.render(scene, cam);
+    drawHGlow();
+    requestAnimationFrame(raf);
+  }
+  requestAnimationFrame(raf);
+}
+
+/* =================================================================
+   层级信息
+   ================================================================= */
+var LEVELS = [
+  {n:'集装箱', lv:'LEVEL 0 · CONTAINER', t:'20 尺 5 MWh 储能集装箱系统', rows:[
+    ['外形尺寸','6058×2438×2896'],['布局','左设备舱 + 右6柜位'],['电池结构','12 Rack / 48 Pack'],
+    ['直流电压','1331.2 V'],['额定能量','5.016 MWh'],['热管理','液冷'],['备注','PCS 外置']
+  ], tip:'模型采用设备舱与 6 个机械柜位的布局。每个机械柜位包含上下 2 个 Rack、共 8 个 Pack，底部为 HVB 高压电气区。'},
+  {n:'柜位', lv:'LEVEL 1 · BAY', t:'机械柜位 / Bay', rows:[
+    ['机械布局','上下 2 个 Rack'],['Pack 数量','8 个 Pack'],['底部结构','HVB 1# / 2# 整层'],
+    ['对应电池','2 × 418 kWh Rack'],['BMS','BCU 位于HVB内'],['液冷','背部液冷板 / 主管'],['检修','从正面门板维护']
+  ], tip:'本模型采用 6 个机械柜位。每个柜位包含两个 Rack：上部与下部分别配置 4 个 Pack，底部为完整的 HVB 高压电气区。'},
+  {n:'Pack', lv:'LEVEL 2 · PACK', t:'电池包 / Pack', rows:[
+    ['成组方式','1P104S'],['电芯数','104 只'],['标称电压','332.8 V'],
+    ['能量','104.5 kWh'],['数量','48'],['BMS','每Pack 2 个 BMU'],['附件','液冷板 · 采样线束']
+  ], tip:'Pack 是可维护的基本单元。4 个 Pack 串联构成 1 个 1P416S Rack；每个 Pack 由 BMU 进行电芯电压与温度采集。'},
+  {n:'电芯', lv:'LEVEL 3 · CELL', t:'方形 LFP 电芯 / Cell', rows:[
+    ['规格','3.2 V / 314 Ah'],['能量','1.0048 kWh'],['尺寸','174×72×207 mm'],
+    ['重量','约 5.6 kg'],['正极','磷酸铁锂 LFP'],['负极','石墨'],['连接','铝母排 激光焊/螺栓']
+  ], tip:'314Ah 是 5MWh 平台常见大容量电芯。104 串组成 1 个 Pack，4 个 Pack 串联为 1 个 Rack；12 个 Rack 并联后形成整箱约 5.016 MWh。'}
+];
+var HUD=['6 BAYS · 12 RACKS · 48 PACKS','1 BAY · 2 RACKS + HVB','1 PACK · 104 CELLS','1 CELL · 单体'];
+
+/* =================================================================
+   启动
+   ================================================================= */
+(function(){
+  if(typeof THREE === 'undefined'){
+    console.warn('three.js 未加载');
+    return;
+  }
+  ENV = makeEnvMap();
+  GLOW_TEX = makeGlowTex();
+  buildMaterials();
+
+  var crumbEl=document.getElementById('crumb');
+  var infoEl=document.getElementById('info');
+
+  var stage=makeStage(document.getElementById('mainCanvas'), {
+    onRack:function(){ setLevelUI(1); },
+    onPack:function(){ setLevelUI(2); },
+    onCell:function(){ setLevelUI(3); }
+  });
+
+  function renderCrumb(n){
+    crumbEl.innerHTML='';
+    LEVELS.forEach(function(L,i){
+      if(i){ var sp=document.createElement('i'); sp.textContent='/'; crumbEl.appendChild(sp); }
+      var b=document.createElement('button');
+      b.textContent=L.n;
+      if(i===n) b.classList.add('cur');
+      b.onclick=function(){ setLevelUI(i); };
+      crumbEl.appendChild(b);
+    });
+  }
+  function renderInfo(n){
+    var L=LEVELS[n];
+    infoEl.innerHTML='<div class="lv">'+L.lv+'</div><h3>'+L.t+'</h3>'+
+      L.rows.map(function(r){return '<div class="irow"><dt>'+r[0]+'</dt><dd>'+r[1]+'</dd></div>';}).join('')+
+      '<div class="tip">'+L.tip+'</div>';
+  }
+  function setLevelUI(n){
+    stage.setLevel(n);
+    renderCrumb(n); renderInfo(n);
+    document.getElementById('hudMode').textContent=HUD[n];
+    document.getElementById('hudView').textContent = n===0?'REALISTIC LAYOUT':'DETAIL';
+    document.getElementById('stageNote').innerHTML = n===0
+      ? '<b>拖拽</b>旋转 · <b>点击机械柜位</b>下钻'
+      : n===1
+        ? '<b>拖拽</b>旋转 · <b>点击 Pack</b>下钻'
+      : n===2
+        ? '<b>拖拽</b>旋转 · <b>点击电芯</b>下钻'
+        : '<b>拖拽</b>旋转';
+  }
+  window.setLevelUI=setLevelUI;
+  setLevelUI(0);
+
+  makeHero(document.getElementById('heroCanvas'));
+})();
+
+/* =================================================================
+   416 串
+   ================================================================= */
+(function(){
+  var svg=document.getElementById('packSvg');
+  var COLS=26, ROWS=16, TOTAL=416;
+  var CW=19, CH=10, DX=33, DY=21, OX=62, OY=64;
+  var pts=[], r, c;
+  for(r=0;r<ROWS;r++){
+    for(c=0;c<COLS;c++){
+      var col=(r%2===0)?c:(COLS-1-c);
+      pts.push({x:OX+col*DX, y:OY+r*DY, i:r*COLS+c});
+    }
+  }
+  var colors=['#4a90ff','#28e0d0','#a78bfa','#f5a524'];
+  function band(i){ return colors[Math.min(3,Math.floor(i/104))]; }
+  var d='M'+pts.map(function(p){return p.x+' '+p.y;}).join(' L');
+  var s='';
+  s+='<defs>';
+  s+='<linearGradient id="glowdis" x1="0" y1="0" x2="1" y2="0">'+
+     '<stop offset="0" stop-color="#2f7dff"/><stop offset="1" stop-color="#7ad8ff"/></linearGradient>';
+  s+='<filter id="fg" x="-40%" y="-40%" width="180%" height="180%">'+
+     '<feGaussianBlur stdDeviation="2.4" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>';
+  s+='</defs>';
+  pts.forEach(function(p){
+    s+='<rect x="'+(p.x-CW/2).toFixed(1)+'" y="'+(p.y-CH/2).toFixed(1)+'" width="'+CW+'" height="'+CH+'" rx="2.5" '+
+       'fill="'+band(p.i)+'" fill-opacity="0.10" stroke="'+band(p.i)+'" stroke-opacity="0.8" stroke-width="1.3"/>';
+  });
+  s+='<path d="'+d+'" fill="none" stroke="#8fa8c8" stroke-opacity=".30" stroke-width="1.2"/>';
+  s+='<path id="pDis" d="'+d+'" fill="none" stroke="url(#glowdis)" stroke-width="3.2" '+
+     'stroke-linecap="round" stroke-dasharray="1 30" filter="url(#fg)"><animate attributeName="stroke-dashoffset" from="0" to="-31" dur="1.1s" repeatCount="indefinite"/></path>';
+  s+='<path id="pChg" d="'+d+'" fill="none" stroke="#f5a524" stroke-width="3.2" '+
+     'stroke-linecap="round" stroke-dasharray="1 30" filter="url(#fg)" opacity="0"><animate attributeName="stroke-dashoffset" from="0" to="31" dur="1.1s" repeatCount="indefinite"/></path>';
+  s+='<circle cx="'+(pts[0].x-46)+'" cy="'+pts[0].y+'" r="3.4" fill="#4a90ff" filter="url(#fg)"/>';
+  s+='<path d="M'+(pts[0].x-44)+' '+pts[0].y+' L'+(pts[0].x-14)+' '+pts[0].y+'" stroke="#4a90ff" stroke-width="2.2"/>';
+  s+='<text x="'+(pts[0].x-50)+'" y="'+(pts[0].y-10)+'" fill="#6fb4ff" font-size="11" font-family="monospace" text-anchor="end">DC＋</text>';
+  var last=pts[TOTAL-1];
+  s+='<circle cx="'+last.x+'" cy="'+(last.y+26)+'" r="3.4" fill="#7e95b5"/>';
+  s+='<path d="M'+last.x+' '+(last.y+8)+' L'+last.x+' '+(last.y+24)+'" stroke="#7e95b5" stroke-width="2.2"/>';
+  s+='<text x="'+last.x+'" y="'+(last.y+42)+'" fill="#5b6d88" font-size="10.5" font-family="monospace" text-anchor="middle">DC－</text>';
+  s+='<text x="'+OX+'" y="42" fill="#7e95b5" font-size="11">第 1 串 · 模组 1 起点</text>';
+  s+='<text x="'+(OX+(COLS-1)*DX+CW/2)+'" y="42" fill="#7e95b5" font-size="11" text-anchor="end">第 416 串 · 模组 4 末端</text>';
+  s+='<text x="500" y="418" fill="#5b6d88" font-size="10.5" text-anchor="middle" font-family="monospace">串联：每串 +3.2 V，共 416 串 → 1331 V ｜ 电流全程恒定 157 A</text>';
+  svg.innerHTML=s;
+
+  document.querySelectorAll('#flowSeg button').forEach(function(b){
+    b.onclick=function(){
+      document.querySelectorAll('#flowSeg button').forEach(function(x){x.classList.remove('on');});
+      b.classList.add('on');
+      var dis=b.dataset.mode==='dis';
+      document.getElementById('pDis').setAttribute('opacity', dis?1:0);
+      document.getElementById('pChg').setAttribute('opacity', dis?0:1);
+    };
+  });
+})();
+
+/* =================================================================
+   并联
+   ================================================================= */
+(function(){
+  var RACK_V=1331.2, RACK_KWH=418, BUS_MW=2.5;
+  var on=[1,1,1,1,1,1,1,1,1,1,1,1].map(Boolean);
+  var qs=new URLSearchParams(location.search).get('off');
+  if(qs) qs.split(',').forEach(function(n){var i=+n-1; if(i>=0&&i<12) on[i]=false;});
+
+  var svg=document.getElementById('busSvg');
+
+  function draw(){
+    var onCount=on.filter(Boolean).length||1;
+    var busA=BUS_MW*1e6/RACK_V;
+    var perA=busA/onCount;
+    var perC=perA/314;
+    var s='';
+    s+='<text x="24" y="26" fill="#5b6d88" font-size="10.5" letter-spacing="1">12 条独立支路 · 各自带断路器</text>';
+    s+='<text x="610" y="26" fill="#5b6d88" font-size="10.5" text-anchor="middle">断路器 / BSPU</text>';
+    s+='<text x="800" y="26" fill="#5b6d88" font-size="10.5" text-anchor="middle">汇流铜排</text>';
+    var Y0=52, DY=32, i;
+    for(i=0;i<12;i++){
+      var y=Y0+i*DY, a=on[i];
+      s+='<g class="prow" data-i="'+i+'" style="cursor:pointer">';
+      s+='<rect x="10" y="'+(y-13)+'" width="770" height="26" fill="transparent"/>';
+      s+='<text x="24" y="'+(y+4)+'" fill="'+(a?'#8fb0d8':'#3f4f66')+'" font-size="11.5" font-family="monospace" font-weight="600">簇 '+String(i+1).padStart(2,'0')+'</text>';
+      s+='<line x1="86" y1="'+y+'" x2="556" y2="'+y+'" stroke="'+(a?'rgba(74,144,255,.7)':'rgba(70,85,110,.45)')+'" stroke-width="2" '+(a?'stroke-dasharray="7 10"':'')+'>';
+      if(a) s+='<animate attributeName="stroke-dashoffset" from="0" to="34" dur="1.4s" repeatCount="indefinite"/>';
+      s+='</line>';
+      s+='<rect x="556" y="'+(y-11)+'" width="56" height="22" rx="6" fill="'+(a?'rgba(18,46,84,.9)':'rgba(58,24,24,.85)')+'" stroke="'+(a?'rgba(90,160,255,.55)':'rgba(255,92,77,.5)')+'" stroke-width="1.2"/>';
+      s+='<text x="584" y="'+(y+4)+'" fill="'+(a?'#7fc0ff':'#ff8a7d')+'" font-size="10.5" text-anchor="middle">'+(a?'合':'分')+'</text>';
+      s+='<line x1="612" y1="'+y+'" x2="806" y2="'+y+'" stroke="'+(a?'rgba(74,144,255,.45)':'rgba(70,85,110,.25)')+'" stroke-width="2"/>';
+      s+='<text x="762" y="'+(y-7)+'" fill="'+(a?'#6e8fb5':'#7a4a44')+'" font-size="10.5" font-family="monospace" text-anchor="end">'+(a?Math.round(perA)+' A':'0 A')+'</text>';
+      s+='<circle cx="810" cy="'+y+'" r="3.4" fill="'+(a?'#4a90ff':'#3a465c')+'"/>';
+      s+='</g>';
+    }
+    var topY=40, botY=Y0+11*DY+22;
+    s+='<line x1="812" y1="'+topY+'" x2="812" y2="'+botY+'" stroke="#2f6fd6" stroke-width="8" stroke-linecap="round" opacity=".55"/>';
+    s+='<line x1="812" y1="'+topY+'" x2="812" y2="'+botY+'" stroke="#8fd0ff" stroke-width="2.4" stroke-linecap="round" opacity=".85"/>';
+    var my=Y0+5.5*DY;
+    s+='<line x1="812" y1="'+my+'" x2="848" y2="'+my+'" stroke="#4a90ff" stroke-width="3"/>';
+    s+='<rect x="848" y="'+(my-32)+'" width="54" height="64" rx="8" fill="rgba(14,24,40,.95)" stroke="rgba(120,170,235,.32)" stroke-width="1.2"/>';
+    s+='<text x="875" y="'+(my-4)+'" fill="#7fa8d8" font-size="9.5" text-anchor="middle">总熔断</text>';
+    s+='<text x="875" y="'+(my+9)+'" fill="#7fa8d8" font-size="9.5" text-anchor="middle">器＋隔离</text>';
+    s+='<line x1="902" y1="'+my+'" x2="932" y2="'+my+'" stroke="#4a90ff" stroke-width="3"/>';
+    s+='<rect x="932" y="'+(my-50)+'" width="56" height="100" rx="10" fill="#060b14" stroke="rgba(90,200,255,.38)" stroke-width="1.4"/>';
+    s+='<rect x="932" y="'+(my-50)+'" width="56" height="100" rx="10" fill="none" stroke="rgba(90,200,255,.12)" stroke-width="4"/>';
+    s+='<text x="960" y="'+(my-4)+'" fill="#e9f0fb" font-size="12" font-weight="700" text-anchor="middle">PCS</text>';
+    s+='<text x="960" y="'+(my+12)+'" fill="#5b6d88" font-size="9" text-anchor="middle">2.5 MW</text>';
+    s+='<text x="812" y="'+(botY+20)+'" fill="#5b6d88" font-size="10" text-anchor="middle" font-family="monospace">DC 1331 V</text>';
+    svg.innerHTML=s;
+
+    svg.querySelectorAll('.prow').forEach(function(g){
+      g.onclick=function(){
+        var i=+g.dataset.i;
+        if(on.filter(Boolean).length===1 && on[i]) return;
+        on[i]=!on[i]; draw();
+      };
+    });
+
+    document.getElementById('parOn').textContent=onCount+' / 12';
+    document.getElementById('parA').textContent=Math.round(busA).toLocaleString()+' A';
+    document.getElementById('parRack').textContent=Math.round(perA)+' A / '+perC.toFixed(2)+'C';
+    document.getElementById('parE').textContent=(RACK_KWH*onCount/1000).toFixed(3)+' MWh';
+
+    var w=document.getElementById('busWarn');
+    if(onCount===12){
+      w.className='';
+      w.innerHTML='12 簇全部投运：母线电流 1 878 A 平均分配至 12 条支路，每簇电流为 157 A，对应约 0.5C 的额定持续倍率。';
+    } else {
+      w.className='warn';
+      w.innerHTML='退出 '+(12-onCount)+' 簇后，如仍维持 2.5 MW 输出，剩余 '+onCount+' 簇的单簇电流将增至 <b>'+Math.round(perA)+' A（'+perC.toFixed(2)+'C）</b>，超过 0.5C 设计值。实际运行中，PCS 将根据可用簇数实施功率降额。';
+    }
+  }
+  draw();
+})();
+
+/* =================================================================
+   计算器
+   ================================================================= */
+(function(){
+  function calc(){
+    var ah=+document.getElementById('rAh').value;
+    var se=+document.getElementById('rSer').value;
+    var pa=+document.getElementById('rPar').value;
+    document.getElementById('oAh').textContent=ah+' Ah';
+    document.getElementById('oSer').textContent=se+' S';
+    document.getElementById('oPar').textContent=pa+' P';
+
+    var vNom=se*3.2, vMax=se*3.6, cells=se*pa, e=cells*3.2*ah/1e6, cap=ah*pa;
+    document.getElementById('cEnergy').innerHTML=e.toFixed(2)+'<small>MWh</small>';
+    document.getElementById('cVolt').textContent=Math.round(vNom).toLocaleString()+' V';
+    document.getElementById('cVmax').textContent=(Math.round(vMax*10)/10).toLocaleString()+' V';
+    document.getElementById('cCells').textContent=cells.toLocaleString();
+    document.getElementById('cPow').textContent=(e*0.5).toFixed(2)+' MW';
+    document.getElementById('cCap').textContent=cap.toLocaleString()+' Ah';
+    document.getElementById('cUse').textContent=(e*0.9).toFixed(2)+' MWh';
+
+    var w=document.getElementById('cWarn');
+    if(vMax>1500){
+      w.className='bad';
+      w.innerHTML=se+' × 3.6 V = <b>'+Math.round(vMax)+' V</b>，超过 1500 V 直流平台上限 —— 绝缘等级不够，必须减串。';
+    } else if(vMax<1420){
+      w.className='';
+      w.innerHTML=se+' × 3.6 V = <b>'+Math.round(vMax)+' V</b>，离 1500 V 还有余量，电压没顶满，同样电芯数下能量和功率都吃亏。';
+    } else {
+      w.className='';
+      w.innerHTML=se+' × 3.6 V = <b>'+(Math.round(vMax*10)/10)+' V</b>，低于 1 500 V 直流平台上限，并保留必要的电压裕量。';
+    }
+  }
+  ['rAh','rSer','rPar'].forEach(function(id){
+    document.getElementById(id).addEventListener('input',calc);
+  });
+  calc();
+})();
+
+/* =================================================================
+   滚动渐入
+   ================================================================= */
+(function(){
+  if(!('IntersectionObserver' in window)){
+    document.querySelectorAll('.reveal').forEach(function(el){el.classList.add('in');});
+    return;
+  }
+  var io=new IntersectionObserver(function(es){
+    es.forEach(function(e){ if(e.isIntersecting){ e.target.classList.add('in'); io.unobserve(e.target); } });
+  },{threshold:0.06, rootMargin:'0px 0px -30px 0px'});
+  document.querySelectorAll('.reveal').forEach(function(el,i){
+    el.style.transitionDelay=(Math.min(i%6,4)*60)+'ms';
+    io.observe(el);
+  });
+})();
+</script>
+</body>
+</html>

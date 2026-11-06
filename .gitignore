@@ -1,0 +1,26 @@
+# 忽略系统与编辑器产物
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# 编辑器
+.vscode/*
+!.vscode/extensions.json
+.idea/
+*.swp
+*~
+
+# 依赖与缓存
+node_modules/
+__pycache__/
+*.pyc
+.cache/
+
+# 临时文件
+*.tmp
+*.log
+_screenshot*.png
+
+# 本地私有笔记（不发布）
+.workbuddy/
+notes-private/
