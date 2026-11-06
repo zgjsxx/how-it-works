@@ -5,21 +5,33 @@ const path = require('node:path');
 const ROOT = path.join(__dirname, '..');
 const page = fs.readFileSync(path.join(ROOT, 'energy/5mwh-bess/index.html'), 'utf8');
 
+assert.doesNotMatch(
+  page,
+  /<script[^>]+src=/,
+  '页面必须是自包含单文件：不能有外部 script 引用（否则单独拷贝给别人会白屏）'
+);
 assert.match(
   page,
-  /<script src="\.\.\/\.\.\/assets\/three\.min\.js"><\/script>/,
-  '页面必须从仓库共享的 assets 目录加载 three.js'
+  /three\.js r160/,
+  'three.js 必须已内联进页面'
 );
 assert.ok(
   fs.existsSync(path.join(ROOT, 'assets/three.min.js')),
-  'assets/three.min.js 必须存在（离线可用）'
+  'assets/three.min.js 必须保留（便于升级与再内联）'
 );
 
-const inlineScript = page.match(/<script>\s*([\s\S]*)<\/script>\s*<\/body>/)[1];
+// 页面现在有两个 script 块（内联的 three.js + 主逻辑），取最后一块来校验语法
+const scriptBlocks = [...page.matchAll(/<script>([\s\S]*?)<\/script>/g)].map(m => m[1]);
+assert.ok(scriptBlocks.length >= 2, '页面应同时包含内联 three.js 与主逻辑两个 script 块');
+const inlineScript = scriptBlocks[scriptBlocks.length - 1];
 
 assert.doesNotThrow(
   () => new Function(inlineScript),
   'the browser script must remain valid JavaScript'
+);
+assert.doesNotThrow(
+  () => new Function(scriptBlocks[0]),
+  '内联的 third-party 库也必须是合法 JavaScript'
 );
 
 assert.match(
