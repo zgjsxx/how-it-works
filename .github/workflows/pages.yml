@@ -1,0 +1,54 @@
+name: Deploy to GitHub Pages
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+# 只读仓库内容，写入 Pages，OIDC 令牌由 GitHub 签发
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+# 同一时间只允许一个部署；新的推送会取消排队中的旧任务
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+jobs:
+  # 先把关：测试不过就不部署
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      - name: Run regression tests
+        run: node tests/5mwh-bess.test.js
+
+  deploy:
+    needs: verify
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/configure-pages@v4
+      - name: Assemble site
+        run: |
+          # 只发布站点真正需要的东西，避免 node_modules / tests / 配置文件被公开
+          mkdir -p _site
+          cp index.html _site/
+          cp -r energy ai assets _site/
+          cp LICENSE _site/ 2>/dev/null || true
+          cp README.md _site/ 2>/dev/null || true
+      - name: Upload site
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: _site
+      - name: Deploy
+        id: deployment
+        uses: actions/deploy-pages@v4
