@@ -31,44 +31,11 @@ h2{color:#f0f6ff}h3{color:#dceaff}strong{color:#78b6ff}.muted{color:var(--sub)}.
 </style>
 </head>
 <body>
-<header class="hero"><div class="topbar"><a href="../../">← 返回 how-it-works</a><span class="mono">ENERGY / BMS / CELL MODEL</span></div><div class="wrap"><div class="chip">BMS 算法 · 单节电芯 · 互动教程</div><h1>一阶 RC 模型<br>看懂单节电芯的<em>动态电压</em></h1><p>从 RC 低通电路到 Thevenin 等效模型：用可调参数曲线理解 R₀、R₁、C₁ 如何共同塑造单节电芯的端电压响应。</p><div class="legend"><span>单节电芯建模</span><span>公式逐步推导</span><span>可调参数曲线</span><span>MCU 离散递推</span></div></div></header>
+<header class="hero"><div class="topbar"><a href="../../">← 返回 how-it-works</a><span class="mono">ENERGY / BMS / CELL MODEL</span></div><div class="wrap"><div class="chip">BMS 算法 · 单节电芯 · 互动教程</div><h1>一阶 RC 模型<br>看懂单节电芯的<em>动态电压</em></h1><p>以单节电芯的端电压动态为对象，结合可调参数曲线理解 R₀、R₁、C₁ 如何共同塑造瞬时压降与极化响应。</p><div class="legend"><span>单节电芯建模</span><span>公式逐步推导</span><span>可调参数曲线</span><span>MCU 离散递推</span></div></div></header>
 <div class="layout">
-<aside class="side"><strong>学习目录</strong><a href="#s1">01 学习目标</a><a href="#s2">02 两种 RC 电路</a><a href="#s3">03 BMS 电路结构</a><a href="#s4">04 电流分流方程</a><a href="#s5">05 推导指数公式</a><a href="#s6">06 电压变化演示</a><a href="#s7">07 离散算法</a><a href="#s8">08 小测试与总结</a></aside>
+<aside class="side"><strong>学习目录</strong><a href="#s1">01 建模目标</a><a href="#s3">02 模型构成与变量定义</a><a href="#s4">03 支路电流平衡</a><a href="#s5">04 连续时间解析解</a><a href="#s6">05 参数灵敏度实验</a><a href="#s7">06 离散时间实现</a><a href="#s8">07 知识核验</a></aside>
 <main>
 <section id="s1"><div class="tag">01 · 从结果认识问题</div><h2>我们到底想算什么？</h2><p>假设电池静置时测到 <b>3.80 V</b>，现在突然让它以 <b>10 A</b> 放电：电池端电压不是始终不变，而是先<strong>突然下降</strong>，然后<strong>缓慢下降</strong>。停电流后，又会先突然回升，再缓慢恢复。</p><div class="highlight">一阶 RC 模型的第一个任务：<strong>给定电流，预测电池端电压随时间变化的曲线</strong>。在 SOC 估算中，还可以用“预测电压与实测电压的差”辅助修正 SOC。</div><p>全程采用约定：<strong>放电电流 I 为正</strong>，先用单体电芯、恒温以及短时间内 OCV 近似不变的例子学习。</p></section>
-<section id="s2"><div class="tag">02 · 先解决你提过的疑问</div><h2>一阶 RC 到底是串联还是并联？</h2><p>你之前发过的电路是<strong>经典 RC 低通滤波器</strong>：串联一个 R，输出端接一个对地的 C。这当然属于一阶 RC 系统。</p><div class="grid2"><div><h3>电子电路中的 RC 低通</h3><div class="diagram"><svg viewBox="0 0 600 270" role="img" aria-label="经典一阶 RC 低通：输入 Vi 经过串联电阻 R，电容 C 从输出节点连接到下方参考线，输出 Vo 取电容两端">
-  <g fill="none" stroke="#29475c" stroke-width="4" stroke-linecap="round" stroke-linejoin="round">
-    <path d="M55 105 H185 M280 105 H430 H540"/>
-    <rect x="185" y="87" width="95" height="36" rx="7" fill="#ffe5c7"/>
-    <path d="M430 105 V166 M430 204 V238 H55"/>
-    <path d="M399 166 H461 M399 204 H461"/>
-  </g>
-  <g font-family="Arial,Microsoft YaHei,sans-serif" font-size="24" text-anchor="middle">
-    <text x="73" y="77" fill="#cf6d2a">Vi</text>
-    <text x="232" y="76" fill="#29475c">R</text>
-    <text x="493" y="193" fill="#118a76">C</text>
-    <text x="520" y="77" fill="#1769aa">Vo</text>
-  </g>
-  <text x="60" y="259" fill="#597184" font-size="16" font-family="Arial,Microsoft YaHei,sans-serif">输出 Vo 取电容上下两端电压</text>
-</svg></div><div class="formula">\[RC\frac{dV_o}{dt}+V_o=V_i\]</div></div><div><h3>BMS 中的一阶极化支路</h3><div class="diagram"><svg viewBox="0 0 600 270" role="img" aria-label="BMS 一阶极化支路：电阻 R1 与电容 C1 并联，两端极化电压 U1，电流 I 从左侧流入">
-  <g fill="none" stroke="#29475c" stroke-width="4" stroke-linecap="round" stroke-linejoin="round">
-    <path d="M48 147 H145 V104 H245 M350 104 H455 V147 H552"/>
-    <path d="M145 147 V210 H279 M321 210 H455 V147"/>
-    <rect x="245" y="86" width="105" height="36" rx="7" fill="#deebf9"/>
-    <path d="M279 186 V234 M321 186 V234"/>
-  </g>
-  <circle cx="145" cy="147" r="5" fill="#29475c"/><circle cx="455" cy="147" r="5" fill="#29475c"/>
-  <g font-family="Arial,Microsoft YaHei,sans-serif" text-anchor="middle">
-    <text x="300" y="77" font-size="23" fill="#29475c">R₁</text>
-    <text x="300" y="257" font-size="23" fill="#118a76">C₁</text>
-    <text x="76" y="131" font-size="22" fill="#d66b26">I</text>
-    <text x="300" y="30" font-size="24" fill="#0b927e">U₁</text>
-  </g>
-  <g fill="none" stroke="#0b927e" stroke-width="2.4" stroke-linecap="round">
-    <path d="M145 47 V62 M455 47 V62 M145 54 H455"/>
-  </g>
-  <path d="M145 54 l11 -6 v12 z M455 54 l-11 -6 v12 z" fill="#0b927e"/>
-</svg></div><div class="formula">\[R_1C_1\frac{dU_1}{dt}+U_1=IR_1\]</div></div></div><p><strong>它们的数学形式都是一阶微分方程</strong>，因此都有指数式的变化。区别在于：前者用输入电压驱动，后者的极化支路用电池电流驱动。</p></section>
 <section id="s3"><div class="tag">03 · 对照整个电池模型</div><h2>OCV、R₀、R₁、C₁、U₁ 到底在哪？</h2><div class="diagram"><svg viewBox="0 0 760 335" role="img" aria-label="单体一阶 Thevenin 等效电路：OCV 电压源串联 R0 与并联 R1 C1 极化支路，输出端电压为 Vt">
   <g fill="none" stroke="#29475c" stroke-width="4" stroke-linecap="round" stroke-linejoin="round">
     <path d="M83 110 H175 M265 110 H340 M570 110 H675"/>
@@ -145,6 +112,41 @@ function plot(){
  let times=[0,Math.round(tau),Math.round(2*tau),Math.round(3*tau),240];times=[...new Set(times.filter(t=>t<=240))].sort((a,b)=>a-b);byId('pointTable').innerHTML=times.map(t=>`<tr><td>${t} s</td><td>${fmt(u(t))} V</td><td><b>${fmt(v(t))} V</b></td></tr>`).join('');
 }
 function check(btn){let root=btn.closest('.question'),name=root.querySelector('input').name,selected=root.querySelector(`input[name="${name}"]:checked`),answer=root.querySelector('.answer');if(!selected){answer.textContent='请先选择一个答案。';answer.classList.add('show');return}let message=root.dataset.answer===selected.value?'✓ 答对了！ ':'还差一点。 ';let original={'q1':'R₁、C₁ 是模型参数，U₁ 是并联支路两端的极化电压。','q2':'当 I=0 时，U₁ 按指数规律逐渐衰减到零，不会瞬间消失。','q3':'τ=R₁C₁，C₁ 增大，τ 增大，动态响应就更慢。'};answer.textContent=message+original[name];answer.classList.add('show')}
+function setTutorialText(selector,text){const node=document.querySelector(selector);if(node)node.textContent=text}
+function formalizeTutorial(){
+ setTutorialText('#s1 .tag','01 · 建模目标');setTutorialText('#s1 h2','一阶 RC 模型的端电压预测目标');
+ setTutorialText('#s3 .tag','02 · 单节电芯一阶 Thevenin 模型');setTutorialText('#s3 h2','模型构成、电压极性与变量定义');
+ setTutorialText('#s4 .tag','03 · 支路电流平衡');setTutorialText('#s4 h2','R₁-C₁ 极化支路的状态方程');
+ setTutorialText('#s5 .tag','04 · 连续时间解析解');setTutorialText('#s5 h2','极化电压的指数响应');
+ setTutorialText('#s6 .tag','05 · 参数灵敏度实验');setTutorialText('#s6 h2','参数变化对端电压响应的影响');
+ setTutorialText('#s7 .tag','06 · 离散时间实现');setTutorialText('#s7 h2','MCU 采样周期下的状态递推');
+ setTutorialText('#s8 .tag','07 · 知识核验');setTutorialText('#s8 h2','一阶 RC 模型知识核验');setTutorialText('#s8 h3','核心公式');
+ const s3=document.querySelector('#s3');if(s3){
+  const diagram=s3.querySelector('.diagram');if(diagram)diagram.innerHTML=`<svg viewBox="0 0 880 400" role="img" aria-label="单节电芯一阶 Thevenin 等效电路：OCV电压源串联R0，并接R1 C1极化支路，输出端为Vt">
+   <defs><marker id="arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0 0L10 5L0 10z" fill="#cfe4ff"/></marker></defs>
+   <style>.circuit{fill:none;stroke:#cfe4ff;stroke-width:4;stroke-linecap:round;stroke-linejoin:round}.thin{fill:none;stroke:#cfe4ff;stroke-width:2.5;stroke-linecap:round}.symbol{fill:#e7f1ff;font:italic 27px Georgia,'Times New Roman',serif}.detail{fill:#a9bfdb;font:500 16px Arial,'Microsoft YaHei',sans-serif}.node{fill:#cfe4ff}.ocv{fill:#d9ebff;stroke:#9dcbff;stroke-width:4}.r0{fill:#ffe0ae;stroke:#f0b660;stroke-width:3}.r1{fill:#d8f0e4;stroke:#75c6aa;stroke-width:3}.cap{stroke:#61d3c7;stroke-width:6}.polarity{stroke:#1767bd;stroke-width:3.5;stroke-linecap:round}</style>
+   <g class="circuit"><path d="M122 136H216M306 136H366M366 136H430M518 136H600M600 136H684"/><path d="M366 136V250H448M500 250H600V136"/><path d="M122 136V182M122 254V330H684"/></g>
+   <circle cx="122" cy="218" r="36" class="ocv"/><g class="polarity"><path d="M114 207H130M122 199V215M114 234H130"/></g><text x="68" y="210" text-anchor="end" class="symbol">OCV</text><text x="68" y="233" text-anchor="end" class="detail">开路电压</text>
+   <rect x="216" y="121" width="90" height="30" class="r0"/><text x="261" y="107" text-anchor="middle" class="symbol">R₀</text>
+   <rect x="430" y="121" width="88" height="30" class="r1"/><text x="474" y="107" text-anchor="middle" class="symbol">R₁</text>
+   <g class="cap" stroke-linecap="round"><path d="M448 222V278M500 222V278"/></g><text x="474" y="306" text-anchor="middle" class="symbol">C₁</text>
+   <path d="M164 92H207" class="thin" marker-end="url(#arrow)"/><text x="185" y="77" text-anchor="middle" class="symbol">I</text>
+   <g class="thin"><path d="M366 76H600" marker-start="url(#arrow)" marker-end="url(#arrow)"/><path d="M366 76V108M600 76V108"/></g><text x="383" y="66" class="symbol">+</text><text x="583" y="66" class="symbol">−</text><text x="483" y="61" text-anchor="middle" class="symbol">U₁</text>
+   <circle cx="684" cy="136" r="6" fill="#071221" stroke="#cfe4ff" stroke-width="3"/><circle cx="684" cy="330" r="6" fill="#071221" stroke="#cfe4ff" stroke-width="3"/><path d="M724 136V330" class="thin" marker-start="url(#arrow)" marker-end="url(#arrow)"/><text x="700" y="129" class="symbol">+</text><text x="700" y="348" class="symbol">−</text><text x="746" y="239" class="symbol">Vₜ</text><text x="746" y="263" class="detail">端电压</text>
+   <circle cx="366" cy="136" r="5" class="node"/><circle cx="600" cy="136" r="5" class="node"/><text x="440" y="374" text-anchor="middle" class="detail">放电电流 I 取正值</text>
+  </svg>`;
+  const legend=s3.querySelector('.legend');if(legend)legend.innerHTML='<span>OCV：平衡开路电压</span><span>R₀：欧姆内阻</span><span>R₁∥C₁：极化支路</span><span>U₁：极化压降</span>';
+  const paragraphs=s3.querySelectorAll(':scope > p');if(paragraphs[0])paragraphs[0].innerHTML='在放电电流 <strong>I₍d₎ &gt; 0</strong> 的符号约定下，端电压由开路电压扣除欧姆压降与极化压降得到。';
+  const note=s3.querySelector('.note');if(note)note.innerHTML='<strong>变量边界：</strong>U₁ 为 R₁∥C₁ 支路左端相对右端的电压；R₁ 为极化电阻，C₁ 为极化电容。端电压表达式中扣除的是 U₁。';
+  if(!s3.querySelector('.second-order-note'))s3.insertAdjacentHTML('beforeend','<div class="highlight second-order-note"><strong>延伸：二阶 Thevenin 模型。</strong>在一阶模型基础上增加第二组极化支路 R₂∥C₂，以同时描述较快和较慢的两种动态过程。此时状态量为 SOC、U₁、U₂，端电压为 <span class="math-fallback">Vₜ = OCV(SOC) − IR₀ − U₁ − U₂</span>。二阶模型精度更高，但参数辨识、计算量和调参难度也随之增加。</div>');
+ }
+ const s4=document.querySelector('#s4');if(s4){const p=s4.querySelector(':scope > p');if(p)p.textContent='极化支路满足基尔霍夫电流定律。输入电流在并联电阻与电容支路之间分配。'}
+ const s5=document.querySelector('#s5');if(s5){const h=s5.querySelector('.highlight');if(h)h.innerHTML='<strong>物理含义：</strong>极化电压的变化速率与其相对稳态值 IR₁ 的偏差成正比，因此呈现指数响应。'}
+ const s6=document.querySelector('#s6');if(s6){const p=s6.querySelector(':scope > p');if(p)p.textContent='假设电芯充分静置后以恒定电流放电，并在短时间内将 OCV 视为常量。以下参数用于观察端电压的瞬态响应。';setTutorialText('#s6 h3','参数影响')}
+ const s7=document.querySelector('#s7');if(s7){const p=s7.querySelector(':scope > p');if(p)p.innerHTML='连续时间模型可按采样周期 Δt 离散化。在每个采样周期内电流近似恒定时，极化电压满足<strong>离散递推式</strong>。'}
+ const s8=document.querySelector('#s8');if(s8){const p=s8.querySelector('.muted');if(p)p.textContent='后续可通过 HPPC 脉冲试验辨识 R₀、R₁、C₁，并将模型用于 SOC-EKF 状态估算。'}
+}
+formalizeTutorial();
 ['i','r0','r1','c1'].forEach(id=>byId(id).addEventListener('input',plot));plot();
 </script>
 </body></html>

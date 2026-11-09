@@ -4,6 +4,9 @@ const path = require('node:path');
 
 const ROOT = path.join(__dirname, '..');
 const page = fs.readFileSync(path.join(ROOT, 'energy/5mwh-bess/index.html'), 'utf8');
+const home = fs.readFileSync(path.join(ROOT, 'index.html'), 'utf8');
+
+assert.match(home, /href="energy\/5mwh-bess\/index\.html"/, '首页储能教程入口应兼容本地文件模式');
 
 assert.doesNotMatch(
   page,

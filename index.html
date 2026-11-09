@@ -135,7 +135,7 @@ footer a:hover{color:#b8d4f5}
   <div class="section-label">ENERGY</div>
   <div class="grid">
 
-    <a class="card" href="energy/5mwh-bess/">
+    <a class="card" href="energy/5mwh-bess/index.html">
       <div class="thumb">
         <svg viewBox="0 0 340 132" fill="none">
           <!-- 集装箱剖切示意 -->
@@ -176,23 +176,28 @@ footer a:hover{color:#b8d4f5}
       </div>
     </a>
 
-    <a class="card" href="energy/bms-rc-model/">
+    <a class="card" href="energy/bms-rc-model/index.html">
       <div class="thumb">
-        <svg viewBox="0 0 340 132" fill="none" aria-label="BMS 一阶 RC 等效电路示意">
-          <path d="M38 78 H86 M142 78 H180 M250 78 H301" stroke="rgba(142,200,255,.82)" stroke-width="2"/>
-          <rect x="86" y="67" width="56" height="22" rx="4" fill="rgba(245,165,36,.24)" stroke="rgba(245,185,72,.82)"/>
-          <text x="114" y="82" fill="#ffd58a" font-size="11" text-anchor="middle" font-family="monospace">R₀</text>
-          <path d="M180 78 V48 H250 M180 78 V108 H208 M222 108 H250 V78" stroke="rgba(142,200,255,.82)" stroke-width="2"/>
-          <rect x="208" y="37" width="42" height="22" rx="4" fill="rgba(74,144,255,.25)" stroke="rgba(132,190,255,.8)"/>
-          <path d="M208 96 V119 M222 96 V119" stroke="#4af0d9" stroke-width="2"/>
-          <text x="229" y="32" fill="#9dcbff" font-size="10" text-anchor="middle" font-family="monospace">R₁</text>
-          <text x="216" y="129" fill="#72f2dd" font-size="10" text-anchor="middle" font-family="monospace">C₁</text>
-          <circle cx="38" cy="96" r="17" fill="rgba(74,144,255,.17)" stroke="rgba(114,182,255,.75)" stroke-width="1.5"/>
-          <path d="M38 61 V79 M38 113 V123 H301" stroke="rgba(142,200,255,.82)" stroke-width="2"/>
-          <text x="38" y="101" fill="#cfe5ff" font-size="12" text-anchor="middle" font-family="monospace">OCV</text>
-          <text x="302" y="70" fill="#59e4d5" font-size="10" font-family="monospace">Vₜ</text>
-          <path d="M160 58 H176" stroke="#f5a524" stroke-width="2"/><path d="M176 58 l-7 -4 v8 z" fill="#f5a524"/>
-          <text x="165" y="50" fill="#f5c567" font-size="10" text-anchor="middle" font-family="monospace">I</text>
+        <svg viewBox="0 0 340 132" fill="none" aria-label="BMS 一阶 Thevenin 等效电路：OCV串联R0和R1 C1并联极化支路，输出端为Vt">
+          <defs><marker id="thumb-arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="5" markerHeight="5" orient="auto"><path d="M0 0L10 5L0 10z" fill="#cfe4ff"/></marker></defs>
+          <g fill="none" stroke="rgba(190,220,250,.9)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M42 57H86M131 57H153M153 57H191M233 57H254M254 57H288"/>
+            <path d="M153 57V93H199M215 93H254V57"/>
+            <path d="M42 57V71M42 99V112H288"/>
+          </g>
+          <circle cx="42" cy="85" r="14" fill="rgba(80,154,246,.34)" stroke="#82bcff" stroke-width="1.8"/>
+          <path d="M37 81H47M42 76V86M37 92H47" stroke="#dceeff" stroke-width="1.5" stroke-linecap="round"/>
+          <text x="26" y="86" fill="#dbeaff" font-size="9" text-anchor="end" font-family="monospace">OCV</text>
+          <rect x="86" y="48" width="45" height="18" rx="3" fill="rgba(245,165,36,.35)" stroke="#f3bb68" stroke-width="1.5"/>
+          <text x="108.5" y="43" fill="#ffe0a5" font-size="10" text-anchor="middle" font-family="Georgia,serif">R₀</text>
+          <rect x="191" y="48" width="42" height="18" rx="3" fill="rgba(76,203,167,.28)" stroke="#82d3b8" stroke-width="1.5"/>
+          <text x="212" y="43" fill="#c7f1e3" font-size="10" text-anchor="middle" font-family="Georgia,serif">R₁</text>
+          <path d="M199 82V103M215 82V103" stroke="#55ddcf" stroke-width="3" stroke-linecap="round"/>
+          <text x="207" y="118" fill="#82eee3" font-size="10" text-anchor="middle" font-family="Georgia,serif">C₁</text>
+          <circle cx="153" cy="57" r="3" fill="#d7ebff"/><circle cx="254" cy="57" r="3" fill="#d7ebff"/>
+          <path d="M58 37H78" stroke="#cfe4ff" stroke-width="1.7" marker-end="url(#thumb-arrow)"/><text x="68" y="31" fill="#dbeaff" font-size="10" text-anchor="middle" font-family="Georgia,serif">I</text>
+          <circle cx="288" cy="57" r="4" fill="#0d1b2e" stroke="#cfe4ff" stroke-width="1.7"/><circle cx="288" cy="112" r="4" fill="#0d1b2e" stroke="#cfe4ff" stroke-width="1.7"/>
+          <text x="298" y="61" fill="#dbeaff" font-size="12" font-family="Arial">+</text><text x="298" y="116" fill="#dbeaff" font-size="12" font-family="Arial">−</text><text x="307" y="91" fill="#8fd7ff" font-size="10" font-family="Georgia,serif">Vₜ</text>
         </svg>
       </div>
       <div class="body">
