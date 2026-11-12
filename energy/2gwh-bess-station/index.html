@@ -1,66 +1,615 @@
 <!doctype html>
 <html lang="zh-CN">
 <head>
-<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>2GWh 储能电站｜系统构成与连接 · how-it-works</title>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>500MW/2000MWh 储能电站 · 写实工程场景 V4</title>
+<script type="importmap">
+{
+  "imports":{
+    "three":"https://cdn.jsdelivr.net/npm/three@0.171.0/build/three.module.js",
+    "three/addons/":"https://cdn.jsdelivr.net/npm/three@0.171.0/examples/jsm/"
+  }
+}
+</script>
 <style>
-:root{--bg:#050913;--panel:#0d1b2d;--panel2:#10263a;--line:rgba(102,184,255,.28);--text:#edf5ff;--muted:#9cb4d0;--cyan:#45e0d2;--blue:#65aaff;--amber:#f5b85a;--red:#ff806d}*{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;background:radial-gradient(1000px 650px at 50% -10%,#123862 0,transparent 64%),linear-gradient(180deg,#07101e,#04070d);color:var(--text);font-family:Inter,"Microsoft YaHei",system-ui,sans-serif;line-height:1.65}body:before{content:"";position:fixed;inset:0;pointer-events:none;opacity:.42;background-image:linear-gradient(rgba(84,146,216,.055) 1px,transparent 1px),linear-gradient(90deg,rgba(84,146,216,.055) 1px,transparent 1px);background-size:64px 64px;z-index:-1}.topbar,.hero,.wrap{max-width:1240px;margin:auto;padding-left:24px;padding-right:24px}.topbar{display:flex;justify-content:space-between;align-items:center;padding-top:24px;font-size:12px}.topbar a{color:#b6d6fa;text-decoration:none;border:1px solid var(--line);background:#091526;padding:6px 11px;border-radius:7px}.mono{color:#68e5d8;letter-spacing:.14em;font-size:10px}.hero{padding-top:46px;padding-bottom:32px}.eyebrow{font-size:12px;font-weight:800;letter-spacing:.14em;color:#62e3d6}.hero h1{font-size:clamp(32px,5vw,58px);line-height:1.12;letter-spacing:-.045em;margin:12px 0 15px}.hero em{font-style:normal;color:#6fe5ff}.hero p{max-width:760px;margin:0;color:#b7c9e2;font-size:17px}.chips{display:flex;flex-wrap:wrap;gap:9px;margin-top:22px}.chips span{padding:5px 10px;border:1px solid var(--line);border-radius:99px;color:#bad4ed;background:rgba(33,90,144,.17);font-size:12px}.layout{display:grid;grid-template-columns:minmax(0,1fr) 306px;gap:18px;max-width:1240px;margin:0 auto;padding:0 24px 44px}.stage-card,.info,.section{background:linear-gradient(145deg,rgba(16,37,62,.95),rgba(6,15,28,.96));border:1px solid var(--line);border-radius:18px;box-shadow:0 20px 60px rgba(0,0,0,.25)}.stage-card{overflow:hidden}.toolbar{display:flex;gap:8px;align-items:center;padding:13px 15px;border-bottom:1px solid var(--line);background:rgba(6,15,28,.6);flex-wrap:wrap}.toolbar button{cursor:pointer;border:1px solid rgba(105,177,244,.3);background:#10243a;color:#b9d4ed;border-radius:8px;padding:7px 11px;font:600 12px inherit}.toolbar button.active{background:#176878;border-color:#61e6de;color:white}.hint{margin-left:auto;color:#8099b9;font-size:12px}.stage{height:620px;position:relative;overflow:hidden;perspective:1150px;background:radial-gradient(ellipse at 50% 18%,rgba(34,115,171,.22),transparent 57%),linear-gradient(180deg,#081729,#050b15)}.ground{position:absolute;inset:16% -15% -38%;transform:rotateX(66deg);transform-origin:center;background-image:linear-gradient(rgba(89,190,228,.17) 1px,transparent 1px),linear-gradient(90deg,rgba(89,190,228,.17) 1px,transparent 1px);background-size:36px 36px;border:1px solid rgba(73,190,232,.24);box-shadow:0 0 70px rgba(34,164,227,.18) inset}.world{position:absolute;left:50%;top:51%;width:1000px;height:720px;transform-style:preserve-3d;transform:translate(-50%,-50%) rotateX(57deg) rotateZ(-26deg) rotateY(0deg);transition:transform .18s ease-out;cursor:grab}.world.dragging{cursor:grabbing;transition:none}.zone{position:absolute;transform-style:preserve-3d}.feeder-zone{left:55px;top:80px;width:620px;height:430px;display:grid;grid-template-columns:repeat(4,1fr);grid-template-rows:repeat(5,1fr);gap:18px}.feeder{position:relative;border:1px solid rgba(83,224,214,.52);background:rgba(16,111,133,.16);box-shadow:0 0 15px rgba(48,227,214,.12) inset;transform-style:preserve-3d;transition:.25s}.feeder:before{content:attr(data-label);position:absolute;left:8px;top:7px;color:#baf8f0;font-size:10px;font-weight:800;transform:translateZ(8px)}.feeder.focus{border-color:#f7c86d;background:rgba(177,112,31,.22);box-shadow:0 0 28px rgba(255,188,85,.35)}.unit{position:absolute;width:29px;height:17px;background:linear-gradient(140deg,#d3e7ee,#5c86a8 45%,#20486b);border:1px solid #9fd8f4;box-shadow:0 2px 5px #0008;transform:translateZ(7px)}.unit:after{content:"";position:absolute;inset:4px 6px;background:#2ad6e0;box-shadow:0 0 7px #2ee3ef}.collector{left:718px;top:92px;width:75px;height:404px;border:2px solid #f2bd5a;background:rgba(174,114,31,.14);transform:translateZ(13px)}.collector:before{content:"35kV 集电母线";position:absolute;left:10px;top:130px;color:#ffdc9a;font-size:13px;font-weight:800;writing-mode:vertical-rl;letter-spacing:.08em}.bus-line{position:absolute;background:#45e0d2;box-shadow:0 0 10px #39d9d0}.bus-line.h{height:3px}.bus-line.v{width:3px}.transformer-yard{left:835px;top:130px;width:130px;height:340px}.transformer{position:absolute;left:18px;width:88px;height:86px;border:2px solid #f2b850;border-radius:8px;background:linear-gradient(145deg,#6b4a2b,#2b2a2e);transform:translateZ(18px);box-shadow:0 0 18px rgba(245,184,80,.23)}.transformer:before{content:"⚡";position:absolute;inset:9px 0 auto;text-align:center;color:#ffe3a0;font-size:29px}.transformer span{position:absolute;bottom:9px;width:100%;text-align:center;color:#ffe4aa;font-size:11px;font-weight:800}.gis{position:absolute;left:979px;top:233px;width:56px;height:110px;border:2px solid #74c9ff;border-radius:6px;background:#12344e;transform:translateZ(17px)}.gis:before{content:"220kV\A GIS";white-space:pre;position:absolute;inset:29px 0;text-align:center;font-size:11px;line-height:1.6;color:#bce7ff;font-weight:800}.grid-tower{position:absolute;left:1090px;top:206px;width:42px;height:145px;border-left:3px solid #b7d5e9;border-right:3px solid #b7d5e9;transform:skewX(-13deg) translateZ(13px)}.grid-tower:before,.grid-tower:after{content:"";position:absolute;width:70px;left:-15px;border-top:2px solid #b7d5e9}.grid-tower:before{top:42px}.grid-tower:after{top:83px}.line-label{position:absolute;transform:translateZ(24px);font-size:11px;font-weight:800;white-space:nowrap;color:#a9d4f6}.flow{position:absolute;height:3px;background:linear-gradient(90deg,#48e4d8,#f5c162);box-shadow:0 0 12px #48e4d8;transform-origin:left;transform:translateZ(28px)}.flow:after{content:"";position:absolute;right:-1px;top:-4px;border-left:9px solid #f5c162;border-top:5px solid transparent;border-bottom:5px solid transparent}.stage-label{position:absolute;left:17px;bottom:14px;color:#a9c4e2;font-size:12px}.legend3d{position:absolute;right:18px;bottom:14px;display:flex;gap:11px;font-size:11px;color:#9fb9d7}.legend3d b{color:#6fe7df}.info{padding:18px;align-self:start}.info .kicker{font-size:11px;font-weight:800;letter-spacing:.12em;color:#58dfd4}.info h2{font-size:23px;line-height:1.28;margin:7px 0 10px}.info p{color:#a9c0da;font-size:14px;margin:0 0 16px}.metric{padding:12px 0;border-top:1px solid var(--line)}.metric:first-of-type{border-top:0}.metric span{color:#8fa9c6;font-size:12px}.metric b{display:block;font-size:20px;color:#ecf6ff;margin-top:3px}.metric b em{font-style:normal;color:#68e3d6}.callout{margin-top:16px;border-left:3px solid #f5b85a;background:rgba(127,85,30,.16);padding:11px 12px;border-radius:0 8px 8px 0;color:#d8e7f7;font-size:13px}.sections{max-width:1240px;margin:0 auto;padding:0 24px 60px}.section{padding:25px;margin:22px 0}.section h2{font-size:25px;margin:0 0 9px}.section>p{color:#abc2db;margin:0 0 18px}.chain{display:grid;grid-template-columns:repeat(7,1fr);gap:10px}.chain div{position:relative;min-height:98px;padding:13px;border:1px solid var(--line);border-radius:12px;background:#0a192a}.chain div:not(:last-child):after{content:"→";position:absolute;right:-17px;top:35px;z-index:2;color:#59e1d5;font-size:20px}.chain b{display:block;color:#70e7dc;font-size:13px;margin-bottom:6px}.chain span{font-size:12px;color:#b7cde4}.grid2{display:grid;grid-template-columns:1fr 1fr;gap:15px}.mini{padding:18px;border:1px solid var(--line);border-radius:12px;background:rgba(12,29,47,.75)}.mini h3{margin:0 0 7px;font-size:17px;color:#dcecff}.mini p{margin:0;color:#a9c1db;font-size:14px}.note{font-size:13px;color:#9db7d4;border-left:3px solid #5adfd4;padding:10px 13px;background:rgba(23,101,111,.12);border-radius:0 8px 8px 0}@media(max-width:980px){.layout{grid-template-columns:1fr}.info{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}.info h2,.info p,.info .kicker,.callout{grid-column:1/-1}.metric{border-top:0}.chain{grid-template-columns:repeat(4,1fr)}.chain div:nth-child(4):after{display:none}}@media(max-width:700px){.topbar,.hero,.wrap,.layout,.sections{padding-left:15px;padding-right:15px}.stage{height:490px}.world{transform:translate(-50%,-50%) scale(.72) rotateX(57deg) rotateZ(-26deg)}.info{display:block}.chain,.grid2{grid-template-columns:1fr}.chain div:after{display:none}.hint{margin-left:0}.hero{padding-top:34px}}
-.stage>.ground,.stage>.world{display:none}.scene-canvas{display:block;width:100%;height:100%;touch-action:none;cursor:grab}.scene-canvas.dragging{cursor:grabbing}.scene-tag{position:absolute;top:16px;left:17px;padding:6px 10px;border:1px solid rgba(107,215,255,.35);background:rgba(4,13,24,.76);border-radius:7px;color:#c5e7ff;font-size:11px;pointer-events:none}.scene-tag b{color:#59e8dd}.scene-notice{position:absolute;inset:0;display:grid;place-items:center;color:#b8d0e8;background:#081627}.scene-notice[hidden]{display:none}
+:root{color-scheme:dark;--ink:#071016;--panel:rgba(8,18,24,.76);--line:rgba(220,235,240,.18);--txt:#edf2f2;--muted:#93a1a5;--signal:#ffb347;--cyan:#72d5e8}
+*{box-sizing:border-box}
+html,body{margin:0;height:100%;overflow:hidden;background:var(--ink);font-family:"Microsoft YaHei","PingFang SC",system-ui,sans-serif;color:var(--txt)}
+#app,#view{position:absolute;inset:0;width:100%;height:100%}#view{display:block;outline:0}
+.hud{position:absolute;inset:0;pointer-events:none}
+.top{position:absolute;left:22px;top:18px;display:flex;gap:14px;align-items:flex-start}
+.title{padding:13px 15px 12px;border-left:3px solid var(--signal);background:linear-gradient(90deg,rgba(6,12,16,.78),rgba(6,12,16,.28));text-shadow:0 2px 5px #000}
+.title b{display:block;font-size:22px;letter-spacing:.04em}.title span{display:block;margin-top:6px;color:#b7c5c8;font:12px/1.45 ui-monospace,monospace}
+.ctrls{position:absolute;right:18px;top:18px;display:flex;gap:7px;flex-wrap:wrap;justify-content:flex-end;max-width:660px;pointer-events:auto}
+button,select{min-height:38px;padding:0 11px;border:1px solid rgba(232,228,218,.30);background:rgba(8,14,18,.70);color:#e8e4da;border-radius:0;font:12px "Microsoft YaHei";cursor:pointer;backdrop-filter:blur(6px)}
+button:hover,select:hover{border-color:#e8e4da;background:rgba(30,36,40,.78)}button.active{color:#111;background:var(--signal);border-color:var(--signal)}
+.panel{position:absolute;bottom:18px;background:rgba(7,14,18,.76);border:1px solid var(--line);backdrop-filter:blur(8px);padding:13px 14px;text-shadow:0 1px 4px #000}
+#legend{left:18px;width:300px}#info{right:18px;width:348px}
+.panel h3{margin:0 0 10px;font-size:12px;letter-spacing:.14em;color:var(--muted)}
+.row{display:flex;justify-content:space-between;gap:14px;padding:5px 0;font-size:12px}.row b{font-weight:600}
+.sw{display:inline-block;width:12px;height:12px;margin-right:8px;vertical-align:-2px;border:1px solid rgba(255,255,255,.2)}
+#kv{display:grid;grid-template-columns:88px 1fr;gap:7px 10px;font-size:12px;line-height:1.45}.k{color:#8fa0a5}.v{color:#f0f5f5}
+#tip{position:absolute;left:50%;bottom:19px;transform:translateX(-50%);padding:8px 12px;background:rgba(7,14,18,.65);border-top:1px solid rgba(255,179,71,.65);font:11px ui-monospace,monospace;color:#b6c3c6}
+#boot{position:absolute;inset:0;z-index:50;display:flex;align-items:center;justify-content:center;background:#071016;transition:opacity .55s}
+#boot.done{opacity:0;pointer-events:none}.bootbox{width:min(360px,72vw)}.bootname{font-size:28px;font-weight:800;letter-spacing:.14em}.bootsub{font:11px ui-monospace,monospace;color:#89979b;margin:8px 0 12px}.bar{height:2px;background:#222b2e}.bar i{display:block;width:0;height:100%;background:var(--signal);transition:width .3s}
+#fatal{position:absolute;left:0;right:0;bottom:0;z-index:100;background:rgba(55,10,5,.9);color:#ffb4a8;font:12px/1.45 ui-monospace,monospace;padding:10px;display:none}
+@media(max-width:850px){.title b{font-size:16px}.title span{display:none}.ctrls{top:78px;left:18px;right:18px;max-width:none;justify-content:flex-start}#legend{width:230px}#info{width:260px}}
 </style>
 </head>
 <body>
-<div class="topbar"><a href="../../index.html">← 返回 how-it-works</a><span class="mono">ENERGY / BESS / 2GWH STATION</span></div>
-<header class="hero"><div class="eyebrow">INTERACTIVE BESS SYSTEM TOPOLOGY</div><h1>2GWh 储能电站：<br><em>从电池舱到 220kV 并网</em></h1><p>以 500MW / 2000MWh、4 小时储能电站为示例，三维查看电池舱、PCS 升压单元、35kV 集电线路、主变与并网点的层级构成和连接关系。</p><div class="chips"><span>示意拓扑</span><span>可拖拽旋转</span><span>20 回集电线</span><span>2 台主变</span><span>220kV 并网</span></div></header>
-<main class="layout"><section class="stage-card"><div class="toolbar"><button class="active" data-view="overview">站级总览</button><button data-view="feeder">单回集电</button><button data-view="grid">升压并网</button><span class="hint">拖拽旋转 · 滚轮缩放 · 点击视图聚焦</span></div><div class="stage" id="stage"><div class="ground"></div><div class="world" id="world"><div class="zone feeder-zone" id="feeders"></div><div class="zone collector" id="collector"></div><div class="zone transformer-yard"><div class="transformer" style="top:28px"><span>主变 #1<br>35/220kV</span></div><div class="transformer" style="top:186px"><span>主变 #2<br>35/220kV</span></div></div><div class="zone gis"></div><div class="zone grid-tower"></div><div class="flow" style="left:670px;top:285px;width:72px"></div><div class="flow" style="left:802px;top:285px;width:64px"></div><div class="flow" style="left:965px;top:285px;width:70px"></div><div class="flow" style="left:1040px;top:285px;width:62px"></div><div class="line-label" style="left:60px;top:35px">20 回 35kV 集电线路（每回 5 个储能单元）</div><div class="line-label" style="left:827px;top:105px;color:#ffe1a3">2 × 250MW 主变</div><div class="line-label" style="left:1000px;top:365px">220kV 并网点</div></div><div class="stage-label" id="stageLabel">站级总览：20 回集电线路汇入 35kV 母线，经 2 台主变升压至 220kV。</div><div class="legend3d"><span><b>青色</b> 储能/集电</span><span><b>琥珀</b> 升压/并网</span></div></div></section><aside class="info"><div class="kicker">当前视图</div><h2 id="infoTitle">2GWh 电站系统总览</h2><p id="infoText">三维模型按功能分区呈现规模关系；设施尺寸、设备间距和电缆路径均为教学示意。</p><div class="metric"><span>单个储能单元</span><b>5MW / <em>20MWh</em></b></div><div class="metric"><span>单回集电线路</span><b>25MW / <em>100MWh</em></b></div><div class="metric"><span>项目规模</span><b>500MW / <em>2000MWh</em></b></div><div class="callout">连接关系：4 个 5MWh 电池舱构成 1 个 5MW/20MWh 储能单元；5 个单元构成 1 回 35kV 集电线路；20 回集电线路由 2 台主变接入 220kV 电网。</div></aside></main>
-<div class="sections"><section class="section"><h2>系统层级与连接链路</h2><p>系统从直流电池舱逐级汇集到交流并网点。功率和能量在各层级的聚合关系如下。</p><div class="chain"><div><b>电池舱</b><span>4 × 5MWh</span></div><div><b>储能单元</b><span>PCS + 升压<br>5MW / 20MWh</span></div><div><b>单回集电</b><span>5 个单元<br>25MW / 100MWh</span></div><div><b>集电系统</b><span>20 回 35kV<br>500MW / 2GWh</span></div><div><b>35kV 母线</b><span>分段汇集</span></div><div><b>主变</b><span>2 × 35/220kV</span></div><div><b>并网点</b><span>220kV GIS / 电网</span></div></div></section><section class="section"><h2>三类关键连接</h2><div class="grid2"><div class="mini"><h3>01 · 直流侧：电池舱至 PCS</h3><p>每个 5MW/20MWh 储能单元由 4 个 5MWh 电池舱组成，电池舱的直流侧通过汇流与保护设备接入 PCS。</p></div><div class="mini"><h3>02 · 中压侧：PCS 至集电线路</h3><p>PCS 将直流电变换为交流电，并经单元升压接入 35kV 集电线路；每回线路汇集 5 个储能单元。</p></div><div class="mini"><h3>03 · 高压侧：集电母线至电网</h3><p>20 回 35kV 集电线路分段汇入母线，由两台主变升压至 220kV，经 GIS 与并网线路送出。</p></div><div class="mini"><h3>教学边界</h3><p>本页用于解释典型系统层级与能量/功率聚合关系，不替代一次系统设计、继电保护配置、短路计算或施工图。</p></div></div></section><div class="note">容量与功率口径：此示例采用 500MW / 2000MWh，即额定持续时长约 4 小时。实际项目的设备数量、主变容量、母线分段和接入电压应以项目设计文件为准。</div></div>
-<script>
-const feeders=document.getElementById('feeders');
-for(let i=1;i<=20;i++){const f=document.createElement('div');f.className='feeder';f.dataset.label='集电 #'+String(i).padStart(2,'0');for(let j=0;j<5;j++){const u=document.createElement('i');u.className='unit';u.style.left=(11+(j%3)*38)+'px';u.style.top=(27+Math.floor(j/3)*34)+'px';f.appendChild(u)}feeders.appendChild(f)}
-const world=document.getElementById('world'),stage=document.getElementById('stage');let rx=57,rz=-26,ry=0,scale=1,drag=false,sx=0,sy=0,brx=rx,bry=ry;
-function draw(){world.style.transform=`translate(-50%,-50%) scale(${scale}) rotateX(${rx}deg) rotateZ(${rz}deg) rotateY(${ry}deg)`}draw();
-stage.addEventListener('pointerdown',e=>{drag=true;sx=e.clientX;sy=e.clientY;brx=rx;bry=ry;world.classList.add('dragging');stage.setPointerCapture(e.pointerId)});stage.addEventListener('pointermove',e=>{if(!drag)return;ry=bry+(e.clientX-sx)*.18;rx=Math.max(35,Math.min(72,brx-(e.clientY-sy)*.12));draw()});stage.addEventListener('pointerup',e=>{drag=false;world.classList.remove('dragging');stage.releasePointerCapture(e.pointerId)});stage.addEventListener('wheel',e=>{e.preventDefault();scale=Math.max(.68,Math.min(1.35,scale-e.deltaY*.0007));draw()},{passive:false});
-const content={overview:{title:'2GWh 电站系统总览',text:'20 回集电线路以阵列形式布置，每回汇集 5 个储能单元，经 35kV 母线与 2 台主变接入 220kV 并网点。',label:'站级总览：20 回集电线路汇入 35kV 母线，经 2 台主变升压至 220kV。',pose:[57,-26,0,1]},feeder:{title:'单回 35kV 集电线路',text:'一个集电回路由 5 个 5MW/20MWh 储能单元组成，对应 25MW / 100MWh。模型中以琥珀色高亮一回线路。',label:'单回集电：5 个储能单元 → 25MW / 100MWh → 35kV 集电线路。',pose:[61,-18,6,1.2]},grid:{title:'升压与 220kV 并网',text:'20 回集电线路分段汇入 35kV 母线，功率由 2 台主变升压后，经 220kV GIS 与并网线路送入电网。',label:'升压并网：35kV 集电母线 → 2 台主变 → 220kV GIS / 并网点。',pose:[58,-35,-10,1.14]}};
-document.querySelectorAll('[data-view]').forEach(btn=>btn.addEventListener('click',()=>{const key=btn.dataset.view,c=content[key];document.querySelectorAll('[data-view]').forEach(x=>x.classList.toggle('active',x===btn));document.querySelectorAll('.feeder').forEach((x,i)=>x.classList.toggle('focus',key==='feeder'&&i===9));[rx,rz,ry,scale]=c.pose;draw();document.getElementById('infoTitle').textContent=c.title;document.getElementById('infoText').textContent=c.text;document.getElementById('stageLabel').textContent=c.label}));
+<div id="app">
+<canvas id="view" tabindex="0"></canvas>
+<div class="hud">
+  <div class="top"><div class="title"><b>500MW / 2000MWh 储能电站 · 写实工程场景 V7 · 高性能版</b><span>100 个 5MW/20MWh 单元 · 20 回 35kV 地下集电回路（电缆沟/电缆井/排管）· 2×主变 · 220kV GIS</span></div></div>
+  <div class="ctrls">
+    <button id="reset">总览</button><button id="topview">俯视</button><button id="walk">低机位</button><select id="quality"><option value="auto">画质：自动</option><option value="high">高</option><option value="medium">中</option><option value="low">低</option></select>
+    <button id="trenches" class="active">电缆沟/井</button><button id="labels" class="active">设备标识</button>
+    <select id="feeder"><option value="-1">全部 20 回集电线路</option></select>
+    <select id="time"><option value="day">晴天午后</option><option value="golden">傍晚</option><option value="night">夜间</option></select>
+  </div>
+  <div id="legend" class="panel">
+    <h3>PROJECT HIERARCHY / 项目层级</h3>
+    <div class="row"><span><i class="sw" style="background:#d7dbda"></i>5MWh 电池舱</span><b>400 台</b></div>
+    <div class="row"><span><i class="sw" style="background:#c48b41"></i>PCS + 升压一体机</span><b>100 套</b></div>
+    <div class="row"><span><i class="sw" style="background:#80878a"></i>35kV 主/支电缆沟 + 电缆井</span><b>20 回</b></div>
+    <div class="row"><span><i class="sw" style="background:#9b784d"></i>主变 35/220kV</span><b>2 台</b></div>
+    <div class="row"><span>单回集电线</span><b>5 单元 = 25MW/100MWh</b></div>
+  </div>
+  <div id="info" class="panel"><h3>ASSET INSPECTOR / 设备信息</h3><div id="kv"><div class="k">当前选择</div><div class="v">点击设备、单元或电缆井查看</div><div class="k">敷设方式</div><div class="v">35kV 集电线路不做斜向直连：PCS 出线先入接入井，经支沟进入本回主沟，再通过汇集转角井进入横向主通道，最后经进站井接入 35kV 配电装置</div></div></div>
+  <div id="tip">LMB 旋转 · RMB 平移 · 滚轮缩放 · 点击检查设备 · 选择集电线可单独高亮电缆沟路径</div>
+</div>
+<div id="boot"><div class="bootbox"><div class="bootname">储能场站 V4</div><div class="bootsub" id="bootmsg">正在构建程序材质与工程设备...</div><div class="bar"><i id="fill"></i></div></div></div>
+<div id="fatal"></div>
+</div>
+
+<script type="module">
+try{
+const THREE=await import("three");
+const {OrbitControls}=await import("three/addons/controls/OrbitControls.js");
+const {RoundedBoxGeometry}=await import("three/addons/geometries/RoundedBoxGeometry.js");
+
+const canvas=document.getElementById("view");
+const renderer=new THREE.WebGLRenderer({canvas,antialias:true,powerPreference:"high-performance",alpha:false,depth:true});
+renderer.outputColorSpace=THREE.SRGBColorSpace;
+renderer.toneMapping=THREE.ACESFilmicToneMapping;
+renderer.toneMappingExposure=.92;
+renderer.shadowMap.enabled=true;
+renderer.shadowMap.type=THREE.PCFSoftShadowMap;
+renderer.setPixelRatio(Math.min(devicePixelRatio,1.15));
+renderer.setSize(innerWidth,innerHeight,false);
+
+const scene=new THREE.Scene();
+scene.background=new THREE.Color(0xaebcc1);
+scene.fog=new THREE.FogExp2(0xaab8bc,.00145);
+
+const camera=new THREE.PerspectiveCamera(47,innerWidth/innerHeight,.2,1800);
+camera.position.set(430,270,430);
+camera.rotation.order="YXZ";
+const controls=new OrbitControls(camera,renderer.domElement);
+controls.enableDamping=true;controls.dampingFactor=.065;controls.target.set(20,0,15);
+controls.minDistance=30;controls.maxDistance=1050;controls.maxPolarAngle=Math.PI*.495;
+
+const ray=new THREE.Raycaster(),pointer=new THREE.Vector2();
+const clickable=[],feederGroups=[],labelSprites=[];
+const groups={trenches:new THREE.Group(),labels:new THREE.Group(),equipment:new THREE.Group(),yard:new THREE.Group()};
+scene.add(groups.trenches,groups.labels,groups.equipment,groups.yard);
+
+// ---------- procedural textures ----------
+function noiseCanvas(base=[128,128,128], size=256, grit=28, lines=false){
+ const c=document.createElement("canvas");c.width=c.height=size;const x=c.getContext("2d");
+ const im=x.createImageData(size,size);
+ for(let i=0;i<im.data.length;i+=4){
+   const n=(Math.random()-.5)*grit;
+   im.data[i]=Math.max(0,Math.min(255,base[0]+n));im.data[i+1]=Math.max(0,Math.min(255,base[1]+n));im.data[i+2]=Math.max(0,Math.min(255,base[2]+n));im.data[i+3]=255;
+ }
+ x.putImageData(im,0,0);
+ if(lines){x.globalAlpha=.18;x.strokeStyle="#171b1c";x.lineWidth=1;for(let i=0;i<size;i+=32){x.beginPath();x.moveTo(i,0);x.lineTo(i,size);x.stroke()}}
+ const t=new THREE.CanvasTexture(c);t.wrapS=t.wrapT=THREE.RepeatWrapping;t.colorSpace=THREE.SRGBColorSpace;return t;
+}
+function roughCanvas(size=256){
+ const c=document.createElement("canvas");c.width=c.height=size;const x=c.getContext("2d"),im=x.createImageData(size,size);
+ for(let i=0;i<im.data.length;i+=4){const v=150+Math.random()*95;im.data[i]=im.data[i+1]=im.data[i+2]=v;im.data[i+3]=255}
+ x.putImageData(im,0,0);const t=new THREE.CanvasTexture(c);t.wrapS=t.wrapT=THREE.RepeatWrapping;return t;
+}
+function corrugatedTexture(){
+ const c=document.createElement("canvas");c.width=256;c.height=128;const x=c.getContext("2d");
+ const g=x.createLinearGradient(0,0,256,0);
+ for(let i=0;i<=32;i++){let p=i/32;g.addColorStop(Math.max(0,p-.015),i%2?"#c2c7c8":"#e3e6e5");g.addColorStop(Math.min(1,p+.015),i%2?"#e5e8e7":"#bdc3c4")}
+ x.fillStyle=g;x.fillRect(0,0,256,128);
+ x.globalAlpha=.12;x.fillStyle="#815d41";for(let i=0;i<45;i++)x.fillRect(Math.random()*256,Math.random()*128,Math.random()*7+1,1);
+ const t=new THREE.CanvasTexture(c);t.wrapS=t.wrapT=THREE.RepeatWrapping;t.colorSpace=THREE.SRGBColorSpace;return t;
+}
+const texConcrete=noiseCanvas([128,130,126],256,34), rough=roughCanvas(), texAsphalt=noiseCanvas([53,57,58],256,22), texMetal=corrugatedTexture();
+texConcrete.repeat.set(20,20);rough.repeat.set(15,15);texAsphalt.repeat.set(20,20);texMetal.repeat.set(3,1);
+
+const MAT={
+ earth:new THREE.MeshStandardMaterial({color:0x63715e,roughness:1}),
+ concrete:new THREE.MeshStandardMaterial({map:texConcrete,roughnessMap:rough,roughness:.94,color:0xb7b7af}),
+ asphalt:new THREE.MeshStandardMaterial({map:texAsphalt,roughness:.92,color:0x6b6e6d}),
+ container:new THREE.MeshStandardMaterial({map:texMetal,roughness:.56,metalness:.28,color:0xe0e1dc}),
+ trim:new THREE.MeshStandardMaterial({color:0x667176,roughness:.58,metalness:.55}),
+ dark:new THREE.MeshStandardMaterial({color:0x252b2d,roughness:.65,metalness:.5}),
+ orange:new THREE.MeshStandardMaterial({color:0xb87932,roughness:.52,metalness:.28}),
+ transformer:new THREE.MeshStandardMaterial({color:0x8e704c,roughness:.62,metalness:.36}),
+ steel:new THREE.MeshStandardMaterial({color:0x727c7f,roughness:.46,metalness:.72}),
+ copper:new THREE.MeshStandardMaterial({color:0x9b6844,roughness:.38,metalness:.72}),
+ glass:new THREE.MeshPhysicalMaterial({color:0xa8c7d0,roughness:.16,metalness:0,transmission:.1,transparent:true,opacity:.75}),
+ grass:new THREE.MeshStandardMaterial({color:0x516b4a,roughness:1}),
+ yellow:new THREE.MeshStandardMaterial({color:0xc69c38,roughness:.75}),
+ trench:new THREE.MeshStandardMaterial({color:0x696d6a,roughness:.9}),
+ trenchHi:new THREE.MeshStandardMaterial({color:0xb28748,roughness:.68,emissive:0x221508,emissiveIntensity:.18}),
+ ins:new THREE.MeshStandardMaterial({color:0xd7d1c3,roughness:.42,metalness:.08})
+};
+
+// ---------- environment lighting ----------
+const hemi=new THREE.HemisphereLight(0xdceff5,0x505941,1.3);scene.add(hemi);
+const sun=new THREE.DirectionalLight(0xfff1d2,3.0);sun.position.set(-180,330,-120);sun.castShadow=true;
+sun.shadow.mapSize.set(1536,1536);sun.shadow.camera.left=-460;sun.shadow.camera.right=460;sun.shadow.camera.top=420;sun.shadow.camera.bottom=-420;
+sun.shadow.bias=-.00018;sun.shadow.normalBias=.018;sun.shadow.radius=2;scene.add(sun,sun.target);
+sun.target.position.set(0,0,0);
+const fill=new THREE.DirectionalLight(0x9ed7f4,.38);fill.position.set(260,90,240);scene.add(fill);
+
+// ---------- helpers ----------
+function mesh(g,m,x=0,y=0,z=0,parent=groups.equipment,data=null){
+ const o=new THREE.Mesh(g,m);o.position.set(x,y,z);o.castShadow=false;o.receiveShadow=true;if(data){o.userData=data;clickable.push(o)}parent.add(o);return o;
+}
+function box(w,h,d,m,x,y,z,parent=groups.equipment,data=null,bevel=.08){
+ const g=bevel>0?new RoundedBoxGeometry(w,h,d,2,Math.min(bevel,Math.min(w,h,d)*.12)):new THREE.BoxGeometry(w,h,d);
+ return mesh(g,m,x,y,z,parent,data);
+}
+function cyl(r,h,m,x,y,z,parent=groups.equipment,data=null,seg=16){
+ return mesh(new THREE.CylinderGeometry(r,r,h,seg),m,x,y,z,parent,data);
+}
+function pipe(a,b,r=.055,mat=MAT.steel,parent=groups.equipment){
+ const v=new THREE.Vector3().subVectors(b,a),L=v.length();const o=mesh(new THREE.CylinderGeometry(r,r,L,10),mat,0,0,0,parent);
+ o.position.copy(a).add(b).multiplyScalar(.5);o.quaternion.setFromUnitVectors(new THREE.Vector3(0,1,0),v.clone().normalize());return o;
+}
+function road(x,z,w,d){const o=box(w,.18,d,MAT.asphalt,x,.06,z,groups.yard,null,0);o.castShadow=false;return o}
+function lineMark(x,z,w,d,color=MAT.yellow){const o=box(w,.025,d,color,x,.165,z,groups.yard,null,0);o.castShadow=false;return o}
+
+function label(text,x,y,z,scale=20){
+ const c=document.createElement("canvas");c.width=900;c.height=160;const ct=c.getContext("2d");
+ ct.fillStyle="rgba(10,16,18,.78)";ct.fillRect(0,0,900,160);ct.fillStyle="#ffb347";ct.fillRect(0,0,7,160);
+ ct.fillStyle="#f1f2ec";ct.font='600 45px "Microsoft YaHei"';ct.textAlign="center";ct.textBaseline="middle";ct.fillText(text,462,80);
+ const tx=new THREE.CanvasTexture(c);tx.colorSpace=THREE.SRGBColorSpace;
+ const s=new THREE.Sprite(new THREE.SpriteMaterial({map:tx,transparent:true,depthTest:false}));s.position.set(x,y,z);s.scale.set(scale,scale*160/900,1);groups.labels.add(s);labelSprites.push(s);return s;
+}
+function fenceSegment(a,b){
+ const g=new THREE.Group();groups.yard.add(g);
+ pipe(new THREE.Vector3(a[0],1.45,a[1]),new THREE.Vector3(b[0],1.45,b[1]),.025,MAT.steel,g);
+ const dx=b[0]-a[0],dz=b[1]-a[1],L=Math.hypot(dx,dz),n=Math.max(1,Math.floor(L/6));
+ for(let i=0;i<=n;i++){const t=i/n,x=a[0]+dx*t,z=a[1]+dz*t;pipe(new THREE.Vector3(x,0,z),new THREE.Vector3(x,2.8,z),.035,MAT.steel,g)}
+}
+
+// ---------- base terrain / roads ----------
+box(1040,.5,780,MAT.earth,0,-.38,0,groups.yard,null,0);
+box(900,.16,680,MAT.concrete,-10,-.04,0,groups.yard,null,0);
+for(let z=-285;z<=285;z+=95){road(-60,z,670,10);lineMark(-60,z,640,.10)}
+for(let x=-355;x<=180;x+=65){road(x,0,10,590);lineMark(x,0,.10,565)}
+// outer green belts
+box(1000,.12,32,MAT.grass,0,.01,-365,groups.yard,null,0);box(1000,.12,32,MAT.grass,0,.01,365,groups.yard,null,0);
+
+// drainage
+for(let z=-300;z<=300;z+=95){box(650,.08,.75,MAT.dark,-60,.18,z+6.2,groups.yard,null,0)}
+
+
+// ---------- performance instancing ----------
+const instanced = {};
+function getInstanced(key, geometry, material, capacity, cast=false, recv=true, parent=groups.equipment){
+  if(instanced[key]) return instanced[key];
+  const im=new THREE.InstancedMesh(geometry,material,capacity);
+  im.instanceMatrix.setUsage(THREE.DynamicDrawUsage);
+  im.castShadow=cast; im.receiveShadow=recv; im.count=0;
+  parent.add(im);
+  instanced[key]={mesh:im,next:0};
+  return instanced[key];
+}
+const _dummy=new THREE.Object3D();
+function addInstance(bucket,x,y,z,rx=0,ry=0,rz=0,sx=1,sy=1,sz=1){
+  const i=bucket.next++;
+  _dummy.position.set(x,y,z);_dummy.rotation.set(rx,ry,rz);_dummy.scale.set(sx,sy,sz);_dummy.updateMatrix();
+  bucket.mesh.setMatrixAt(i,_dummy.matrix);bucket.mesh.count=bucket.next;bucket.mesh.instanceMatrix.needsUpdate=true;
+  return i;
+}
+const geoSmallBox=new THREE.BoxGeometry(1,1,1);
+const geoSmallCyl=new THREE.CylinderGeometry(1,1,1,12);
+
+// ---------- realistic container ----------
+let cabinNo=0,unitNo=0;
+function addHVAC(x,z,parent){
+ box(1.25,1.65,.65,MAT.trim,x,2.15,z,parent);
+ for(let i=-.38;i<=.38;i+=.19) box(.04,1.15,.04,MAT.dark,x+i,2.18,z+.34,parent,null,0);
+ cyl(.38,.08,MAT.dark,x,2.25,z+.39,parent,null,18).rotation.x=Math.PI/2;
+}
+function batteryContainer(cx,cz,unit,feeder,parent){
+ cabinNo++;
+ const d={type:"battery",name:`5MWh 电池舱 #${cabinNo}`,unit,feeder,energy:"约 5MWh",dc:"直流侧，典型约 1300V"};
+ const body=box(10.7,4.1,3.15,MAT.container,cx,2.18,cz,parent,d,.14); body.castShadow=true;
+ box(11.0,.32,3.35,MAT.dark,cx,.32,cz,parent);
+ box(11.0,.16,3.35,MAT.trim,cx,4.3,cz,parent);
+
+ const cornerBucket=getInstanced("batteryCorners",geoSmallBox,MAT.dark,1600,false,true);
+ for(const sx of[-5.25,5.25])for(const sz of[-1.45,1.45]) addInstance(cornerBucket,cx+sx,.35,cz+sz,0,0,0,.34,.42,.34);
+
+ const doorBucket=getInstanced("batteryDoors",geoSmallBox,MAT.trim,800,false,true);
+ const handleBucket=getInstanced("batteryHandles",geoSmallBox,MAT.dark,800,false,true);
+ for(const dz of[-.75,.75]){
+   addInstance(doorBucket,cx+5.4,2.2,cz+dz,0,0,0,.06,3.2,1.25);
+   addInstance(handleBucket,cx+5.46,2.2,cz+dz-.22,0,0,0,.08,.18,.08);
+ }
+
+ const hvacBucket=getInstanced("batteryHVAC",geoSmallBox,MAT.trim,400,false,true);
+ addInstance(hvacBucket,cx-3.4,2.15,cz+1.93,0,0,0,1.25,1.65,.65);
+
+ const fireBucket=getInstanced("batteryFireCab",geoSmallBox,MAT.orange,400,false,true);
+ addInstance(fireBucket,cx+3.4,1.4,cz+1.95,0,0,0,1.0,1.45,.7);
+
+ const hazardBucket=getInstanced("batteryHazard",geoSmallBox,MAT.yellow,400,false,true);
+ addInstance(hazardBucket,cx+5.47,2.7,cz,0,0,0,.035,.58,.75);
+ return body;
+}
+function pcsSkid(cx,cz,unit,feeder,parent){
+ const d={type:"pcs",name:`PCS + 升压一体机 · 单元 ${unit}`,unit,feeder,power:"约 5MW",path:"电池 DC → PCS 0.8kV AC → 箱变 35kV"};
+ // equipment plinth
+ box(7.8,.35,6.0,MAT.concrete,cx,.2,cz,parent);
+ const pcsBody=box(3.0,4.1,5.0,MAT.orange,cx-2.0,2.35,cz,parent,d,.12); pcsBody.castShadow=true;
+ // PCS vents
+ for(let z=-1.6;z<=1.6;z+=.52)box(.06,2.4,.28,MAT.dark,cx-.47,2.5,cz+z,parent,null,0);
+ // transformer part
+ const txBody=box(3.2,3.1,4.4,MAT.transformer,cx+2.05,1.85,cz,parent,d,.08); txBody.castShadow=true;
+ for(let x=-.9;x<=.9;x+=.36)box(.08,2.45,4.7,MAT.steel,cx+2.05+x,1.9,cz,parent,null,0);
+ // bushings
+ for(const z of[-1.2,0,1.2]){cyl(.18,1.1,MAT.ins,cx+2.1,4.0,cz+z,parent);cyl(.08,.6,MAT.copper,cx+2.1,4.75,cz+z,parent)}
+ // radiator / switch cubicle
+ box(.55,2.6,4.8,MAT.steel,cx+3.9,1.8,cz,parent);
+ return new THREE.Vector3(cx+4.1,.65,cz);
+}
+
+// ---------- cable trenches / wells ----------
+function trenchSeg(x1,z1,x2,z2,feeder,parent,main=false){
+ const a=new THREE.Vector3(x1,.14,z1),b=new THREE.Vector3(x2,.14,z2),v=new THREE.Vector3().subVectors(b,a),L=v.length();
+ const g=new THREE.Group();parent.add(g);
+ const baseMat = main ? MAT.trenchHi : MAT.trench;
+ // trench body
+ const body=mesh(new THREE.BoxGeometry(main?1.18:.92,.20,L),baseMat,0,0,0,g,{type:"trench",name:`35kV ${main?"主":"支"}电缆沟 #${feeder}`,feeder,laying:main?"主通道：地下电缆沟 / 局部排管":"支线：PCS 接入主电缆沟"});
+ body.position.copy(a).add(b).multiplyScalar(.5);
+ body.quaternion.setFromUnitVectors(new THREE.Vector3(0,0,1),v.clone().normalize());
+ body.castShadow=false;
+ // covers
+ const coverCount=Math.max(2,Math.floor(L/(main?6.5:4.8)));
+ for(let i=0;i<coverCount;i++){
+   const t=(i+.5)/coverCount;
+   const px=x1+(x2-x1)*t,pz=z1+(z2-z1)*t;
+   const coverBucket=getInstanced(main?"trenchCoversMain":"trenchCoversBranch",geoSmallBox,MAT.concrete,12000,false,true,groups.trenches); addInstance(coverBucket,px,.27,pz,0,0,0,main?0.92:0.70,.045,main?1.18:.92); const slab=coverBucket.mesh;
+   slab.castShadow=false;
+   // center seam
+   const seamBucket=getInstanced(main?"trenchSeamsMain":"trenchSeamsBranch",geoSmallBox,MAT.dark,12000,false,true,groups.trenches); addInstance(seamBucket,px,.30,pz,0,0,0,.04,.012,main?1.00:.74);
+ }
+ // edge paint, makes the route more "engineered"
+ const edgeOffset = (main?0.50:0.38);
+ const angle = Math.atan2(x2-x1, z2-z1);
+ for(const side of [-1,1]){
+   const ex1 = x1 + Math.cos(angle)*edgeOffset*side;
+   const ez1 = z1 - Math.sin(angle)*edgeOffset*side;
+   const ex2 = x2 + Math.cos(angle)*edgeOffset*side;
+   const ez2 = z2 - Math.sin(angle)*edgeOffset*side;
+   const stripe=mesh(new THREE.BoxGeometry(.06,.018,L),MAT.yellow,0,0,0,g);
+   stripe.position.set((ex1+ex2)/2,.295,(ez1+ez2)/2);
+   stripe.quaternion.setFromUnitVectors(new THREE.Vector3(0,0,1),v.clone().normalize());
+   stripe.castShadow=false;
+ }
+ return g;
+}
+function cableWell(x,z,feeder,parent,kind="分支井"){
+ const g=new THREE.Group();g.position.set(x,0,z);parent.add(g);
+ box(2.75,.18,2.75,MAT.trenchHi,0,.18,0,g,{type:"well",name:`集电线路 #${feeder} 电缆井`,feeder,role:`${kind}：分支 / 转弯 / 检修节点`},0);
+ box(2.35,.08,2.35,MAT.concrete,0,.32,0,g,null,0);
+ // 井盖分块
+ for(let ix of [-.62,0,.62]) box(.42,.028,2.00,MAT.dark,ix,.39,0,g,null,0);
+ // access handles
+ for(let ix of [-.62,0,.62]) box(.16,.02,.18,MAT.steel,ix,.41,-.58,g,null,0);
+ // corner bolts visual cue
+ for(const sx of[-.95,.95]) for(const sz of[-.95,.95]) cyl(.05,.03,MAT.steel,sx,.41,sz,g,null,10);
+ return g;
+}
+function roadSleeve(x,z,dir="x"){
+ const g=new THREE.Group();g.position.set(x,0,z);groups.trenches.add(g);
+ box(dir==="x"?4.8:1.3,.05,dir==="x"?1.3:4.8,MAT.concrete,0,.24,0,g,null,0);
+ if(dir==="x"){
+   for(let i=-2;i<=2;i++) cyl(.11,.10,MAT.yellow,i*.78,.31,0,g,null,12);
+ }else{
+   for(let i=-2;i<=2;i++) cyl(.11,.10,MAT.yellow,0,.31,i*.78,g,null,12);
+ }
+}
+// ---------- 100 units / 20 feeders ----------
+// Engineering routing rule:
+// PCS -> branch trench -> branch well -> feeder vertical main trench
+// -> feeder terminal well -> shared horizontal corridor -> turning well
+// -> station incoming corridor -> 35kV switchgear.
+// No diagonal/direct links are used.
+const feederX0=-335, feederDX=63, rowZ=[-205,65], unitDZ=43;
+
+// Shared station-side corridors.
+// Each row of 10 feeders first enters a horizontal collection corridor.
+const corridorZTop = -8;
+const corridorZBottom = 250;
+const stationEntryX = 238;
+const stationBusZ = [-58,58];
+
+// Draw shared horizontal corridors once.
+const sharedTop = new THREE.Group();
+const sharedBottom = new THREE.Group();
+groups.trenches.add(sharedTop,sharedBottom);
+
+trenchSeg(feederX0+21, corridorZTop, stationEntryX, corridorZTop, 0, sharedTop, true);
+trenchSeg(feederX0+21, corridorZBottom, stationEntryX, corridorZBottom, 0, sharedBottom, true);
+
+// Turning wells along shared corridors.
+for(let i=0;i<10;i++){
+  const tx = feederX0 + i*feederDX + 21;
+  cableWell(tx, corridorZTop, i+1, sharedTop, "汇集转角井");
+  cableWell(tx, corridorZBottom, i+11, sharedBottom, "汇集转角井");
+}
+
+// Station-side main incoming corridors: vertical, then horizontal to each bus section.
+trenchSeg(stationEntryX, corridorZTop, stationEntryX, stationBusZ[0], 0, sharedTop, true);
+cableWell(stationEntryX, corridorZTop, 0, sharedTop, "总站转角井");
+cableWell(stationEntryX, stationBusZ[0], 0, sharedTop, "进站总井");
+trenchSeg(stationEntryX, stationBusZ[0], 257, stationBusZ[0], 0, sharedTop, true);
+
+trenchSeg(stationEntryX, corridorZBottom, stationEntryX, stationBusZ[1], 0, sharedBottom, true);
+cableWell(stationEntryX, corridorZBottom, 0, sharedBottom, "总站转角井");
+cableWell(stationEntryX, stationBusZ[1], 0, sharedBottom, "进站总井");
+trenchSeg(stationEntryX, stationBusZ[1], 257, stationBusZ[1], 0, sharedBottom, true);
+
+for(let f=0;f<20;f++){
+ const row=f<10?0:1, idx=f%10, baseX=feederX0+idx*feederDX, baseZ=rowZ[row];
+ const fg=new THREE.Group();groups.trenches.add(fg);feederGroups.push(fg);
+ const trunkX=baseX+21;
+
+ // Each feeder has its own local vertical main trench beside its five units.
+ const localStartZ=baseZ-19;
+ const localEndZ=baseZ+4*unitDZ+19;
+ trenchSeg(trunkX,localStartZ,trunkX,localEndZ,f+1,fg,true);
+ cableWell(trunkX,localStartZ+9,f+1,fg,"端井");
+ cableWell(trunkX,baseZ+unitDZ*2,f+1,fg,"主井");
+ cableWell(trunkX,localEndZ-9,f+1,fg,"汇接井");
+
+ for(let u=0;u<5;u++){
+   unitNo++; const cz=baseZ+u*unitDZ;
+   const unitG=new THREE.Group();groups.equipment.add(unitG);
+
+   // Unit pad.
+   box(37,.12,22,MAT.concrete,baseX,.05,cz,unitG);
+   box(37,.06,.22,MAT.yellow,baseX,.17,cz-10.85,unitG);
+   box(37,.06,.22,MAT.yellow,baseX,.17,cz+10.85,unitG);
+   box(.22,.06,22,MAT.yellow,baseX-18.4,.17,cz,unitG);
+   box(.22,.06,22,MAT.yellow,baseX+18.4,.17,cz,unitG);
+
+   batteryContainer(baseX-10.0,cz-5.1,unitNo,f+1,unitG);
+   batteryContainer(baseX+1.0,cz-5.1,unitNo,f+1,unitG);
+   batteryContainer(baseX-10.0,cz+5.1,unitNo,f+1,unitG);
+   batteryContainer(baseX+1.0,cz+5.1,unitNo,f+1,unitG);
+   pcsSkid(baseX+13.2,cz,unitNo,f+1,unitG);
+
+   cyl(.34,.14,MAT.yellow,baseX-17.0,.3,cz-9.6,unitG,{
+     type:"unit",
+     name:`储能单元 #${unitNo}`,
+     unit:unitNo,
+     feeder:f+1,
+     rating:"5MW / 20MWh",
+     composition:"4×5MWh 电池舱 + 1×PCS/升压一体机"
+   });
+
+   // PCS only connects into a nearby access pit, then a short orthogonal branch trench
+   // reaches the feeder's local main trench.
+   box(1.4,.08,1.0,MAT.trench,baseX+16.5,.22,cz,unitG,{
+     type:"well",
+     name:`单元 #${unitNo} 接入井`,
+     feeder:f+1,
+     role:"PCS 出线先进入单元接入井，再经支沟接入本回主沟"
+   },0);
+   trenchSeg(baseX+17.0,cz,trunkX,cz,f+1,fg,false);
+   cableWell(trunkX,cz,f+1,fg,"分支井");
+
+   // Local DC service mark only.
+   box(12.5,.045,.28,MAT.dark,baseX+7.1,.19,cz,unitG,null,0);
+ }
+
+ // Feeder leaves the local main trench and runs orthogonally into the row collection corridor.
+ // Top row goes to corridorZTop; bottom row goes to corridorZBottom.
+ const targetCorridorZ = row===0 ? corridorZTop : corridorZBottom;
+ cableWell(trunkX,localEndZ,f+1,fg,"回路端井");
+ trenchSeg(trunkX,localEndZ,trunkX,targetCorridorZ,f+1,fg,true);
+ cableWell(trunkX,targetCorridorZ,f+1,fg,"汇集转角井");
+
+ // Road crossing is represented as an underground duct bank, not an exposed line.
+ roadSleeve(trunkX,targetCorridorZ,"z");
+}
+// ---------- 35kV switchgear buildings ----------
+road(300,0,190,12);road(300,-110,190,12);road(300,110,190,12);
+function switchHouse(x,z,sec,range){
+ const g=new THREE.Group();groups.equipment.add(g);
+ box(43,8.5,22,MAT.concrete,x,4.4,z,g,{type:"bus",name:`35kV 配电装置 / 母线 ${sec}段`,feeders:range,role:"集电线汇集、保护、计量及主变低压侧连接"},.12);
+ box(44,.45,23,MAT.trim,x,8.9,z,g);
+ // facade switchgear bays
+ for(let i=-17;i<=17;i+=4.3){box(3.2,5.4,.22,MAT.dark,x+i,3.7,z+11.15,g);box(.6,.32,.08,MAT.yellow,x+i,3.7,z+11.3,g)}
+ return g;
+}
+switchHouse(270,-58,"I","#1～#10");switchHouse(270,58,"II","#11～#20");
+
+// ---------- main transformers ----------
+function transformer(x,z,no){
+ const g=new THREE.Group();groups.equipment.add(g);
+ box(24,.35,18,MAT.concrete,x,.2,z,g);
+ const tank=box(11,6.8,8.5,MAT.transformer,x,3.8,z,g,{type:"transformer",name:`主变 #${no}`,rating:"约 250MVA",ratio:"35/220kV",section:no===1?"35kV I段":"35kV II段"},.18); tank.castShadow=true;
+ // radiators
+ for(const side of[-1,1])for(let i=-4;i<=4;i+=.65)box(.10,5.2,8.8,MAT.steel,x+side*(5.7+i*.0),3.7,z+i*.0,g,null,0);
+ for(let i=-3;i<=3;i+=1.0){box(.09,4.8,9.1,MAT.steel,x+5.65,3.65,z+i*.0,g,null,0);box(.09,4.8,9.1,MAT.steel,x-5.65,3.65,z+i*.0,g,null,0)}
+ // conservator
+ cyl(.75,5.2,MAT.transformer,x,8.0,z-1.8,g).rotation.z=Math.PI/2;
+ // bushings
+ for(const zz of[-2.5,0,2.5]){cyl(.32,2.0,MAT.ins,x-2.4,8.1,z+zz,g);cyl(.12,1.2,MAT.copper,x-2.4,9.55,z+zz,g)}
+ // fire wall
+ box(1.0,10,20,MAT.concrete,x+10.4,5,z,g);
+}
+transformer(335,-58,1);transformer(335,58,2);
+
+// ---------- 220kV GIS yard ----------
+const gisG=new THREE.Group();groups.equipment.add(gisG);
+box(102,.16,145,MAT.concrete,437,.05,0,gisG,{type:"gis",name:"220kV GIS / 高压配电区",voltage:"220kV",role:"两台主变高压侧汇集并接入电网"},0);
+for(let lane=0;lane<3;lane++){
+ const z=-44+lane*44;
+ for(let i=0;i<7;i++){
+  const x=405+i*12;
+  cyl(.32,8.5,MAT.steel,x,4.4,z,gisG);
+  cyl(.18,2.5,MAT.ins,x,9.4,z,gisG);
+  box(6,.28,.55,MAT.steel,x,8.7,z,gisG);
+  for(const dz of[-1.7,0,1.7])cyl(.14,2.9,MAT.ins,x+2.4,6.2,z+dz,gisG);
+ }
+}
+
+// gantry
+function tower(x,z,h=27){
+ const g=new THREE.Group();groups.equipment.add(g);
+ for(const sx of[-1,1])for(const sz of[-1,1])pipe(new THREE.Vector3(x+sx*4,0,z+sz*4),new THREE.Vector3(x+sx*.9,h,z+sz*.9),.13,MAT.steel,g);
+ pipe(new THREE.Vector3(x-10,h*.72,z),new THREE.Vector3(x+10,h*.72,z),.15,MAT.steel,g);
+ pipe(new THREE.Vector3(x-13,h*.55,z),new THREE.Vector3(x+13,h*.55,z),.15,MAT.steel,g);
+}
+tower(525,0,31);
+
+// control building
+const admin=new THREE.Group();groups.equipment.add(admin);
+box(48,10,30,MAT.concrete,310,5,170,admin,{type:"building",name:"综合楼 / 控制楼",role:"监控、通信、运维、继保"},.18);
+box(49,.6,31,MAT.trim,310,10.2,170,admin);
+for(let i=-17;i<=17;i+=7)for(let y=3;y<=7;y+=4)box(3.2,2,.10,MAT.glass,310+i,y,185.1,admin,null,0);
+
+// ---------- labels ----------
+label("储能区 · 100 个 5MW/20MWh 单元",-60,22,-318,62);
+label("35kV 配电装置",270,18,0,30);
+label("主变区 · 2×35/220kV",337,19,0,34);
+label("220kV GIS / 并网区",440,21,-75,34);
+
+// ---------- fence & greenery ----------
+const outline=[[-450,-340],[545,-340],[545,340],[-450,340],[-450,-340]];
+for(let i=0;i<outline.length-1;i++)fenceSegment(outline[i],outline[i+1]);
+const treeMat=new THREE.MeshStandardMaterial({color:0x35583b,roughness:1}),trunkMat=new THREE.MeshStandardMaterial({color:0x63503c,roughness:1});
+const treeTrunks=getInstanced("treeTrunks",geoSmallCyl,trunkMat,120,false,true,groups.yard);
+const treeCrowns=getInstanced("treeCrowns",new THREE.IcosahedronGeometry(1,1),treeMat,120,false,true,groups.yard);
+for(let i=0;i<100;i++){
+ let side=i%4,x,z;if(side<2){x=-450+Math.random()*995;z=(side===0?-358:358)+(Math.random()-.5)*16}else{x=(side===2?-468:563)+(Math.random()-.5)*16;z=-340+Math.random()*680}
+ addInstance(treeTrunks,x,1.4,z,0,0,0,.22,2.8,.22);
+ addInstance(treeCrowns,x,4.3,z,0,0,0,2.3,2.9,2.3);
+}
+
+// ---------- time presets ----------
+function setTime(mode){
+ if(mode==="day"){
+  scene.background.set(0xaebcc1);scene.fog.color.set(0xaab8bc);sun.color.set(0xfff1d2);sun.intensity=3;sun.position.set(-180,330,-120);hemi.intensity=1.3;fill.intensity=.38;renderer.toneMappingExposure=.92;
+ }else if(mode==="golden"){
+  scene.background.set(0x9b8172);scene.fog.color.set(0x9d8b80);sun.color.set(0xffb26b);sun.intensity=3.8;sun.position.set(-320,120,-150);hemi.color.set(0xb6c6d6);hemi.intensity=.9;fill.intensity=.22;renderer.toneMappingExposure=.86;
+ }else{
+  scene.background.set(0x07101a);scene.fog.color.set(0x0a1620);sun.color.set(0x87a8c8);sun.intensity=.35;sun.position.set(-120,260,-90);hemi.color.set(0x36506b);hemi.groundColor.set(0x111a12);hemi.intensity=.65;fill.intensity=.12;renderer.toneMappingExposure=.72;
+ }
+ sun.target.updateMatrixWorld();
+}
+
+// ---------- picking ----------
+const kv=document.getElementById("kv");
+function show(d){
+ const a=[];const add=(k,v)=>a.push(`<div class="k">${k}</div><div class="v">${v}</div>`);
+ add("当前选择",d.name||"设备");
+ if(d.type==="battery"){add("所属单元",`#${d.unit}`);add("所属集电线",`#${d.feeder}`);add("容量",d.energy);add("直流侧",d.dc)}
+ if(d.type==="pcs"){add("所属单元",`#${d.unit}`);add("所属集电线",`#${d.feeder}`);add("功率",d.power);add("能量路径",d.path)}
+ if(d.type==="unit"){add("规模",d.rating);add("组成",d.composition);add("所属集电线",`#${d.feeder}`)}
+ if(d.type==="trench"){add("所属回路",`#${d.feeder}`);add("敷设方式",d.laying)}
+ if(d.type==="well"){add("所属回路",`#${d.feeder}`);add("用途",d.role)}
+ if(d.type==="bus"){add("接入范围",d.feeders);add("功能",d.role)}
+ if(d.type==="transformer"){add("容量",d.rating);add("变比",d.ratio);add("对应母线",d.section)}
+ if(d.type==="gis"){add("电压等级",d.voltage);add("作用",d.role)}
+ if(d.type==="building")add("用途",d.role);
+ kv.innerHTML=a.join("");
+}
+renderer.domElement.addEventListener("pointerdown",e=>{
+ const r=renderer.domElement.getBoundingClientRect();pointer.x=(e.clientX-r.left)/r.width*2-1;pointer.y=-(e.clientY-r.top)/r.height*2+1;ray.setFromCamera(pointer,camera);
+ const h=ray.intersectObjects(clickable,true);if(h.length)show(h[0].object.userData);
+});
+
+// ---------- UI ----------
+const feeder=document.getElementById("feeder");for(let i=1;i<=20;i++){const o=document.createElement("option");o.value=i-1;o.textContent=`35kV 集电线路 #${i}`;feeder.appendChild(o)}
+function cam(x,y,z,tx,ty,tz){camera.position.set(x,y,z);controls.target.set(tx,ty,tz);controls.update()}
+document.getElementById("reset").onclick=()=>cam(430,270,430,20,0,15);
+document.getElementById("topview").onclick=()=>cam(0,720,.01,10,0,10);
+document.getElementById("walk").onclick=()=>cam(-135,13,275,-80,3,95);
+document.getElementById("trenches").onclick=e=>{e.currentTarget.classList.toggle("active");groups.trenches.visible=e.currentTarget.classList.contains("active")};
+document.getElementById("labels").onclick=e=>{e.currentTarget.classList.toggle("active");groups.labels.visible=e.currentTarget.classList.contains("active")};
+document.getElementById("time").onchange=e=>setTime(e.target.value);
+function detectQuality(){
+  if(/Android|iPhone|iPad|Mobile/i.test(navigator.userAgent)) return "low";
+  const cores=navigator.hardwareConcurrency||4;
+  const mem=navigator.deviceMemory||4;
+  if(cores<=4 || mem<=4) return "medium";
+  return "high";
+}
+function applyQuality(q){
+  if(q==="auto") q=detectQuality();
+  const dpr=window.devicePixelRatio||1;
+  if(q==="high"){
+    renderer.setPixelRatio(Math.min(dpr,1.35));
+    sun.shadow.mapSize.set(2048,2048);
+    renderer.shadowMap.enabled=true;
+    scene.fog.density=.00145;
+  }else if(q==="medium"){
+    renderer.setPixelRatio(Math.min(dpr,1.0));
+    sun.shadow.mapSize.set(1536,1536);
+    renderer.shadowMap.enabled=true;
+    scene.fog.density=.0016;
+  }else{
+    renderer.setPixelRatio(Math.min(dpr,.8));
+    sun.shadow.mapSize.set(1024,1024);
+    renderer.shadowMap.enabled=false;
+    scene.fog.density=.0018;
+  }
+  renderer.setSize(innerWidth,innerHeight,false);
+}
+const qualitySel=document.getElementById("quality");
+qualitySel.onchange=e=>applyQuality(e.target.value);
+applyQuality("auto");
+
+feeder.onchange=()=>{
+ const n=+feeder.value;
+ feederGroups.forEach((g,i)=>g.traverse(o=>{if(o.isMesh){ if(n<0){ if(o.userData && o.userData.type==="trench"){ o.material = o.userData.name.includes("主电缆沟") ? MAT.trenchHi : MAT.trench; } } else { o.material = (i===n) ? ((o.userData && o.userData.type==="trench" && o.userData.name.includes("主电缆沟")) ? MAT.trenchHi : MAT.yellow) : MAT.dark; } }}));
+ if(n>=0){const row=n<10?0:1,idx=n%10,x=feederX0+idx*feederDX,z=rowZ[row]+2*unitDZ;cam(x+70,95,z+90,x+5,0,z);show({type:"trench",name:`35kV 集电线路 #${n+1}`,feeder:n+1,laying:"5 个储能单元 → 接入井 → 支线电缆沟 → 分支井 → 本回主电缆沟 → 汇集转角井 → 横向汇集主通道 → 进站总井 → 35kV 配电装置"})}
+};
+window.addEventListener("resize",()=>{camera.aspect=innerWidth/innerHeight;camera.updateProjectionMatrix();renderer.setPixelRatio(Math.min(devicePixelRatio,1.15));renderer.setSize(innerWidth,innerHeight,false)});
+
+// ---------- boot ----------
+document.getElementById("fill").style.width="65%";
+setTimeout(()=>document.getElementById("fill").style.width="100%",180);
+setTimeout(()=>document.getElementById("boot").classList.add("done"),420);
+
+// ---------- render ----------
+const clock=new THREE.Clock();
+let lastFrame=0, running=true;
+document.addEventListener("visibilitychange",()=>{running=!document.hidden});
+function loop(now=0){
+ requestAnimationFrame(loop);
+ if(!running) return;
+ if(now-lastFrame<22) return; // ~45 fps cap; reduces GPU/CPU load while keeping motion smooth
+ lastFrame=now;
+ controls.update();
+ const t=clock.getElapsedTime();
+ fill.intensity+=(0.32+Math.sin(t*.14)*.015-fill.intensity)*.01;
+ renderer.render(scene,camera);
+}
+loop();
+
+}catch(err){
+ const f=document.getElementById("fatal");f.style.display="block";f.textContent="3D 场景运行错误：\n"+(err?.stack||err);
+ const b=document.getElementById("boot");if(b)b.classList.add("done");
+ console.error(err);
+}
 </script>
-<script src="https://unpkg.com/three@0.160.0/build/three.min.js"></script>
-<script>
-/* 站级三维场景：最小粒度为储能集装箱，4 个集装箱构成 1 个储能单元。 */
-(()=>{
-  const stage=document.getElementById('stage');
-  const canvas=document.createElement('canvas');canvas.className='scene-canvas';canvas.id='sceneCanvas';canvas.setAttribute('aria-label','2GWh储能电站三维鸟瞰模型');stage.prepend(canvas);
-  const tag=document.createElement('div');tag.className='scene-tag';tag.innerHTML='<b>三维站区示意</b> · 100 个储能单元 / 400 个电池集装箱';stage.append(tag);
-  const notice=document.createElement('div');notice.className='scene-notice';notice.textContent='正在加载三维站区…';stage.append(notice);
-  if(!window.THREE){notice.textContent='三维渲染组件未加载，请检查网络后刷新页面。';return}
-  const T=window.THREE, scene=new T.Scene(), renderer=new T.WebGLRenderer({canvas,antialias:true,powerPreference:'high-performance'});
-  renderer.setPixelRatio(Math.min(devicePixelRatio,2));renderer.shadowMap.enabled=true;renderer.shadowMap.type=T.PCFSoftShadowMap;renderer.outputColorSpace=T.SRGBColorSpace;renderer.toneMapping=T.ACESFilmicToneMapping;renderer.toneMappingExposure=1.12;
-  scene.background=new T.Color(0x0a1520);scene.fog=new T.Fog(0x0a1520,560,1550);
-  const camera=new T.PerspectiveCamera(39,1,1,2600), target=new T.Vector3(0,0,5);
-  const hemi=new T.HemisphereLight(0xb9dcff,0x17242a,2.2);scene.add(hemi);
-  const sun=new T.DirectionalLight(0xfff4dc,4.0);sun.position.set(-430,650,-300);sun.castShadow=true;sun.shadow.mapSize.set(2048,2048);sun.shadow.camera.left=-700;sun.shadow.camera.right=700;sun.shadow.camera.top=700;sun.shadow.camera.bottom=-700;scene.add(sun);
-  const fill=new T.DirectionalLight(0x5ccaff,1.3);fill.position.set(550,270,420);scene.add(fill);
-  const group=new T.Group();scene.add(group);
-  const mat={ground:new T.MeshStandardMaterial({color:0x31434b,roughness:.94}),road:new T.MeshStandardMaterial({color:0x252d32,roughness:.92}),concrete:new T.MeshStandardMaterial({color:0x81919a,roughness:.82}),container:new T.MeshStandardMaterial({color:0xd4dde1,metalness:.32,roughness:.42}),containerSide:new T.MeshStandardMaterial({color:0x9eafb9,metalness:.42,roughness:.47}),blue:new T.MeshStandardMaterial({color:0x1d7088,metalness:.48,roughness:.28}),dark:new T.MeshStandardMaterial({color:0x1c2a33,metalness:.66,roughness:.34}),copper:new T.MeshStandardMaterial({color:0xcb913c,metalness:.73,roughness:.26}),ins:new T.MeshStandardMaterial({color:0xb9d8e7,roughness:.26}),green:new T.MeshStandardMaterial({color:0x2b7d68,metalness:.35,roughness:.38}),glow:new T.MeshStandardMaterial({color:0x26c6cb,emissive:0x087b82,emissiveIntensity:1.9,roughness:.32})};
-  const box=(w,h,d,m,x,y,z,parent=group)=>{const a=new T.Mesh(new T.BoxGeometry(w,h,d),m);a.position.set(x,y,z);a.castShadow=a.receiveShadow=true;parent.add(a);return a};
-  const cyl=(r,h,m,x,y,z,parent=group)=>{const a=new T.Mesh(new T.CylinderGeometry(r,r,h,12),m);a.position.set(x,y,z);a.castShadow=a.receiveShadow=true;parent.add(a);return a};
-  box(1120,5,840,mat.ground,0,-3,0);box(1120,.7,34,mat.road,0,.4,-315);box(1120,.7,26,mat.road,0,.4,315);box(38,.7,840,mat.road,274,.4,0);
-  const labels=[];const feederUnits=[];
-  function container(x,z,rot=0){const g=new T.Group();g.position.set(x,3.0,z);g.rotation.y=rot;group.add(g);box(18,5.4,6.1,mat.container,0,0,0,g);box(18.35,.5,6.45,mat.containerSide,0,2.93,0,g);for(let i=-7;i<=7;i+=2.2)box(.14,4.2,6.2,mat.containerSide,i,-.2,0,g);box(2.4,1.4,.22,mat.dark,6.2,.35,3.18,g);box(1.9,.12,.08,mat.glow,6.2,.35,3.34,g);return g}
-  function unit(x,z,index){const u=new T.Group();u.position.set(x,0,z);group.add(u);box(47,.55,25,mat.concrete,0,.3,0,u);[-10,10].forEach(dx=>[-5.1,5.1].forEach(dz=>{const c=container(x+dx,z+dz);group.remove(c);u.add(c);c.position.sub(u.position)}));box(5.6,6.3,8.2,mat.blue,0,3.45,0,u);box(4.7,.14,6.7,mat.green,0,6.7,0,u);for(let n=-2;n<=2;n++)box(.18,3.5,.15,mat.dark,2.9,3.3,n*1.05,u);const id=box(5.8,.18,8.4,mat.glow,0,4.1,4.18,u);id.visible=false;feederUnits.push({u,id,index});return u}
-  for(let feeder=0;feeder<20;feeder++){const fx=(feeder%4)*128-190,fz=Math.floor(feeder/4)*118-236;const lane=new T.Group();group.add(lane);box(104,.18,92,new T.MeshStandardMaterial({color:0x42606a,roughness:.8,transparent:true,opacity:.32}),fx,.16,fz);for(let n=0;n<5;n++){const ux=fx+(n%3-1)*31,uz=fz+(n<3?-23:25);unit(ux,uz,feeder)}const trench=box(4,.25,89,mat.dark,fx+51,.38,fz);for(let z=-36;z<=36;z+=10)box(4,.11,6,mat.glow,fx+51,.55,fz+z);labels.push({x:fx,z:fz,id:feeder+1})}
-  for(let z=-250;z<=250;z+=118)box(550,.7,18,mat.road,-25,.48,z+53);
-  const sub=new T.Group();sub.position.set(405,0,0);group.add(sub);box(245,.55,390,mat.concrete,0,.25,0,sub);box(250,.18,395,mat.dark,0,.57,0,sub);
-  function transformer(z,no){const g=new T.Group();g.position.set(0,0,z);sub.add(g);box(68,17,42,mat.dark,0,9,0,g);box(73,2,47,mat.containerSide,0,18.5,0,g);for(const x of [-26,-20,-14,14,20,26])box(3,14,37,mat.blue,x,10,0,g);for(const x of [-18,0,18]){cyl(2.1,10,mat.copper,x,25,-8,g);cyl(3.1,2,mat.ins,x,30,-8,g)}box(54,1.2,3.2,mat.copper,0,23,19,g);box(6,6,5,mat.dark,-42,5,0,g);const p=new T.PointLight(0xf3b95e,.65,78);p.position.set(0,22,-18);g.add(p);}
-  transformer(-105,1);transformer(105,2);
-  const gis=new T.Group();gis.position.set(136,0,0);sub.add(gis);for(let z=-132;z<=132;z+=36){box(52,1.4,2,mat.dark,0,12,z,gis);for(const x of [-21,0,21]){cyl(1.2,22,mat.ins,x,11,z,gis);cyl(2.4,2,mat.copper,x,22.5,z,gis)}}box(8,3,292,mat.dark,-33,3,0,gis);box(8,3,292,mat.dark,33,3,0,gis);
-  const tower=new T.Group();tower.position.set(560,0,0);group.add(tower);for(let y=0;y<72;y+=12){box(2.6,15,2.6,mat.dark,-(y/72)*13,y+7,0,tower);box(2.6,15,2.6,mat.dark,(y/72)*13,y+7,0,tower);box(35,2,2.4,mat.dark,0,y+10,0,tower)}for(const y of [32,52,70]){box(63,2.3,2,mat.dark,0,y,0,tower);box(3,3,5,mat.ins,-28,y+3,0,tower);box(3,3,5,mat.ins,28,y+3,0,tower)}
-  const cableGeo=new T.BufferGeometry().setFromPoints([new T.Vector3(274,2,-105),new T.Vector3(338,2,-105),new T.Vector3(405,4,-105),new T.Vector3(541,20,0)]);group.add(new T.Line(cableGeo,new T.LineBasicMaterial({color:0xf3bc62})));const cableGeo2=new T.BufferGeometry().setFromPoints([new T.Vector3(274,2,105),new T.Vector3(338,2,105),new T.Vector3(405,4,105),new T.Vector3(541,20,0)]);group.add(new T.Line(cableGeo2,new T.LineBasicMaterial({color:0xf3bc62})));
-  const fenceMat=new T.LineBasicMaterial({color:0x698f99,transparent:true,opacity:.62});const fencePts=[[-545,-395],[545,-395],[545,395],[-545,395],[-545,-395]].map(p=>new T.Vector3(p[0],1,p[1]));group.add(new T.Line(new T.BufferGeometry().setFromPoints(fencePts),fenceMat));
-  let yaw=-.72,pitch=.74,radius=1110,drag=false,sx=0,sy=0,syaw=yaw,spitch=pitch;function placeCamera(){const cp=Math.cos(pitch);camera.position.set(target.x+radius*cp*Math.sin(yaw),target.y+radius*Math.sin(pitch),target.z+radius*cp*Math.cos(yaw));camera.lookAt(target)}
-  function resize(){const r=stage.getBoundingClientRect();renderer.setSize(r.width,r.height,false);camera.aspect=r.width/r.height;camera.updateProjectionMatrix()}resize();new ResizeObserver(resize).observe(stage);placeCamera();notice.hidden=true;
-  canvas.addEventListener('pointerdown',e=>{drag=true;sx=e.clientX;sy=e.clientY;syaw=yaw;spitch=pitch;canvas.setPointerCapture(e.pointerId);canvas.classList.add('dragging')});canvas.addEventListener('pointermove',e=>{if(!drag)return;yaw=syaw-(e.clientX-sx)*.007;pitch=Math.max(.27,Math.min(1.23,spitch+(e.clientY-sy)*.006));placeCamera()});canvas.addEventListener('pointerup',e=>{drag=false;canvas.releasePointerCapture(e.pointerId);canvas.classList.remove('dragging')});canvas.addEventListener('wheel',e=>{e.preventDefault();radius=Math.max(560,Math.min(1480,radius+e.deltaY*.65));placeCamera()},{passive:false});
-  const poses={overview:[-.72,.74,1110,new T.Vector3(15,0,0)],feeder:[-.5,.73,560,new T.Vector3(-120,0,-30)],grid:[-.92,.65,560,new T.Vector3(405,0,0)]};
-  document.querySelectorAll('[data-view]').forEach(button=>button.addEventListener('click',()=>{const key=button.dataset.view,p=poses[key];yaw=p[0];pitch=p[1];radius=p[2];target.copy(p[3]);feederUnits.forEach(item=>item.id.visible=key==='feeder'&&item.index===9);placeCamera();tag.innerHTML=key==='feeder'?'<b>集电 #10</b> · 5 个储能单元 / 20 个储能集装箱':key==='grid'?'<b>升压并网区</b> · 2 台 35/220kV 主变 + GIS':'<b>三维站区示意</b> · 100 个储能单元 / 400 个电池集装箱'}));
-  function render(){requestAnimationFrame(render);renderer.render(scene,camera)}render();
-})();
-</script>
-</body></html>
+</body>
+</html>
