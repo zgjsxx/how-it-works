@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<title>500MW/2000MWh 储能电站 · 写实工程场景 V4</title>
+<title>500MW / 2GWh 储能电站 · V7.3 电气设备与连接关系升级版</title>
 <script type="importmap">
 {
   "imports":{
@@ -35,16 +35,18 @@ button:hover,select:hover{border-color:#e8e4da;background:rgba(30,36,40,.78)}but
 #boot.done{opacity:0;pointer-events:none}.bootbox{width:min(360px,72vw)}.bootname{font-size:28px;font-weight:800;letter-spacing:.14em}.bootsub{font:11px ui-monospace,monospace;color:#89979b;margin:8px 0 12px}.bar{height:2px;background:#222b2e}.bar i{display:block;width:0;height:100%;background:var(--signal);transition:width .3s}
 #fatal{position:absolute;left:0;right:0;bottom:0;z-index:100;background:rgba(55,10,5,.9);color:#ffb4a8;font:12px/1.45 ui-monospace,monospace;padding:10px;display:none}
 @media(max-width:850px){.title b{font-size:16px}.title span{display:none}.ctrls{top:78px;left:18px;right:18px;max-width:none;justify-content:flex-start}#legend{width:230px}#info{width:260px}}
+#walkHUD{position:absolute;inset:0;pointer-events:none}#walkHUD[hidden]{display:none}.crosshair{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);font:22px/1 monospace;color:#f2f1e8;text-shadow:0 1px 5px #17242f}.walkguide{position:absolute;bottom:65px;left:50%;transform:translateX(-50%);background:rgba(6,15,20,.68);padding:9px 13px;border:1px solid #ffffff24;color:#f2f0e8;white-space:nowrap;font-size:12px}#lockMouse{position:absolute;bottom:104px;left:50%;transform:translateX(-50%);pointer-events:auto;background:#ffb347;color:#151c1e;font-weight:700}#lockMouse[hidden]{display:none}.walk-hud button{z-index:5}@media(max-width:850px){.walkguide{bottom:60px;white-space:normal;width:min(95vw,500px);text-align:center}.ctrls{max-height:125px;overflow:auto}}
+#diag{position:absolute;left:18px;top:140px;z-index:12;min-width:300px;max-width:min(460px,calc(100vw - 36px));padding:12px 14px;background:rgba(4,13,18,.94);border:1px solid #84adba;color:#e8edf0;font:12px/1.5 ui-monospace,monospace;pointer-events:auto}#diag[hidden]{display:none}#diag>div{display:flex;align-items:center;justify-content:space-between;gap:10px}#diag pre{white-space:pre-wrap;margin:12px 0;font:12px/1.55 ui-monospace,monospace}#diag small{color:#bdcad0}#diag button{min-height:30px}#view{touch-action:none}#view:focus{outline:none}
 </style>
 </head>
 <body>
 <div id="app">
 <canvas id="view" tabindex="0"></canvas>
 <div class="hud">
-  <div class="top"><div class="title"><b>500MW / 2000MWh 储能电站 · 写实工程场景 V7 · 高性能版</b><span>100 个 5MW/20MWh 单元 · 20 回 35kV 地下集电回路（电缆沟/电缆井/排管）· 2×主变 · 220kV GIS</span></div></div>
+  <div class="top"><div class="title"><b>500MW / 2000MWh 储能电站 · 写实工程场景 V7.7 · 主变近端构架与AIS连续连接优化版</b><span>100 个 5MW/20MWh 单元 · 20 回 35kV 地下集电回路（电缆沟/电缆井/排管）· 2×主变 · 220kV GIS</span></div></div>
   <div class="ctrls">
-    <button id="reset">总览</button><button id="topview">俯视</button><button id="walk">低机位</button><select id="quality"><option value="auto">画质：自动</option><option value="high">高</option><option value="medium">中</option><option value="low">低</option></select>
-    <button id="trenches" class="active">电缆沟/井</button><button id="labels" class="active">设备标识</button>
+    <button id="reset">全站总览</button><button id="topview">俯视</button><button id="detailView">储能舱特写</button><button id="thirdPerson" class="active">第三人称 · 鸟瞰</button><button id="firstPerson">第一人称 · 漫游</button><select id="quality"><option value="safe" selected>安全（推荐）</option><option value="medium">中</option><option value="high">高</option><option value="low">极低</option></select>
+    <button id="detailToggle" title="全站远景自动隐藏精细零件">细节：自动</button><button id="diagToggle">性能诊断</button><button id="trenches" class="active">电缆沟/井</button><button id="labels" class="active">设备标识</button>
     <select id="feeder"><option value="-1">全部 20 回集电线路</option></select>
     <select id="time"><option value="day">晴天午后</option><option value="golden">傍晚</option><option value="night">夜间</option></select>
   </div>
@@ -57,105 +59,211 @@ button:hover,select:hover{border-color:#e8e4da;background:rgba(30,36,40,.78)}but
     <div class="row"><span>单回集电线</span><b>5 单元 = 25MW/100MWh</b></div>
   </div>
   <div id="info" class="panel"><h3>ASSET INSPECTOR / 设备信息</h3><div id="kv"><div class="k">当前选择</div><div class="v">点击设备、单元或电缆井查看</div><div class="k">敷设方式</div><div class="v">35kV 集电线路不做斜向直连：PCS 出线先入接入井，经支沟进入本回主沟，再通过汇集转角井进入横向主通道，最后经进站井接入 35kV 配电装置</div></div></div>
-  <div id="tip">LMB 旋转 · RMB 平移 · 滚轮缩放 · 点击检查设备 · 选择集电线可单独高亮电缆沟路径</div>
+  <div id="tip">第三人称：左键拖动旋转 / 右键拖动平移 / 滚轮缩放 / 单击选择设备 · 第一人称：WASD 移动 / 按住左键拖动画面转向 / Shift 加速 / V 切视角；鼠标锁定为可选</div><div id="walkHUD" class="walk-hud" hidden><div class="crosshair">+</div><div class="walkguide">第一人称漫游 · WASD 移动 · 按住左键拖动转向 · Shift 加速 · V 返回第三人称</div><button id="lockMouse">可选：锁定鼠标（Esc 退出）</button></div>
 </div>
-<div id="boot"><div class="bootbox"><div class="bootname">储能场站 V4</div><div class="bootsub" id="bootmsg">正在构建程序材质与工程设备...</div><div class="bar"><i id="fill"></i></div></div></div>
-<div id="fatal"></div>
+<div id="boot"><div class="bootbox"><div class="bootname">储能场站 V7.7</div><div class="bootsub" id="bootmsg">正在生成高保真主变、连接附件与全站场景...</div><div class="bar"><i id="fill"></i></div></div></div>
+<div id="fatal"></div><div id="diag" hidden><div><b>渲染诊断</b><button id="copyDiag">复制诊断</button></div><pre id="diagText">初始化中…</pre><small>若浏览器窗口直接消失，请查看 chrome://crashes、chrome://gpu、Windows 事件查看器或 macOS 崩溃报告。此页无法捕获浏览器进程崩溃。</small></div>
 </div>
 
 <script type="module">
 try{
 const THREE=await import("three");
-const {OrbitControls}=await import("three/addons/controls/OrbitControls.js");
 const {RoundedBoxGeometry}=await import("three/addons/geometries/RoundedBoxGeometry.js");
 
 const canvas=document.getElementById("view");
-const renderer=new THREE.WebGLRenderer({canvas,antialias:true,powerPreference:"high-performance",alpha:false,depth:true});
+const renderer=new THREE.WebGLRenderer({canvas,antialias:true,powerPreference:"default",alpha:false,depth:true});
+renderer.domElement.addEventListener('webglcontextlost',e=>{
+ e.preventDefault();
+ const f=document.getElementById('fatal');
+ f.style.display='block';
+ contextStatus='LOST';
+ f.textContent='图形设备上下文丢失（可能为 GPU/显存或预览器限制）。请在 Chrome/Edge 中打开文件，并尝试低画质。';
+});
 renderer.outputColorSpace=THREE.SRGBColorSpace;
 renderer.toneMapping=THREE.ACESFilmicToneMapping;
-renderer.toneMappingExposure=.92;
-renderer.shadowMap.enabled=true;
+renderer.toneMappingExposure=.96;
+renderer.shadowMap.enabled=false;
 renderer.shadowMap.type=THREE.PCFSoftShadowMap;
-renderer.setPixelRatio(Math.min(devicePixelRatio,1.15));
+renderer.setPixelRatio(Math.min(devicePixelRatio,1));
 renderer.setSize(innerWidth,innerHeight,false);
 
 const scene=new THREE.Scene();
 scene.background=new THREE.Color(0xaebcc1);
-scene.fog=new THREE.FogExp2(0xaab8bc,.00145);
+scene.fog=new THREE.FogExp2(0xaab8bc,.00118);
+
 
 const camera=new THREE.PerspectiveCamera(47,innerWidth/innerHeight,.2,1800);
 camera.position.set(430,270,430);
 camera.rotation.order="YXZ";
-const controls=new OrbitControls(camera,renderer.domElement);
-controls.enableDamping=true;controls.dampingFactor=.065;controls.target.set(20,0,15);
-controls.minDistance=30;controls.maxDistance=1050;controls.maxPolarAngle=Math.PI*.495;
+// 低风险第三人称轨道控制：不使用 Pointer Capture，不使用 Pointer Lock。
+// 视角旋转与设备拾取隔离：拖动时永不进行射线拾取。
+const orbitTarget=new THREE.Vector3(20,0,15);
+const controls={
+  enabled:true,target:orbitTarget,
+  minDistance:12,maxDistance:1050,maxPolarAngle:Math.PI*.495,
+  update(){if(this.enabled)camera.lookAt(this.target)}
+};
+renderer.domElement.style.touchAction='none';
+renderer.domElement.setAttribute('draggable','false');
+renderer.domElement.addEventListener('dragstart',e=>e.preventDefault());
+let orbitDrag=null;
+const orbitOffset=new THREE.Vector3();
+const orbitSph=new THREE.Spherical();
+function rotateOrbit(dx,dy){
+  orbitOffset.copy(camera.position).sub(orbitTarget);
+  orbitSph.setFromVector3(orbitOffset);
+  orbitSph.theta-=dx*.004;
+  orbitSph.phi=Math.max(.025,Math.min(controls.maxPolarAngle,orbitSph.phi-dy*.004));
+  orbitSph.makeSafe();
+  camera.position.copy(orbitTarget).add(orbitOffset.setFromSpherical(orbitSph));
+  controls.update();
+}
+function panOrbit(dx,dy){
+  const d=Math.max(1,camera.position.distanceTo(orbitTarget));
+  const right=new THREE.Vector3().setFromMatrixColumn(camera.matrix,0);
+  const up=new THREE.Vector3().setFromMatrixColumn(camera.matrix,1);
+  const delta=right.multiplyScalar(-dx*d*.0011).addScaledVector(up,dy*d*.0011);
+  camera.position.add(delta);orbitTarget.add(delta);controls.update();
+}
+function zoomOrbit(delta){
+  orbitOffset.copy(camera.position).sub(orbitTarget);
+  const distance=Math.max(controls.minDistance,Math.min(controls.maxDistance,orbitOffset.length()*Math.exp(delta*.001)));
+  camera.position.copy(orbitTarget).add(orbitOffset.normalize().multiplyScalar(distance));
+  controls.update();
+}
 
 const ray=new THREE.Raycaster(),pointer=new THREE.Vector2();
-const clickable=[],feederGroups=[],labelSprites=[];
+const clickable=[],feederGroups=[],labelSprites=[],walkObstacles=[];
 const groups={trenches:new THREE.Group(),labels:new THREE.Group(),equipment:new THREE.Group(),yard:new THREE.Group()};
 scene.add(groups.trenches,groups.labels,groups.equipment,groups.yard);
 
-// ---------- procedural textures ----------
-function noiseCanvas(base=[128,128,128], size=256, grit=28, lines=false){
- const c=document.createElement("canvas");c.width=c.height=size;const x=c.getContext("2d");
- const im=x.createImageData(size,size);
- for(let i=0;i<im.data.length;i+=4){
-   const n=(Math.random()-.5)*grit;
-   im.data[i]=Math.max(0,Math.min(255,base[0]+n));im.data[i+1]=Math.max(0,Math.min(255,base[1]+n));im.data[i+2]=Math.max(0,Math.min(255,base[2]+n));im.data[i+3]=255;
- }
- x.putImageData(im,0,0);
- if(lines){x.globalAlpha=.18;x.strokeStyle="#171b1c";x.lineWidth=1;for(let i=0;i<size;i+=32){x.beginPath();x.moveTo(i,0);x.lineTo(i,size);x.stroke()}}
- const t=new THREE.CanvasTexture(c);t.wrapS=t.wrapT=THREE.RepeatWrapping;t.colorSpace=THREE.SRGBColorSpace;return t;
+// ---------- game-inspired procedural surface system ----------
+// Inspired by the reference game's material pipeline: multi-scale noise, vertical grime,
+// micro scratches, paint wear, roughness variation and world-space detail. All maps are
+// generated locally at runtime, so no external texture pack is required.
+function seeded(seed){let a=seed>>>0;return()=>{a|=0;a=a+0x6D2B79F5|0;let t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296}}
+function hexRGB(h){const v=parseInt(h.replace('#',''),16);return[(v>>16)&255,(v>>8)&255,v&255]}
+function makeSurfaceMaps(opts={}){
+ const size=512, rng=seeded(opts.seed||17), base=hexRGB(opts.base||'#aeb8b7');
+ const c=document.createElement('canvas');c.width=c.height=size;const x=c.getContext('2d');
+ const g=x.createLinearGradient(0,0,0,size);g.addColorStop(0,`rgb(${Math.min(255,base[0]+15)},${Math.min(255,base[1]+16)},${Math.min(255,base[2]+16)})`);g.addColorStop(.42,`rgb(${base.join(',')})`);g.addColorStop(1,`rgb(${Math.max(0,base[0]-22)},${Math.max(0,base[1]-22)},${Math.max(0,base[2]-22)})`);x.fillStyle=g;x.fillRect(0,0,size,size);
+ // Broad, softly blended weathering patches.
+ for(let i=0;i<70;i++){const px=rng()*size,py=rng()*size,rad=8+rng()*72,a=.012+rng()*.035,shade=rng()>.48?255:22;const rg=x.createRadialGradient(px,py,0,px,py,rad);rg.addColorStop(0,`rgba(${shade},${shade},${shade},${a})`);rg.addColorStop(1,'rgba(0,0,0,0)');x.fillStyle=rg;x.fillRect(px-rad,py-rad,rad*2,rad*2)}
+ // Rain streaks / runoff: long, narrow vertical trails, strongest toward lower half.
+ for(let i=0;i<(opts.streaks??95);i++){const px=rng()*size,py=rng()*size*.55,len=25+rng()*190,w=.5+rng()*2.2,alpha=.018+rng()*.065;const rg=x.createLinearGradient(px,py,px+(rng()-.5)*2,Math.min(size,py+len));rg.addColorStop(0,`rgba(22,27,27,${alpha*.15})`);rg.addColorStop(.35,`rgba(28,31,29,${alpha})`);rg.addColorStop(1,'rgba(20,24,23,0)');x.strokeStyle=rg;x.lineWidth=w;x.beginPath();x.moveTo(px,py);x.lineTo(px+(rng()-.5)*2,Math.min(size,py+len));x.stroke()}
+ // Fine scratches, handling scuffs and paint chips.
+ for(let i=0;i<(opts.scratches??280);i++){const px=rng()*size,py=rng()*size,len=2+rng()*34; x.strokeStyle=rng()>.55?`rgba(245,248,245,${.025+rng()*.11})`:`rgba(18,22,22,${.025+rng()*.12})`;x.lineWidth=.35+rng()*1.1;x.beginPath();x.moveTo(px,py);x.lineTo(Math.min(size,px+len),py+(rng()-.5)*2.5);x.stroke()}
+ // Edge chips and lower-edge dirt bands.
+ x.fillStyle=`rgba(30,34,32,${opts.bottomDirt??.14})`;x.fillRect(0,size*.91,size,size*.09);
+ for(let i=0;i<260;i++){const px=rng()*size,py=size*(.82+rng()*.18),r=.5+rng()*2.4;x.fillStyle=rng()>.35?'rgba(33,28,23,.15)':'rgba(176,105,58,.20)';x.beginPath();x.ellipse(px,py,r,r*(1+rng()*2),0,0,Math.PI*2);x.fill()}
+ if(opts.rust){for(let i=0;i<150;i++){const px=rng()*size,py=size*(.65+rng()*.35),r=.6+rng()*3.2;x.fillStyle=`rgba(130,66,34,${.035+rng()*.13})`;x.beginPath();x.ellipse(px,py,r,r*(1+rng()*2),0,0,Math.PI*2);x.fill()}}
+ const map=new THREE.CanvasTexture(c);map.colorSpace=THREE.SRGBColorSpace;map.wrapS=map.wrapT=THREE.RepeatWrapping;map.anisotropy=Math.min(4,renderer.capabilities.getMaxAnisotropy());map.generateMipmaps=true;map.minFilter=THREE.LinearMipmapLinearFilter;
+ // Roughness map: broad dull patches, handling marks and variable clear-coat wear.
+ const rc=document.createElement('canvas');rc.width=rc.height=size;const rx=rc.getContext('2d'),ri=rx.createImageData(size,size);
+ for(let y=0;y<size;y++)for(let xx=0;xx<size;xx++){const i=(y*size+xx)*4;let v=(opts.rough??.58)*255+(rng()-.5)*34;v+=y/size*10;ri.data[i]=ri.data[i+1]=ri.data[i+2]=Math.max(0,Math.min(255,v));ri.data[i+3]=255}rx.putImageData(ri,0,0);
+ const rough=new THREE.CanvasTexture(rc);rough.wrapS=rough.wrapT=THREE.RepeatWrapping;rough.generateMipmaps=true;rough.minFilter=THREE.LinearMipmapLinearFilter;
+ // Height map: subtle orange-peel coating, grain and dents; used as a bump map.
+ const hc=document.createElement('canvas');hc.width=hc.height=size;const hx=hc.getContext('2d'),hi=hx.createImageData(size,size);
+ for(let y=0;y<size;y++)for(let xx=0;xx<size;xx++){const i=(y*size+xx)*4;const v=126+(rng()-.5)*18;hi.data[i]=hi.data[i+1]=hi.data[i+2]=v;hi.data[i+3]=255}hx.putImageData(hi,0,0);
+ for(let i=0;i<420;i++){const px=rng()*size,py=rng()*size;hx.fillStyle=rng()>.5?'rgba(255,255,255,.12)':'rgba(0,0,0,.12)';hx.fillRect(px,py,.5+rng()*2,.5+rng()*5)}
+ const bump=new THREE.CanvasTexture(hc);bump.wrapS=bump.wrapT=THREE.RepeatWrapping;bump.generateMipmaps=true;bump.minFilter=THREE.LinearMipmapLinearFilter;
+ return{map,rough,bump};
 }
-function roughCanvas(size=256){
- const c=document.createElement("canvas");c.width=c.height=size;const x=c.getContext("2d"),im=x.createImageData(size,size);
- for(let i=0;i<im.data.length;i+=4){const v=150+Math.random()*95;im.data[i]=im.data[i+1]=im.data[i+2]=v;im.data[i+3]=255}
- x.putImageData(im,0,0);const t=new THREE.CanvasTexture(c);t.wrapS=t.wrapT=THREE.RepeatWrapping;return t;
+// A lightweight world-space shader layer, borrowing the reference game's FBM / weathering idea.
+// It avoids large texture downloads and adds consistent surface breakup to all repeated equipment.
+function addGameSurfaceShader(material,params={}){
+ const p={value:new THREE.Vector4(params.dirt??.22,params.rust??.08,params.scratch??.18,params.scale??1)};
+ material.onBeforeCompile=(shader)=>{
+  shader.uniforms.uGameWear=p;
+  shader.vertexShader=shader.vertexShader.replace('#include <common>','#include <common>\nvarying vec3 vGameWorld;');
+  shader.vertexShader=shader.vertexShader.replace('#include <worldpos_vertex>','#include <worldpos_vertex>\nvGameWorld = worldPosition.xyz;');
+  shader.fragmentShader=shader.fragmentShader.replace('#include <common>',`#include <common>
+varying vec3 vGameWorld; uniform vec4 uGameWear;
+float gHash(vec3 p){p=fract(p*.1031);p+=dot(p,p.yxz+33.33);return fract((p.x+p.y)*p.z);}
+float gNoise(vec3 p){vec3 i=floor(p),f=fract(p);f=f*f*(3.0-2.0*f);return mix(mix(mix(gHash(i),gHash(i+vec3(1,0,0)),f.x),mix(gHash(i+vec3(0,1,0)),gHash(i+vec3(1,1,0)),f.x),f.y),mix(mix(gHash(i+vec3(0,0,1)),gHash(i+vec3(1,0,1)),f.x),mix(gHash(i+vec3(0,1,1)),gHash(i+vec3(1,1,1)),f.x),f.y),f.z);}
+`);
+  shader.fragmentShader=shader.fragmentShader.replace('#include <color_fragment>',`#include <color_fragment>
+float gBroad=gNoise(vGameWorld*.22); float gFine=gNoise(vGameWorld*18.0);
+float gStreak=gNoise(vec3(vGameWorld.x*1.9,vGameWorld.y*.16,vGameWorld.z*1.9));
+float gDirt=smoothstep(.56,.84,gStreak)*uGameWear.x;
+float gSpeck=smoothstep(.78,.96,gFine)*uGameWear.z;
+float gRust=smoothstep(.76,.91,gNoise(vec3(vGameWorld.x*3.4,vGameWorld.y*.24,vGameWorld.z*3.4)))*uGameWear.y;
+diffuseColor.rgb *= .965 + (gBroad-.5)*.105 - gDirt*.19 - gSpeck*.035;
+diffuseColor.rgb = mix(diffuseColor.rgb,vec3(.24,.105,.055),gRust*.48);
+`);
+  shader.fragmentShader=shader.fragmentShader.replace('#include <roughnessmap_fragment>',`#include <roughnessmap_fragment>
+roughnessFactor=clamp(roughnessFactor + gDirt*.20 + gSpeck*.08 + gRust*.18, .08, 1.0);
+`);
+ };
+ material.customProgramCacheKey=()=>`game-surface-${params.dirt??.22}-${params.rust??.08}-${params.scratch??.18}`;
+ material.userData.gameSurface=true;
+ return material;
 }
-function corrugatedTexture(){
- const c=document.createElement("canvas");c.width=256;c.height=128;const x=c.getContext("2d");
- const g=x.createLinearGradient(0,0,256,0);
- for(let i=0;i<=32;i++){let p=i/32;g.addColorStop(Math.max(0,p-.015),i%2?"#c2c7c8":"#e3e6e5");g.addColorStop(Math.min(1,p+.015),i%2?"#e5e8e7":"#bdc3c4")}
- x.fillStyle=g;x.fillRect(0,0,256,128);
- x.globalAlpha=.12;x.fillStyle="#815d41";for(let i=0;i<45;i++)x.fillRect(Math.random()*256,Math.random()*128,Math.random()*7+1,1);
- const t=new THREE.CanvasTexture(c);t.wrapS=t.wrapT=THREE.RepeatWrapping;t.colorSpace=THREE.SRGBColorSpace;return t;
+const surfBess=makeSurfaceMaps({base:'#cbd2d1',rough:.62,seed:17,streaks:120,scratches:330,rust:true,bottomDirt:.18});
+const surfPCS=makeSurfaceMaps({base:'#bd7435',rough:.68,seed:29,streaks:115,scratches:380,rust:true,bottomDirt:.24});
+const surfTransformer=makeSurfaceMaps({base:'#777f70',rough:.72,seed:43,streaks:145,scratches:320,rust:true,bottomDirt:.28});
+const surfGalv=makeSurfaceMaps({base:'#858f93',rough:.48,seed:61,streaks:70,scratches:500,rust:true,bottomDirt:.12});
+const surfDark=makeSurfaceMaps({base:'#30383a',rough:.74,seed:83,streaks:80,scratches:320,rust:true,bottomDirt:.22});
+const surfConcrete=makeSurfaceMaps({base:'#898b84',rough:.94,seed:101,streaks:55,scratches:180,rust:false,bottomDirt:.1});
+const surfAsphalt=makeSurfaceMaps({base:'#3e4545',rough:.96,seed:119,streaks:45,scratches:120,rust:false,bottomDirt:.04});
+function industrialMat(set,opts={}){return new THREE.MeshStandardMaterial({map:set.map,roughnessMap:set.rough,bumpMap:set.bump,bumpScale:opts.bump??.025,color:opts.color??0xffffff,roughness:opts.roughness??.62,metalness:opts.metalness??.18,side:opts.side??THREE.FrontSide})}
+// ---------- environment reflection probe ----------
+function makeStudioEnvironment(){
+ const c=document.createElement('canvas');c.width=1024;c.height=512;const x=c.getContext('2d');
+ const g=x.createLinearGradient(0,0,0,512);g.addColorStop(0,'#344c60');g.addColorStop(.34,'#9fb5c0');g.addColorStop(.49,'#e2ded0');g.addColorStop(.58,'#8d9995');g.addColorStop(1,'#303b3c');x.fillStyle=g;x.fillRect(0,0,1024,512);
+ // Large soft-box reflections like a neutral industrial HDR studio.
+ for(const [px,py,w,h,a] of [[130,110,180,55,.42],[450,95,250,38,.34],[780,145,170,70,.30],[320,265,310,24,.18]]){x.fillStyle=`rgba(245,248,244,${a})`;x.fillRect(px,py,w,h)}
+ const t=new THREE.CanvasTexture(c);t.mapping=THREE.EquirectangularReflectionMapping;t.colorSpace=THREE.SRGBColorSpace;t.needsUpdate=true;return t;
 }
-const texConcrete=noiseCanvas([128,130,126],256,34), rough=roughCanvas(), texAsphalt=noiseCanvas([53,57,58],256,22), texMetal=corrugatedTexture();
-texConcrete.repeat.set(20,20);rough.repeat.set(15,15);texAsphalt.repeat.set(20,20);texMetal.repeat.set(3,1);
-
+const studioEnv=makeStudioEnvironment();
+scene.environment=studioEnv;
 const MAT={
  earth:new THREE.MeshStandardMaterial({color:0x63715e,roughness:1}),
- concrete:new THREE.MeshStandardMaterial({map:texConcrete,roughnessMap:rough,roughness:.94,color:0xb7b7af}),
- asphalt:new THREE.MeshStandardMaterial({map:texAsphalt,roughness:.92,color:0x6b6e6d}),
- container:new THREE.MeshStandardMaterial({map:texMetal,roughness:.56,metalness:.28,color:0xe0e1dc}),
- trim:new THREE.MeshStandardMaterial({color:0x667176,roughness:.58,metalness:.55}),
- dark:new THREE.MeshStandardMaterial({color:0x252b2d,roughness:.65,metalness:.5}),
- orange:new THREE.MeshStandardMaterial({color:0xb87932,roughness:.52,metalness:.28}),
- transformer:new THREE.MeshStandardMaterial({color:0x8e704c,roughness:.62,metalness:.36}),
- steel:new THREE.MeshStandardMaterial({color:0x727c7f,roughness:.46,metalness:.72}),
- copper:new THREE.MeshStandardMaterial({color:0x9b6844,roughness:.38,metalness:.72}),
- glass:new THREE.MeshPhysicalMaterial({color:0xa8c7d0,roughness:.16,metalness:0,transmission:.1,transparent:true,opacity:.75}),
+ concrete:industrialMat(surfConcrete,{roughness:.92,metalness:0,bump:.045,color:0xb7b7af}),
+ asphalt:industrialMat(surfAsphalt,{roughness:.96,metalness:0,bump:.035,color:0x777b79}),
+ container:industrialMat(surfBess,{roughness:.62,metalness:.16,bump:.025}),
+ bessWhite:new THREE.MeshPhysicalMaterial({map:surfBess.map,roughnessMap:surfBess.rough,bumpMap:surfBess.bump,bumpScale:.028,color:0xe5e9e7,roughness:.58,metalness:.16,clearcoat:.18,clearcoatRoughness:.58}),
+ bessDoor:new THREE.MeshPhysicalMaterial({map:surfBess.map,roughnessMap:surfBess.rough,bumpMap:surfBess.bump,bumpScale:.022,color:0xdce2e1,roughness:.62,metalness:.14,clearcoat:.12,clearcoatRoughness:.62}),
+ bessEdge:industrialMat(surfGalv,{roughness:.46,metalness:.68,bump:.018,color:0xadb8ba}),
+ bessGap:industrialMat(surfDark,{roughness:.78,metalness:.35,bump:.018,color:0x344047}),
+ bessSlat:new THREE.MeshStandardMaterial({map:surfGalv.map,roughnessMap:surfGalv.rough,bumpMap:surfGalv.bump,bumpScale:.012,color:0xd0d9da,roughness:.48,metalness:.62,side:THREE.DoubleSide}),
+ bessHazard:new THREE.MeshStandardMaterial({color:0xe4b62e,roughness:.68,metalness:.08}),
+ bessScreen:new THREE.MeshPhysicalMaterial({color:0x6b96ab,roughness:.16,metalness:.04,emissive:0x12384e,emissiveIntensity:.2,clearcoat:.55,clearcoatRoughness:.2}),
+ bessBolt:industrialMat(surfGalv,{roughness:.42,metalness:.78,bump:.01,color:0x8a969a}),
+ trim:industrialMat(surfGalv,{roughness:.54,metalness:.62,bump:.016,color:0x929b9e}),
+ dark:industrialMat(surfDark,{roughness:.72,metalness:.54,bump:.02,color:0x343c40}),
+ orange:new THREE.MeshStandardMaterial({map:surfPCS.map,roughnessMap:surfPCS.rough,bumpMap:surfPCS.bump,bumpScale:.026,color:0xd18a4d,roughness:.66,metalness:.14}),
+ transformer:new THREE.MeshStandardMaterial({map:surfTransformer.map,roughnessMap:surfTransformer.rough,bumpMap:surfTransformer.bump,bumpScale:.032,color:0x9ca28e,roughness:.72,metalness:.18}),
+ steel:industrialMat(surfGalv,{roughness:.48,metalness:.72,bump:.02,color:0xa1aaad}),
+ copper:new THREE.MeshStandardMaterial({color:0x9b6844,roughness:.42,metalness:.72}),
+ glass:new THREE.MeshPhysicalMaterial({color:0xa8c7d0,roughness:.18,metalness:0,transmission:.12,transparent:true,opacity:.82,clearcoat:.35}),
  grass:new THREE.MeshStandardMaterial({color:0x516b4a,roughness:1}),
- yellow:new THREE.MeshStandardMaterial({color:0xc69c38,roughness:.75}),
- trench:new THREE.MeshStandardMaterial({color:0x696d6a,roughness:.9}),
- trenchHi:new THREE.MeshStandardMaterial({color:0xb28748,roughness:.68,emissive:0x221508,emissiveIntensity:.18}),
- ins:new THREE.MeshStandardMaterial({color:0xd7d1c3,roughness:.42,metalness:.08})
+ yellow:new THREE.MeshStandardMaterial({color:0xc69c38,roughness:.78}),
+ trench:industrialMat(surfDark,{roughness:.92,metalness:.08,bump:.03,color:0x696d6a}),
+ trenchHi:industrialMat(surfGalv,{roughness:.7,metalness:.28,bump:.02,color:0xb28748}),
+ ins:new THREE.MeshStandardMaterial({color:0xd7d1c3,roughness:.48,metalness:.08})
 };
+for(const [m,p] of [[MAT.bessWhite,{dirt:.32,rust:.055,scratch:.22}],[MAT.bessDoor,{dirt:.28,rust:.045,scratch:.18}],[MAT.orange,{dirt:.38,rust:.09,scratch:.25}],[MAT.transformer,{dirt:.42,rust:.12,scratch:.22}],[MAT.steel,{dirt:.24,rust:.15,scratch:.28}],[MAT.trim,{dirt:.18,rust:.08,scratch:.24}],[MAT.dark,{dirt:.34,rust:.12,scratch:.26}],[MAT.concrete,{dirt:.28,rust:.02,scratch:.08}],[MAT.asphalt,{dirt:.20,rust:.01,scratch:.05}]])addGameSurfaceShader(m,p);
+
 
 // ---------- environment lighting ----------
-const hemi=new THREE.HemisphereLight(0xdceff5,0x505941,1.3);scene.add(hemi);
-const sun=new THREE.DirectionalLight(0xfff1d2,3.0);sun.position.set(-180,330,-120);sun.castShadow=true;
-sun.shadow.mapSize.set(1536,1536);sun.shadow.camera.left=-460;sun.shadow.camera.right=460;sun.shadow.camera.top=420;sun.shadow.camera.bottom=-420;
-sun.shadow.bias=-.00018;sun.shadow.normalBias=.018;sun.shadow.radius=2;scene.add(sun,sun.target);
+const hemi=new THREE.HemisphereLight(0xdceff5,0x353b34,1.05);scene.add(hemi);
+const sun=new THREE.DirectionalLight(0xfff3df,3.25);sun.position.set(-180,330,-120);sun.castShadow=true;
+sun.shadow.mapSize.set(2048,2048);sun.shadow.camera.left=-460;sun.shadow.camera.right=460;sun.shadow.camera.top=420;sun.shadow.camera.bottom=-420;
+sun.shadow.bias=-.00018;sun.shadow.normalBias=.018;sun.shadow.radius=3;scene.add(sun,sun.target);
 sun.target.position.set(0,0,0);
-const fill=new THREE.DirectionalLight(0x9ed7f4,.38);fill.position.set(260,90,240);scene.add(fill);
+const fill=new THREE.DirectionalLight(0x9ed7f4,.24);fill.position.set(260,90,240);scene.add(fill);
 
 // ---------- helpers ----------
 function mesh(g,m,x=0,y=0,z=0,parent=groups.equipment,data=null){
  const o=new THREE.Mesh(g,m);o.position.set(x,y,z);o.castShadow=false;o.receiveShadow=true;if(data){o.userData=data;clickable.push(o)}parent.add(o);return o;
 }
+const geometryCache=new Map();
 function box(w,h,d,m,x,y,z,parent=groups.equipment,data=null,bevel=.08){
- const g=bevel>0?new RoundedBoxGeometry(w,h,d,2,Math.min(bevel,Math.min(w,h,d)*.12)):new THREE.BoxGeometry(w,h,d);
+ const b=bevel>0?Math.min(bevel,Math.min(w,h,d)*.12):0;
+ const key=`${w}|${h}|${d}|${b}`;
+ let g=geometryCache.get(key);
+ if(!g){g=b>0?new RoundedBoxGeometry(w,h,d,2,b):new THREE.BoxGeometry(w,h,d);geometryCache.set(key,g)}
  return mesh(g,m,x,y,z,parent,data);
 }
 function cyl(r,h,m,x,y,z,parent=groups.equipment,data=null,seg=16){
@@ -209,11 +317,15 @@ const _dummy=new THREE.Object3D();
 function addInstance(bucket,x,y,z,rx=0,ry=0,rz=0,sx=1,sy=1,sz=1){
   const i=bucket.next++;
   _dummy.position.set(x,y,z);_dummy.rotation.set(rx,ry,rz);_dummy.scale.set(sx,sy,sz);_dummy.updateMatrix();
-  bucket.mesh.setMatrixAt(i,_dummy.matrix);bucket.mesh.count=bucket.next;bucket.mesh.instanceMatrix.needsUpdate=true;
+  bucket.mesh.setMatrixAt(i,_dummy.matrix);bucket.mesh.count=bucket.next;
   return i;
 }
 const geoSmallBox=new THREE.BoxGeometry(1,1,1);
 const geoSmallCyl=new THREE.CylinderGeometry(1,1,1,12);
+const pcsParts={};
+function pcsPart(key,material,capacity=3000){if(!pcsParts[key])pcsParts[key]=getInstanced('PCS_'+key,geoSmallBox,material,capacity,false,true);return pcsParts[key]}
+function pp(key,mat,x,y,z,w,h,d){addInstance(pcsPart(key,mat),x,y,z,0,0,0,w,h,d)}
+
 
 // ---------- realistic container ----------
 let cabinNo=0,unitNo=0;
@@ -222,47 +334,213 @@ function addHVAC(x,z,parent){
  for(let i=-.38;i<=.38;i+=.19) box(.04,1.15,.04,MAT.dark,x+i,2.18,z+.34,parent,null,0);
  cyl(.38,.08,MAT.dark,x,2.25,z+.39,parent,null,18).rotation.x=Math.PI/2;
 }
-function batteryContainer(cx,cz,unit,feeder,parent){
- cabinNo++;
- const d={type:"battery",name:`5MWh 电池舱 #${cabinNo}`,unit,feeder,energy:"约 5MWh",dc:"直流侧，典型约 1300V"};
- const body=box(10.7,4.1,3.15,MAT.container,cx,2.18,cz,parent,d,.14); body.castShadow=true;
- box(11.0,.32,3.35,MAT.dark,cx,.32,cz,parent);
- box(11.0,.16,3.35,MAT.trim,cx,4.3,cz,parent);
-
- const cornerBucket=getInstanced("batteryCorners",geoSmallBox,MAT.dark,1600,false,true);
- for(const sx of[-5.25,5.25])for(const sz of[-1.45,1.45]) addInstance(cornerBucket,cx+sx,.35,cz+sz,0,0,0,.34,.42,.34);
-
- const doorBucket=getInstanced("batteryDoors",geoSmallBox,MAT.trim,800,false,true);
- const handleBucket=getInstanced("batteryHandles",geoSmallBox,MAT.dark,800,false,true);
- for(const dz of[-.75,.75]){
-   addInstance(doorBucket,cx+5.4,2.2,cz+dz,0,0,0,.06,3.2,1.25);
-   addInstance(handleBucket,cx+5.46,2.2,cz+dz-.22,0,0,0,.08,.18,.08);
- }
-
- const hvacBucket=getInstanced("batteryHVAC",geoSmallBox,MAT.trim,400,false,true);
- addInstance(hvacBucket,cx-3.4,2.15,cz+1.93,0,0,0,1.25,1.65,.65);
-
- const fireBucket=getInstanced("batteryFireCab",geoSmallBox,MAT.orange,400,false,true);
- addInstance(fireBucket,cx+3.4,1.4,cz+1.95,0,0,0,1.0,1.45,.7);
-
- const hazardBucket=getInstanced("batteryHazard",geoSmallBox,MAT.yellow,400,false,true);
- addInstance(hazardBucket,cx+5.47,2.7,cz,0,0,0,.035,.58,.75);
- return body;
+// V5: adapted from the user-approved V3 enclosure: physical louvers, gasketed end door,
+// six side-service doors, hinges, handles, control panel, corner castings and warning decals.
+// Fine parts are instanced across all 400 cabins for manageable draw calls.
+const bessParts={};
+const bessPositions=[];
+function bessPart(key,material,capacity=25000){
+  if(!bessParts[key]) bessParts[key]=getInstanced('BESS_'+key,geoSmallBox,material,capacity,false,true);
+  return bessParts[key];
 }
+function bp(key,mat,x,y,z,w,h,d){addInstance(bessPart(key,mat),x,y,z,0,0,0,w,h,d)}
+function addBessDecalTexture(){
+  const c=document.createElement('canvas');c.width=512;c.height=256;const q=c.getContext('2d');
+  q.fillStyle='#e9eeee';q.fillRect(0,0,512,256);q.fillStyle='#171f24';
+  q.strokeStyle='#171f24';q.lineWidth=8;q.strokeRect(24,24,67,78);
+  q.beginPath();q.moveTo(61,32);q.lineTo(47,67);q.lineTo(67,62);q.lineTo(53,94);q.stroke();
+  q.font='bold 74px sans-serif';q.fillText('BESS',117,99);
+  q.font='35px sans-serif';q.fillText('Battery Energy',27,160);q.fillText('Storage System',27,207);
+  const t=new THREE.CanvasTexture(c);t.colorSpace=THREE.SRGBColorSpace;t.anisotropy=Math.min(8,renderer.capabilities.getMaxAnisotropy());return t;
+}
+const bessDecalMat=new THREE.MeshBasicMaterial({map:addBessDecalTexture(),polygonOffset:true,polygonOffsetFactor:-2,side:THREE.DoubleSide});
+const bessDecals=getInstanced('BESS_label',new THREE.PlaneGeometry(1,1),bessDecalMat,400,false,false);
+const _decalObj=new THREE.Object3D();
+function addBessLabel(x,y,z){
+  const i=bessDecals.next++;_decalObj.position.set(x,y,z);_decalObj.rotation.set(0,Math.PI/2,0);_decalObj.scale.set(.97,.51,1);_decalObj.updateMatrix();bessDecals.mesh.setMatrixAt(i,_decalObj.matrix);bessDecals.mesh.count=bessDecals.next;
+}
+function batteryContainer(cx,cz,unit,feeder,parent){
+  cabinNo++;
+  bessPositions.push([cx,cz]);
+  const d={type:'battery',name:`5MWh 电池舱 #${cabinNo}`,unit,feeder,energy:'约 5MWh',dc:'直流侧（概念示意）',model:'BESS V7 · 游戏化程序材质模型'};
+  const body=box(10.72,4.06,3.15,MAT.bessWhite,cx,2.22,cz,parent,d,.05); body.castShadow=true;
+  walkObstacles.push({minX:cx-5.65,maxX:cx+5.65,minZ:cz-1.80,maxZ:cz+1.80});
+  bp('base',MAT.dark,cx,.34,cz,10.95,.40,3.40);
+  bp('skirtL',MAT.bessGap,cx,.52,cz-1.60,10.82,.11,.07);
+  bp('skirtR',MAT.bessGap,cx,.52,cz+1.60,10.82,.11,.07);
+  bp('roof',MAT.bessDoor,cx,4.31,cz,10.98,.16,3.40);
+  bp('roofLipL',MAT.bessEdge,cx,4.40,cz-1.60,10.84,.06,.08);
+  bp('roofLipR',MAT.bessEdge,cx,4.40,cz+1.60,10.84,.06,.08);
+  bp('roofLipFront',MAT.bessEdge,cx+5.27,4.40,cz,.10,.06,3.16);
+  bp('roofLipBack',MAT.bessEdge,cx-5.27,4.40,cz,.10,.06,3.16);
+  for(const sx of [-5.33,5.33])for(const sz of [-1.56,1.56]){
+    bp('corner',MAT.bessEdge,cx+sx,2.20,cz+sz,.14,4.16,.14);
+    bp('cornerOuter',MAT.bessBolt,cx+sx,4.31,cz+sz,.32,.22,.30);
+    bp('cornerFoot',MAT.bessBolt,cx+sx,.35,cz+sz,.30,.22,.28);
+  }
+  // Long-side equipment doors: closer to the reference, fewer and wider.
+  for(const side of [-1,1]){
+    const z=cz+side*1.602;
+    bp('topSideRail',MAT.bessEdge,cx,4.16,z,10.58,.055,.065);
+    bp('midBreak',MAT.bessGap,cx,2.18,z+side*.010,10.32,.018,.020);
+    const panelX=[-4.35,-2.25,-.05,2.15,4.25];
+    for(let j=0;j<panelX.length;j++){
+      const x=cx+panelX[j], isControl=(j===2), isVent=(j===0||j===4);
+      const w=j===2?1.72:1.92;
+      bp('doorGap',MAT.bessGap,x,2.18,z+side*.014,w+0.10,3.24,.026);
+      bp('doorFace',MAT.bessDoor,x,2.18,z+side*.050,w,3.12,.044);
+      bp('doorShadowL',MAT.bessGap,x-w*.5+.05,2.18,z+side*.086,.035,3.10,.024);
+      bp('doorShadowR',MAT.bessGap,x+w*.5-.05,2.18,z+side*.086,.035,3.10,.024);
+      bp('doorTop',MAT.bessEdge,x,3.72,z+side*.082,w-.10,.030,.030);
+      bp('doorBottom',MAT.bessEdge,x,.64,z+side*.082,w-.10,.026,.030);
+      for(const yy of [1.03,2.15,3.31]){
+        bp('hinge',MAT.bessBolt,x-w*.44,yy,z+side*.108,.09,.19,.10);
+        bp('hingeCap',MAT.bessEdge,x-w*.46,yy,z+side*.158,.038,.20,.034);
+      }
+      bp('lock',MAT.bessGap,x+w*.31,2.05,z+side*.116,.10,.31,.07);
+      bp('lockLever',MAT.bessBolt,x+w*.32,2.04,z+side*.178,.18,.055,.09);
+      if(isVent){
+        bp('ventFrame',MAT.bessGap,x,1.01,z+side*.096,.66,.38,.028);
+        for(let n=0;n<6;n++)bp('sideVent',MAT.bessSlat,x,.86+n*.062,z+side*.130,.60,.017,.030);
+      }
+      if(isControl){
+        bp('panelFrame',MAT.bessGap,x+.06,2.23,z+side*.108,.70,1.12,.068);
+        bp('panelScreen',MAT.bessScreen,x+.07,2.45,z+side*.160,.52,.58,.024);
+        for(let n=0;n<5;n++)bp('panelBtn',n===0?MAT.bessHazard:MAT.bessBolt,x-.22+n*.12,1.81,z+side*.165,.065,.055,.040);
+        bp('ctrlCanopy',MAT.bessEdge,x+.07,2.93,z+side*.118,.66,.05,.040);
+      }
+      if(j===1||j===3) bp('warningSide',MAT.bessHazard,x,2.50,z+side*.113,.22,.28,.020);
+      bp('kickPlate',MAT.bessEdge,x,.62,z+side*.084,w-.16,.07,.026);
+    }
+  }
+  // FRONT FACE based on the user's photo: left large louver, upper perforated grille, central HV door.
+  const ex=cx+5.395;
+  bp('endFrame',MAT.bessDoor,ex,2.19,cz,.080,3.78,3.06);
+  // left upper and lower vents
+  function grilleBlock(zc,yc,h,d,count){
+    bp('grilleCavity',MAT.bessGap,ex+.078,yc,zc,.05,h,d);
+    bp('grilleBorder',MAT.bessEdge,ex+.112,yc,zc,.036,h+.08,d+.08);
+    const step=(h-.12)/count;
+    for(let k=0;k<count;k++){
+      const yy=yc-h*.5+.09+k*step;
+      bp('louverShade',MAT.bessGap,ex+.14,yy-.018,zc,.12,.018,d-.09);
+      bp('louverBlade',MAT.bessSlat,ex+.182,yy,zc,.12,.052,d-.12);
+      bp('louverHighlight',MAT.bessDoor,ex+.236,yy+.018,zc,.024,.014,d-.12);
+    }
+  }
+  grilleBlock(cz-1.00,2.48,2.15,.82,18);
+  grilleBlock(cz-1.00,.96,.70,.82,7);
+  // upper perforated grille above the main door
+  bp('perfFrame',MAT.bessGap,ex+.094,3.47,cz+.10,.038,.46,1.62);
+  bp('perfMesh',MAT.bessSlat,ex+.133,3.47,cz+.10,.030,.39,1.52);
+  // central-right HV equipment door
+  bp('endDoorGap',MAT.bessGap,ex+.052,2.16,cz+.57,.040,3.05,1.22);
+  bp('endDoor',MAT.bessDoor,ex+.082,2.17,cz+.57,.045,2.97,1.15);
+  bp('endDoorInner',MAT.bessWhite,ex+.115,2.13,cz+.57,.020,2.90,1.10);
+  for(const zz of [cz+.00,cz+1.14]) bp('endDoorFrame',MAT.bessEdge,ex+.115,2.18,zz,.04,3.07,.048);
+  for(const yy of [.70,3.66]) bp('endDoorCross',MAT.bessEdge,ex+.112,yy,cz+.57,.04,.042,1.20);
+  for(const yy of [1.05,2.25,3.22]) bp('endHinge',MAT.bessBolt,ex+.15,yy,cz+1.12,.18,.22,.09);
+  bp('endDoorLock',MAT.bessGap,ex+.17,1.91,cz+.12,.19,.38,.14);
+  bp('endDoorHandle',MAT.bessBolt,ex+.225,1.98,cz+.16,.07,.24,.16);
+  addBessLabel(ex+.17,2.64,cz+.46);
+  bp('endWarning',MAT.bessHazard,ex+.17,1.62,cz+.48,.028,.32,.31);
+  // small service hatch and frame
+  bp('serviceFrame',MAT.bessGap,ex+.088,.86,cz+.52,.036,.56,.68);
+  bp('serviceVent',MAT.bessSlat,ex+.128,.86,cz+.52,.026,.48,.60);
+  // safety strip on roof edge
+  for(let k=0;k<7;k++)bp('hazardStripe',k%2?MAT.bessGap:MAT.bessHazard,ex+.094,4.25,cz-1.10+k*.22,.014,.080,.14);
+  // rear-side service grilles and tiny hatch to break monotony on the back end.
+  const bx=cx-5.39;
+  bp('rearFrame',MAT.bessDoor,bx,2.19,cz,.075,3.76,3.02);
+  bp('rearInset',MAT.bessGap,bx-.05,2.18,cz,.026,3.60,2.86);
+  bp('rearDoorLeft',MAT.bessDoor,bx-.08,2.18,cz-.52,.042,3.00,1.18);
+  bp('rearDoorRight',MAT.bessDoor,bx-.08,2.18,cz+.66,.042,3.00,1.52);
+  bp('rearVentFrame',MAT.bessGap,bx-.09,2.98,cz+.66,.030,.62,1.12);
+  for(let n=0;n<8;n++)bp('rearVent',MAT.bessSlat,bx-.13,2.72+n*.07,cz+.66,.024,.02,1.02);
+  // bottom anchors and plinths
+  for(const sx of [-4.92,4.92])for(const sz of [-1.30,1.30]){
+    bp('anchorPlate',MAT.bessBolt,cx+sx,.22,cz+sz,.46,.09,.38);
+    bp('anchorBolt',MAT.dark,cx+sx,.31,cz+sz,.10,.08,.10);
+  }
+  bp('roofDrain',MAT.bessEdge,cx,4.40,cz+1.36,10.58,.034,.07);
+  return body;
+}
+
 function pcsSkid(cx,cz,unit,feeder,parent){
  const d={type:"pcs",name:`PCS + 升压一体机 · 单元 ${unit}`,unit,feeder,power:"约 5MW",path:"电池 DC → PCS 0.8kV AC → 箱变 35kV"};
- // equipment plinth
  box(7.8,.35,6.0,MAT.concrete,cx,.2,cz,parent);
- const pcsBody=box(3.0,4.1,5.0,MAT.orange,cx-2.0,2.35,cz,parent,d,.12); pcsBody.castShadow=true;
- // PCS vents
- for(let z=-1.6;z<=1.6;z+=.52)box(.06,2.4,.28,MAT.dark,cx-.47,2.5,cz+z,parent,null,0);
- // transformer part
- const txBody=box(3.2,3.1,4.4,MAT.transformer,cx+2.05,1.85,cz,parent,d,.08); txBody.castShadow=true;
- for(let x=-.9;x<=.9;x+=.36)box(.08,2.45,4.7,MAT.steel,cx+2.05+x,1.9,cz,parent,null,0);
- // bushings
- for(const z of[-1.2,0,1.2]){cyl(.18,1.1,MAT.ins,cx+2.1,4.0,cz+z,parent);cyl(.08,.6,MAT.copper,cx+2.1,4.75,cz+z,parent)}
- // radiator / switch cubicle
- box(.55,2.6,4.8,MAT.steel,cx+3.9,1.8,cz,parent);
+ const pcsBody=box(3.0,4.1,5.0,MAT.orange,cx-2.0,2.35,cz,parent,d,.10);pcsBody.castShadow=true;
+ const txBody=box(3.2,3.1,4.4,MAT.transformer,cx+2.05,1.85,cz,parent,d,.08);txBody.castShadow=true;
+ walkObstacles.push({minX:cx-4.2,maxX:cx+4.3,minZ:cz-3.0,maxZ:cz+3.0});
+ // PCS front service door, recessed control panel, status lights and intake/exhaust banks.
+ const front=cz+2.535;
+ pp('frontDoor',MAT.bessGap,cx-2.0,2.35,front,2.66,3.68,.045);
+ pp('frontDoorFace',MAT.orange,cx-2.0,2.35,front+.032,2.54,3.56,.035);
+ pp('doorTop',MAT.bessEdge,cx-2.0,4.17,front+.055,2.55,.045,.025);
+ pp('doorBottom',MAT.bessEdge,cx-2.0,.53,front+.055,2.55,.045,.025);
+ for(const xx of [cx-3.22,cx-.78])for(const yy of [.95,2.35,3.75])pp('doorHinge',MAT.bessBolt,xx,yy,front+.075,.10,.22,.08);
+ pp('screenFrame',MAT.dark,cx-1.05,2.88,front+.075,.76,.92,.10);
+ pp('screenGlass',MAT.bessScreen,cx-1.05,2.91,front+.135,.62,.64,.025);
+ for(let i=0;i<4;i++)pp('status',i===0?MAT.bessHazard:MAT.bessBolt,cx-1.30+i*.17,2.20,front+.11,.07,.07,.035);
+ pp('handle',MAT.bessBolt,cx-2.95,2.15,front+.09,.09,.34,.09);
+ for(let i=0;i<13;i++){
+   const yy=.92+i*.115;
+   pp('frontVentDark',MAT.dark,cx-2.85,yy,front+.075,.55,.07,.035);
+   pp('frontVentSlat',MAT.bessEdge,cx-2.85,yy+.025,front+.105,.55,.025,.035);
+ }
+ // Side cooling banks and upper exhaust grilles.
+ for(const side of [-1,1]){
+   const z=cz+side*2.52;
+   pp('sideVentFrame',MAT.dark,cx-2.0,2.30,z,2.35,2.65,.05);
+   for(let i=0;i<15;i++)pp('sideVentSlat',MAT.bessEdge,cx-2.0,.98+i*.185,z+side*.04,2.22,.055,.05);
+   pp('sideUpperGrille',MAT.dark,cx-2.0,3.95,z,1.25,.28,.06);
+ }
+ // Transformer radiator fins: visible, evenly spaced metal plates.
+ for(let i=-5;i<=5;i++)pp('txFin',MAT.steel,cx+2.05+i*.245,1.9,cz+2.23,.105,2.48,.18);
+ pp('txTopHeader',MAT.steel,cx+2.05,3.12,cz+2.26,2.75,.12,.16);
+ pp('txBottomHeader',MAT.steel,cx+2.05,.65,cz+2.26,2.75,.12,.16);
+ // Three HV/LV bushings and ribbed porcelain sheds.
+ for(const z of[-1.2,0,1.2]){
+   cyl(.16,.48,MAT.ins,cx+2.1,3.55,cz+z,parent,null,18);
+   for(let r=0;r<5;r++)cyl(.22-r*.012,.065,MAT.ins,cx+2.1,3.36+r*.12,cz+z,parent,null,18);
+   cyl(.075,.55,MAT.copper,cx+2.1,4.02,cz+z,parent,null,12);
+ }
+ // Grounding bar, cable glands and skid feet.
+ pp('groundBar',MAT.copper,cx,.48,cz-2.85,7.0,.06,.06);
+ for(let i=-2;i<=2;i++)pp('cableGland',MAT.dark,cx-2+i*.42,.52,cz-2.72,.18,.18,.22);
+ for(const xx of [cx-4.8,cx+4.8])for(const zz of [cz-2.5,cz+2.5])pp('skidFoot',MAT.dark,xx,.20,zz,.48,.22,.38);
+
+ // More legible industrial construction: cabinet split lines, intake fan guards,
+ // cable termination box, glands and earthing terminals.
+ for(const dx of [-3.42,-2.72,-1.92,-1.12,-.48]){
+   pp('pcsCabinetSeam',MAT.bessGap,cx+dx,2.35,front+.065,.025,3.52,.018);
+ }
+ for(const fx of [cx-3.02,cx-2.22]){
+   pp('fanGuard',MAT.dark,fx,1.30,front+.10,.42,.42,.045);
+   cyl(.17,.06,MAT.steel,fx,1.30,front+.135,parent,null,20);
+   for(let k=0;k<4;k++){
+     const a=k*Math.PI/2;
+     pp('fanSpoke',MAT.bessBolt,fx+Math.cos(a)*.105,1.30+Math.sin(a)*.105,front+.17,.16,.025,.018);
+   }
+ }
+ pp('pcsWarningPlate',MAT.bessHazard,cx-2.92,3.48,front+.10,.28,.34,.025);
+ pp('pcsCableBox',MAT.dark,cx-1.95,.82,cz-2.62,1.48,.62,.56);
+ pp('pcsCableBoxCover',MAT.trim,cx-1.95,.84,cz-2.92,1.36,.48,.045);
+ for(let i=0;i<6;i++){
+   const gx=cx-2.48+i*.21;
+   cyl(.075,.18,MAT.dark,gx,.52,cz-2.94,parent,null,12);
+   cyl(.035,.10,MAT.copper,gx,.48,cz-3.02,parent,null,10);
+ }
+ // Transformer LV/HV terminal box and cable entry detail.
+ pp('txTerminalBox',MAT.dark,cx+3.05,1.12,cz-2.45,1.05,1.05,.72);
+ pp('txTerminalCover',MAT.transformer,cx+3.05,1.12,cz-2.83,.92,.90,.045);
+ for(let i=0;i<4;i++)pp('txTerminalBolt',MAT.bessBolt,cx+2.72+(i%2)*.62,.82+Math.floor(i/2)*.58,cz-2.88,.07,.07,.035);
+ // Three insulated phase leads leave the integrated skid and descend into the cable trench.
+ for(let phase=0;phase<3;phase++){
+   const px=cx+3.72+phase*.17;
+   pipe(new THREE.Vector3(px,.72,cz-2.62),new THREE.Vector3(px,.28,cz-3.42),.065,MAT.dark,parent);
+   pipe(new THREE.Vector3(px,.28,cz-3.42),new THREE.Vector3(px,.16,cz-4.25),.052,MAT.copper,parent);
+ }
  return new THREE.Vector3(cx+4.1,.65,cz);
 }
 
@@ -380,17 +658,37 @@ for(let f=0;f<20;f++){
    unitNo++; const cz=baseZ+u*unitDZ;
    const unitG=new THREE.Group();groups.equipment.add(unitG);
 
-   // Unit pad.
+   // Unit pad and circulation strip.
    box(37,.12,22,MAT.concrete,baseX,.05,cz,unitG);
    box(37,.06,.22,MAT.yellow,baseX,.17,cz-10.85,unitG);
    box(37,.06,.22,MAT.yellow,baseX,.17,cz+10.85,unitG);
    box(.22,.06,22,MAT.yellow,baseX-18.4,.17,cz,unitG);
    box(.22,.06,22,MAT.yellow,baseX+18.4,.17,cz,unitG);
 
-   batteryContainer(baseX-10.0,cz-5.1,unitNo,f+1,unitG);
-   batteryContainer(baseX+1.0,cz-5.1,unitNo,f+1,unitG);
-   batteryContainer(baseX-10.0,cz+5.1,unitNo,f+1,unitG);
-   batteryContainer(baseX+1.0,cz+5.1,unitNo,f+1,unitG);
+   // Civil arrangement: each BESS cabin sits on an independent concrete plinth,
+   // and the four-cabin unit is split by reinforced concrete separation / fire walls.
+   const bxL=baseX-10.9, bxR=baseX+2.2, zN=cz-5.65, zS=cz+5.65;
+   const cabins=[[bxL,zN],[bxR,zN],[bxL,zS],[bxR,zS]];
+   for(const [bx,bz] of cabins){
+     box(11.60,.26,4.35,MAT.concrete,bx,.13,bz,unitG,null,.02);      // main plinth
+     box(10.96,.08,3.52,MAT.trim,bx,.30,bz,unitG,null,.01);          // finishing cap
+     box(11.25,.10,.12,MAT.dark,bx,.35,bz-2.19,unitG,null,0);        // front drip edge
+     box(11.25,.10,.12,MAT.dark,bx,.35,bz+2.19,unitG,null,0);        // rear drip edge
+   }
+   // Cross-shaped separation wall system between the four BESS cabins.
+   box(.34,3.85,12.95,MAT.concrete,baseX-4.35,1.95,cz,unitG,null,.02); // between left/right groups
+   box(19.55,3.85,.34,MAT.concrete,baseX-4.35,1.95,cz,unitG,null,.02); // between front/rear groups
+   // Wing walls to echo typical station fire partitions and visually separate stalls.
+   for(const wz of [zN,zS]) box(.30,3.85,4.70,MAT.concrete,baseX-16.95,1.95,wz,unitG,null,.02);
+   for(const wz of [zN,zS]) box(.30,3.85,4.70,MAT.concrete,baseX+8.35,1.95,wz,unitG,null,.02);
+   // Safety curb / painted coping on top of the walls.
+   box(.38,.10,13.05,MAT.yellow,baseX-4.35,3.92,cz,unitG,null,0);
+   box(19.70,.10,.38,MAT.yellow,baseX-4.35,3.92,cz,unitG,null,0);
+
+   batteryContainer(bxL,zN,unitNo,f+1,unitG);
+   batteryContainer(bxR,zN,unitNo,f+1,unitG);
+   batteryContainer(bxL,zS,unitNo,f+1,unitG);
+   batteryContainer(bxR,zS,unitNo,f+1,unitG);
    pcsSkid(baseX+13.2,cz,unitNo,f+1,unitG);
 
    cyl(.34,.14,MAT.yellow,baseX-17.0,.3,cz-9.6,unitG,{
@@ -433,51 +731,425 @@ function switchHouse(x,z,sec,range){
  const g=new THREE.Group();groups.equipment.add(g);
  box(43,8.5,22,MAT.concrete,x,4.4,z,g,{type:"bus",name:`35kV 配电装置 / 母线 ${sec}段`,feeders:range,role:"集电线汇集、保护、计量及主变低压侧连接"},.12);
  box(44,.45,23,MAT.trim,x,8.9,z,g);
- // facade switchgear bays
- for(let i=-17;i<=17;i+=4.3){box(3.2,5.4,.22,MAT.dark,x+i,3.7,z+11.15,g);box(.6,.32,.08,MAT.yellow,x+i,3.7,z+11.3,g)}
+ // facade switchgear bays: recessed metal cubicles, service doors, vents and status indicators.
+ for(let i=-17;i<=17;i+=4.3){
+   box(3.35,5.65,.20,MAT.dark,x+i,3.65,z+11.18,g,null,.035);
+   box(3.12,5.40,.12,MAT.trim,x+i,3.65,z+11.30,g,null,.025);
+   box(2.94,5.18,.08,MAT.bessDoor,x+i,3.65,z+11.38,g,null,.02);
+   box(2.72,.48,.05,MAT.dark,x+i,1.65,z+11.44,g,null,.01);
+   for(let v=0;v<5;v++)box(2.52,.035,.03,MAT.steel,x+i,1.48+v*.075,z+11.48,g,null,0);
+   box(.66,.76,.05,MAT.dark,x+i+.72,3.95,z+11.45,g,null,.01);
+   box(.48,.48,.025,MAT.bessScreen,x+i+.72,3.98,z+11.49,g,null,.005);
+   for(let v=0;v<3;v++)cyl(.055,.04,v===0?MAT.bessHazard:MAT.bessBolt,x+i-.82+v*.18,3.92,z+11.48,g,null,10);
+   box(.10,.34,.08,MAT.bessBolt,x+i+1.25,2.8,z+11.48,g,null,.01);
+ }
  return g;
 }
 switchHouse(270,-58,"I","#1～#10");switchHouse(270,58,"II","#11～#20");
+// Three-phase feeder terminations into 35kV switchgear (conceptual routing).
+// Each feeder reaches the building through the cable basement and terminates at one cubicle.
+for(let f=0;f<20;f++){
+ const row=f<10?0:1, idx=f%10, zc=(row===0?-58:58)+(idx-4.5)*3.35;
+ const entryX=249.2, trenchEndX=257;
+ for(let ph=0;ph<3;ph++){
+   const zz=zc+(ph-1)*.20;
+   pipe(new THREE.Vector3(trenchEndX,.30,zz),new THREE.Vector3(entryX,.30,zz),.055,MAT.dark,groups.equipment);
+   pipe(new THREE.Vector3(entryX,.30,zz),new THREE.Vector3(entryX,1.20,zz),.045,MAT.copper,groups.equipment);
+   cyl(.085,.12,MAT.bessBolt,entryX,1.24,zz,groups.equipment,null,12);
+ }
+ box(.44,.06,.88,MAT.dark,entryX,1.30,zc,groups.equipment,null,0);
+}
+
 
 // ---------- main transformers ----------
 function transformer(x,z,no){
  const g=new THREE.Group();groups.equipment.add(g);
- box(24,.35,18,MAT.concrete,x,.2,z,g);
- const tank=box(11,6.8,8.5,MAT.transformer,x,3.8,z,g,{type:"transformer",name:`主变 #${no}`,rating:"约 250MVA",ratio:"35/220kV",section:no===1?"35kV I段":"35kV II段"},.18); tank.castShadow=true;
- // radiators
- for(const side of[-1,1])for(let i=-4;i<=4;i+=.65)box(.10,5.2,8.8,MAT.steel,x+side*(5.7+i*.0),3.7,z+i*.0,g,null,0);
- for(let i=-3;i<=3;i+=1.0){box(.09,4.8,9.1,MAT.steel,x+5.65,3.65,z+i*.0,g,null,0);box(.09,4.8,9.1,MAT.steel,x-5.65,3.65,z+i*.0,g,null,0)}
- // conservator
- cyl(.75,5.2,MAT.transformer,x,8.0,z-1.8,g).rotation.z=Math.PI/2;
- // bushings
- for(const zz of[-2.5,0,2.5]){cyl(.32,2.0,MAT.ins,x-2.4,8.1,z+zz,g);cyl(.12,1.2,MAT.copper,x-2.4,9.55,z+zz,g)}
- // fire wall
- box(1.0,10,20,MAT.concrete,x+10.4,5,z,g);
+ // Foundation / oil-retaining basin
+ box(28,.34,20,MAT.concrete,x,.20,z,g);
+ box(26,.18,18,MAT.concrete,x,.47,z,g,null,.02);
+ box(28,.55,.42,MAT.concrete,x,.56,z-9.79,g,null,.01);
+ box(28,.55,.42,MAT.concrete,x,.56,z+9.79,g,null,.01);
+ box(.42,.55,20,MAT.concrete,x-13.79,.56,z,g,null,.01);
+ box(.42,.55,20,MAT.concrete,x+13.79,.56,z,g,null,.01);
+ // Steel support skid
+ box(12.6,.42,9.2,MAT.dark,x,1.02,z,g,null,.03);
+ for(const xx of [x-4.7,x+4.7]) pipe(new THREE.Vector3(xx,1.22,z-3.7),new THREE.Vector3(xx,1.22,z+3.7),.12,MAT.steel,g);
+ for(const xx of [x-4.9,x+4.9]) for(const zz of [z-3.9,z+3.9]){
+   cyl(.22,.22,MAT.steel,xx,.72,zz,g,null,14);
+   cyl(.10,.12,MAT.bessBolt,xx,.92,zz,g,null,10);
+ }
+ // Main transformer tank
+ const tank=box(10.8,5.9,6.2,MAT.transformer,x,4.02,z,g,{type:'transformer',name:`主变 #${no}`,rating:'约 250MVA',ratio:'35/220kV',section:no===1?'35kV I段':'35kV II段'},.15);tank.castShadow=true;
+ box(11.05,.26,6.45,MAT.trim,x,7.05,z,g,null,.06);
+ box(10.3,.18,5.7,MAT.transformer,x,7.25,z,g,null,.04);
+ // Tank ribs / seams
+ for(const zz of [z-2.65,z-1.30,z,z+1.30,z+2.65]) box(10.92,5.55,.08,MAT.trim,x,4.02,zz,g,null,0);
+ for(const xx of [x-5.46,x+5.46]) box(.10,5.55,5.78,MAT.trim,xx,4.02,z,g,null,0);
+ // Inspection hatch / nameplate / oil level gauge
+ box(1.45,.08,1.05,MAT.trim,x-1.25,7.41,z-1.70,g,null,.01);
+ box(1.1,.06,.08,MAT.dark,x+5.52,4.28,z+1.58,g,null,0);
+ box(.84,.52,.05,MAT.bessDoor,x+5.58,4.28,z+1.58,g,null,.01);
+ box(.62,.38,.02,MAT.glass,x+5.61,4.28,z+1.58,g,null,0);
+ box(.80,.54,.02,MAT.bessDoor,x+5.58,3.15,z-.25,g,null,.01);
+ // Radiator banks (grouped panels with headers, closer to real main transformer construction)
+ for(const side of [-1,1]){
+   const rx=x+side*6.55;
+   pipe(new THREE.Vector3(rx,1.65,z-4.55),new THREE.Vector3(rx,1.65,z+4.55),.13,MAT.steel,g);
+   pipe(new THREE.Vector3(rx,6.55,z-4.55),new THREE.Vector3(rx,6.55,z+4.55),.13,MAT.steel,g);
+   for(let i=0;i<6;i++){
+     const zz=z-3.75+i*1.50;
+     box(.86,5.05,1.10,MAT.transformer,rx,4.05,zz,g,null,.04);
+     for(let r=0;r<7;r++) box(.10,4.78,.08,MAT.trim,rx+side*.40,4.02,zz-.36+r*.12,g,null,0);
+     box(.08,5.05,1.16,MAT.trim,rx-side*.44,4.05,zz,g,null,0);
+     box(.08,5.05,1.16,MAT.trim,rx+side*.44,4.05,zz,g,null,0);
+     pipe(new THREE.Vector3(rx-side*.06,5.88,zz),new THREE.Vector3(x+side*5.25,5.88,zz),.09,MAT.steel,g);
+     pipe(new THREE.Vector3(rx-side*.06,2.12,zz),new THREE.Vector3(x+side*5.25,2.12,zz),.09,MAT.steel,g);
+   }
+ }
+ // Conservator / oil reservoir
+ const conservator=cyl(.78,7.2,MAT.transformer,x+1.15,8.82,z+2.55,g,null,26);conservator.rotation.z=Math.PI/2;
+ for(const xx of [x-1.15,x+3.45]) box(.20,1.20,.20,MAT.steel,xx,7.95,z+2.55,g,null,0);
+ pipe(new THREE.Vector3(x-.55,8.10,z+2.55),new THREE.Vector3(x-.10,6.85,z+1.15),.10,MAT.steel,g);
+ pipe(new THREE.Vector3(x+2.60,8.10,z+2.55),new THREE.Vector3(x+1.70,6.85,z+1.05),.10,MAT.steel,g);
+ box(.68,.34,.34,MAT.dark,x-2.55,7.95,z+2.55,g,null,.02); // buchholz relay approximation
+ // High-voltage bushings with colored phase caps and top connections
+ const phaseCaps=[0xd9b327,0x2f9b54,0xb33232];
+ for(let i=0;i<3;i++){
+   const zz=z-2.30+i*2.30;
+   cyl(.26,1.10,MAT.ins,x-2.95,7.95,zz,g,null,20);
+   for(let k=0;k<7;k++) cyl(.40-k*.022,.07,MAT.ins,x-2.95,7.50+k*.15,zz,g,null,20);
+   cyl(.11,1.28,MAT.copper,x-2.95,9.08,zz,g,null,12);
+   const cap=mesh(new THREE.CylinderGeometry(.16,.16,.12,14),new THREE.MeshStandardMaterial({color:phaseCaps[i],roughness:.45,metalness:.18}),0,0,0,g);cap.position.set(x-2.95,9.82,zz);
+   pipe(new THREE.Vector3(x-2.95,10.05,zz),new THREE.Vector3(x-1.80,10.55,zz),.06,MAT.copper,g);
+ }
+ // Low-voltage bushings on the opposite side
+ for(let i=0;i<3;i++){
+   const zz=z-1.55+i*1.55;
+   cyl(.20,.88,MAT.ins,x+1.75,7.42,zz,g,null,18);
+   for(let k=0;k<5;k++) cyl(.29-k*.018,.06,MAT.ins,x+1.75,7.08+k*.14,zz,g,null,18);
+   cyl(.09,.92,MAT.copper,x+1.75,8.22,zz,g,null,12);
+ }
+ // Side cabinet, marshalling box, drain valve and earth tape
+ box(1.25,2.50,1.40,MAT.dark,x+6.25,2.30,z+3.15,g,null,.04);
+ box(1.05,2.15,.06,MAT.transformer,x+6.92,2.30,z+3.15,g,null,.02);
+ box(.48,.65,.05,MAT.glass,x+6.98,2.62,z+3.15,g,null,.01);
+ box(.92,.82,.72,MAT.dark,x+5.35,1.32,z-3.15,g,null,.03);
+ pipe(new THREE.Vector3(x+5.35,.92,z-2.78),new THREE.Vector3(x+6.25,.42,z-2.78),.07,MAT.copper,g);
+ pipe(new THREE.Vector3(x+6.25,.42,z-2.78),new THREE.Vector3(x+6.25,.16,z-4.75),.06,MAT.copper,g);
+ cyl(.08,.10,MAT.copper,x+5.55,1.02,z-3.58,g,null,10);
+ // Access ladder / top handrail cue
+ box(.10,2.25,.10,MAT.steel,x+4.82,6.10,z+3.22,g,null,0);
+ box(.10,2.25,.10,MAT.steel,x+5.30,6.10,z+3.22,g,null,0);
+ for(let i=0;i<7;i++) box(.55,.05,.05,MAT.steel,x+5.06,5.20+i*.25,z+3.22,g,null,0);
+ pipe(new THREE.Vector3(x+4.60,7.55,z+2.95),new THREE.Vector3(x+2.60,7.55,z+2.95),.05,MAT.steel,g);
+ // Anti-corrosion plinth / shadow breaker wall at the far side
+ // Open high-voltage side: leave the transformer-to-AIS connection corridor unobstructed.
 }
 transformer(335,-58,1);transformer(335,58,2);
-
-// ---------- 220kV GIS yard ----------
-const gisG=new THREE.Group();groups.equipment.add(gisG);
-box(102,.16,145,MAT.concrete,437,.05,0,gisG,{type:"gis",name:"220kV GIS / 高压配电区",voltage:"220kV",role:"两台主变高压侧汇集并接入电网"},0);
-for(let lane=0;lane<3;lane++){
- const z=-44+lane*44;
- for(let i=0;i<7;i++){
-  const x=405+i*12;
-  cyl(.32,8.5,MAT.steel,x,4.4,z,gisG);
-  cyl(.18,2.5,MAT.ins,x,9.4,z,gisG);
-  box(6,.28,.55,MAT.steel,x,8.7,z,gisG);
-  for(const dz of[-1.7,0,1.7])cyl(.14,2.9,MAT.ins,x+2.4,6.2,z+dz,gisG);
+// 35kV cable connections: switchgear bus section -> transformer LV cable box.
+// Three parallel single-core cables per transformer are shown in a protected duct trench.
+for(const zc of [-58,58]){
+ const tx=335, z=zc;
+ box(43,.18,2.15,MAT.trenchHi,312,.20,z,groups.trenches,null,0);
+ for(let ph=0;ph<3;ph++){
+   const zz=z+(ph-1)*.42;
+   pipe(new THREE.Vector3(291.5,.32,zz),new THREE.Vector3(334.2,.32,zz),.085,MAT.dark,groups.equipment);
+   pipe(new THREE.Vector3(334.2,.32,zz),new THREE.Vector3(340.2,1.18,zz),.075,MAT.copper,groups.equipment);
+   pipe(new THREE.Vector3(340.2,1.18,zz),new THREE.Vector3(340.2,1.85,zz),.075,MAT.dark,groups.equipment);
  }
+ for(let i=-1;i<=1;i++)box(.18,.14,.18,MAT.bessBolt,340.2,.38,z+i*.42,groups.equipment,null,0);
+}
+// ---------- 220kV outdoor AIS switchyard ----------
+const aisG=new THREE.Group();groups.equipment.add(aisG);
+box(142,.22,190,MAT.concrete,420,.06,0,aisG,{type:"ais",name:"220kV AIS 户外敞开式配电装置",voltage:"220kV",role:"主变高压侧汇集、母线及架空出线"},0);
+
+// AIS-specific galvanized steel and porcelain materials.
+const AIS_STEEL=new THREE.MeshStandardMaterial({color:0x9da9ac,metalness:.78,roughness:.34});
+const AIS_GALV=new THREE.MeshStandardMaterial({color:0xb4bec0,metalness:.82,roughness:.30});
+const AIS_DARK=new THREE.MeshStandardMaterial({color:0x3d474b,metalness:.66,roughness:.42});
+const AIS_PORCELAIN=new THREE.MeshStandardMaterial({color:0xd9d3c6,metalness:.08,roughness:.42});
+const AIS_COPPER=new THREE.MeshStandardMaterial({color:0x98704c,metalness:.82,roughness:.28});
+const AIS_RED=new THREE.MeshStandardMaterial({color:0xb43b32,metalness:.28,roughness:.4});
+
+// Reusable outdoor AIS porcelain support with stacked sheds and terminal fittings.
+function aisPost(x,yBase,z,height=3.2,parent=aisG){
+  cyl(.24,.34,AIS_STEEL,x,yBase+.17,z,parent,null,16);
+  cyl(.18,height*.68,AIS_PORCELAIN,x,yBase+.34+height*.34,z,parent,null,18);
+  for(let k=0;k<8;k++){
+    const yy=yBase+.55+k*(height*.68/8);
+    cyl(.34-k*.012,.105,AIS_PORCELAIN,x,yy,z,parent,null,18);
+  }
+  cyl(.16,.24,AIS_STEEL,x,yBase+height+.34,z,parent,null,14);
+  cyl(.10,.22,AIS_COPPER,x,yBase+height+.55,z,parent,null,12);
+  return new THREE.Vector3(x,yBase+height+.66,z);
+}
+function aisTerminal(x,y,z,parent=aisG){
+  cyl(.13,.16,AIS_COPPER,x,y,z,parent,null,12);
+  cyl(.22,.07,AIS_STEEL,x,y+.09,z,parent,null,12);
+}
+function aisLabel(text,x,y,z){
+  label(text,x,y,z,18);
 }
 
-// gantry
-function tower(x,z,h=27){
- const g=new THREE.Group();groups.equipment.add(g);
- for(const sx of[-1,1])for(const sz of[-1,1])pipe(new THREE.Vector3(x+sx*4,0,z+sz*4),new THREE.Vector3(x+sx*.9,h,z+sz*.9),.13,MAT.steel,g);
- pipe(new THREE.Vector3(x-10,h*.72,z),new THREE.Vector3(x+10,h*.72,z),.15,MAT.steel,g);
- pipe(new THREE.Vector3(x-13,h*.55,z),new THREE.Vector3(x+13,h*.55,z),.15,MAT.steel,g);
+// Local transformer-side 220kV portal gantries.
+// These are separate from the remote line gantry and the transmission tower:
+// they provide the first overhead support immediately above/behind each transformer.
+function transformerPortalGantry(x,zc,no){
+  const g=new THREE.Group();aisG.add(g);
+  const postZ=[zc-8.8,zc+8.8], y0=.55, yTop=17.6;
+  // Four-foot lattice columns, with base plates and anchor bolts.
+  for(const z of postZ){
+    box(1.65,.34,1.65,MAT.concrete,x,.22,z,g,null,.025);
+    box(1.10,.18,1.10,AIS_STEEL,x,.48,z,g,null,.015);
+    for(const dx of [-.62,.62])for(const dz of [-.62,.62]){
+      pipe(new THREE.Vector3(x+dx,y0,z+dz),new THREE.Vector3(x+dx*.42,yTop,z+dz*.42),.105,AIS_STEEL,g);
+      cyl(.095,.12,AIS_DARK,x+dx,.62,z+dz,g,null,10);
+    }
+    // Lattice levels and X-bracing on each column face.
+    for(let y=2.8;y<17;y+=2.8){
+      const t=y/yTop, half=.62*(1-t)+.26*t;
+      for(const dx of [-1,1]){
+        pipe(new THREE.Vector3(x+dx*half,y,z-.55),new THREE.Vector3(x+dx*half,y,z+.55),.055,AIS_GALV,g);
+      }
+      pipe(new THREE.Vector3(x-.55,y,z),new THREE.Vector3(x+.55,y,z),.055,AIS_GALV,g);
+    }
+    for(let y=1.0;y<16.0;y+=2.8){
+      const y2=y+2.8;
+      for(const side of [-1,1]){
+        pipe(new THREE.Vector3(x-.55,y,z+side*.55),new THREE.Vector3(x+.55,y2,z+side*.55),.045,AIS_GALV,g);
+        pipe(new THREE.Vector3(x+.55,y,z+side*.55),new THREE.Vector3(x-.55,y2,z+side*.55),.045,AIS_GALV,g);
+      }
+    }
+  }
+  // Portal crossbeam: upper/lower chords with repeated diagonal lattice web.
+  const z1=postZ[0],z2=postZ[1], yUpper=17.75,yLower=16.65;
+  pipe(new THREE.Vector3(x,yUpper,z1),new THREE.Vector3(x,yUpper,z2),.13,AIS_STEEL,g);
+  pipe(new THREE.Vector3(x,yLower,z1),new THREE.Vector3(x,yLower,z2),.13,AIS_STEEL,g);
+  for(let i=0;i<8;i++){
+    const za=z1+(z2-z1)*i/8, zb=z1+(z2-z1)*(i+1)/8;
+    pipe(new THREE.Vector3(x,yLower,za),new THREE.Vector3(x,yUpper,zb),.065,AIS_GALV,g);
+    pipe(new THREE.Vector3(x,yUpper,za),new THREE.Vector3(x,yLower,zb),.065,AIS_GALV,g);
+  }
+  // Top rail and small cantilever brackets.
+  pipe(new THREE.Vector3(x-.55,18.05,z1),new THREE.Vector3(x-.55,18.05,z2),.07,AIS_STEEL,g);
+  for(let ph=0;ph<3;ph++){
+    const zp=zc+(ph-1)*2.55;
+    // Suspension insulator string and hanging clamp directly over each phase.
+    pipe(new THREE.Vector3(x,17.72,zp),new THREE.Vector3(x,16.95,zp),.09,AIS_DARK,g);
+    for(let k=0;k<6;k++)cyl(.22-k*.012,.075,AIS_PORCELAIN,x,16.98-k*.13,zp,g,null,16);
+    cyl(.12,.18,AIS_STEEL,x,16.05,zp,g,null,12);
+    pipe(new THREE.Vector3(x-.45,16.02,zp),new THREE.Vector3(x+.45,16.02,zp),.075,AIS_COPPER,g);
+  }
+  label(`主变 #${no} 高压侧门型构架`,x,19.3,zc,17);
+  return g;
 }
-tower(525,0,31);
+transformerPortalGantry(344.5,-58,1);
+transformerPortalGantry(344.5,58,2);
+
+// Two transformer bays. Each bay has a visible open-air sequence:
+// LA -> CVT -> CT -> disconnector -> circuit breaker -> disconnector -> bus.
+for(const zc of [-58,58]){
+  // Bay equipment foundation strips and steel support stools.
+  box(112,.16,17,MAT.concrete,405,.25,zc,aisG,null,.02);
+  for(const xx of [350,365,380,395,410,425,440,455]){
+    for(const dz of [-5.7,5.7]){
+      box(.82,.72,.82,MAT.concrete,xx,.68,zc+dz,aisG,null,.02);
+      box(.42,.18,.42,AIS_STEEL,xx,1.12,zc+dz,aisG,null,.01);
+    }
+  }
+  // Phase conductors are arranged across the bay, with clearly separated A/B/C phases.
+  for(let ph=0;ph<3;ph++){
+    const zp=zc+(ph-1)*2.55;
+    const bushing=new THREE.Vector3(332.05,10.05,zp);
+    const laTop=aisPost(351.5,1.45,zp,4.65);
+    // Surge arrester (LA): ribbed porcelain column and top grading terminal.
+    cyl(.42,.42,AIS_STEEL,351.5,1.18,zp,aisG,null,16);
+    cyl(.18,3.45,AIS_PORCELAIN,351.5,3.20,zp,aisG,null,18);
+    for(let k=0;k<9;k++)cyl(.31-k*.012,.12,AIS_PORCELAIN,351.5,1.85+k*.34,zp,aisG,null,18);
+    cyl(.13,.38,AIS_COPPER,351.5,5.12,zp,aisG,null,12);
+    box(.42,.16,.42,AIS_STEEL,351.5,1.45,zp,aisG,null,.01);
+    // CVT / voltage transformer: stacked porcelain body, upper capacitor head and terminal.
+    const cvtTop=aisPost(367,1.45,zp,4.25);
+    cyl(.56,.70,AIS_STEEL,367,5.72,zp,aisG,null,18);
+    cyl(.38,1.65,AIS_PORCELAIN,367,4.42,zp,aisG,null,18);
+    for(let k=0;k<6;k++)cyl(.51-k*.018,.12,AIS_PORCELAIN,367,3.80+k*.28,zp,aisG,null,18);
+    box(.72,.30,.72,AIS_DARK,367,1.65,zp,aisG,null,.02);
+    // CT: pedestal with a recognizable toroidal current-transformer head.
+    const ctTop=aisPost(382.5,1.45,zp,4.05);
+    cyl(.55,.70,AIS_STEEL,382.5,5.70,zp,aisG,null,18);
+    const ctRing=mesh(new THREE.TorusGeometry(.38,.13,10,24),AIS_PORCELAIN,382.5,6.15,zp,aisG);
+    ctRing.rotation.x=Math.PI/2;
+    cyl(.12,.34,AIS_COPPER,382.5,6.55,zp,aisG,null,12);
+    // First disconnector: two porcelain posts and a visible open blade.
+    const ds1a=aisPost(397,1.45,zp,4.35), ds1b=aisPost(401.2,1.45,zp,4.35);
+    pipe(new THREE.Vector3(397,ds1a.y,zp),new THREE.Vector3(399.35,ds1a.y+.35,zp),.095,AIS_COPPER,aisG);
+    pipe(new THREE.Vector3(400.15,ds1b.y,zp),new THREE.Vector3(401.2,ds1b.y,zp),.095,AIS_COPPER,aisG);
+    cyl(.16,.18,AIS_STEEL,399.75,ds1a.y+.05,zp,aisG,null,12);
+    pipe(new THREE.Vector3(397,2.0,zp),new THREE.Vector3(397,1.45,zp),.07,AIS_STEEL,aisG);
+    pipe(new THREE.Vector3(397,1.45,zp),new THREE.Vector3(401.2,1.45,zp),.07,AIS_STEEL,aisG);
+    // Circuit breaker: three individual pole housings and operating mechanism.
+    const cbTop=aisPost(416,1.45,zp,3.75);
+    cyl(.42,1.65,AIS_STEEL,416,5.05,zp,aisG,null,18);
+    cyl(.31,.72,AIS_PORCELAIN,416,6.18,zp,aisG,null,18);
+    for(let k=0;k<5;k++)cyl(.43-k*.025,.10,AIS_PORCELAIN,416,5.85+k*.19,zp,aisG,null,18);
+    box(1.55,.95,1.05,AIS_DARK,416,1.85,zp,aisG,null,.04);
+    box(1.18,.20,.84,AIS_STEEL,416,2.42,zp,aisG,null,.02);
+    pipe(new THREE.Vector3(416,2.35,zp),new THREE.Vector3(416,4.0,zp),.075,AIS_STEEL,aisG);
+    // Second disconnector and bus riser.
+    const ds2a=aisPost(432,1.45,zp,4.35), ds2b=aisPost(436.2,1.45,zp,4.35);
+    pipe(new THREE.Vector3(432,ds2a.y,zp),new THREE.Vector3(434.25,ds2a.y+.30,zp),.095,AIS_COPPER,aisG);
+    pipe(new THREE.Vector3(435.2,ds2b.y,zp),new THREE.Vector3(436.2,ds2b.y,zp),.095,AIS_COPPER,aisG);
+    // Flexible jumpers from transformer bushing through the AIS bay.
+    const portalDrop=new THREE.Vector3(344.5,16.02,zp);
+    hvWire(bushing,new THREE.Vector3(338.5,12.05,zp),.30,.055,AIS_COPPER,aisG);
+    hvWire(new THREE.Vector3(338.5,12.05,zp),portalDrop,.22,.055,AIS_COPPER,aisG);
+    hvWire(portalDrop,new THREE.Vector3(351.5,7.15,zp),.48,.055,AIS_COPPER,aisG);
+    hvWire(new THREE.Vector3(351.5,7.15,zp),new THREE.Vector3(367,7.10,zp),.35,.052,AIS_COPPER,aisG);
+    hvWire(new THREE.Vector3(367,7.10,zp),new THREE.Vector3(382.5,7.15,zp),.35,.052,AIS_COPPER,aisG);
+    hvWire(new THREE.Vector3(382.5,7.15,zp),new THREE.Vector3(397,7.30,zp),.30,.052,AIS_COPPER,aisG);
+    hvWire(new THREE.Vector3(401.2,7.30,zp),new THREE.Vector3(416,7.10,zp),.30,.052,AIS_COPPER,aisG);
+    hvWire(new THREE.Vector3(416,7.10,zp),new THREE.Vector3(432,7.30,zp),.30,.052,AIS_COPPER,aisG);
+    hvWire(new THREE.Vector3(436.2,7.30,zp),new THREE.Vector3(450,12.65,zp),.42,.052,AIS_COPPER,aisG);
+    // Support post for the common 220kV bus.
+    aisPost(450,1.45,zp,9.6);
+  }
+  aisLabel(`220kV 主变 ${zc<0?"#1":"#2"} 出线间隔`,404,12.2,zc-11);
+}
+
+// Common three-phase 220kV busbars on elevated post insulators.
+for(const busX of [462,474]){
+  for(let ph=0;ph<3;ph++){
+    const zp=(ph-1)*2.7;
+    for(let z=-82;z<=82;z+=20)aisPost(busX,1.45,z+zp,10.4);
+    for(let z=-82;z<82;z+=20){
+      hvWire(new THREE.Vector3(busX,12.35,z+zp),new THREE.Vector3(busX,12.35,Math.min(82,z+20)+zp),.22,.075,AIS_COPPER,aisG);
+    }
+  }
+}
+// Jumper connections from both transformer bays to the common bus, three phases each.
+for(const zc of [-58,58]){
+  for(let ph=0;ph<3;ph++){
+    const zp=zc+(ph-1)*2.55, busZ=(ph-1)*2.7;
+    hvWire(new THREE.Vector3(450,12.65,zp),new THREE.Vector3(462,13.65,busZ),.28,.06,AIS_COPPER,aisG);
+  }
+}
+// Line bay from the common bus to the outgoing portal gantry.
+for(let ph=0;ph<3;ph++){
+  const zp=(ph-1)*2.7;
+  aisPost(480,1.45,zp,10.4);
+  hvWire(new THREE.Vector3(474,12.35,zp),new THREE.Vector3(480,13.0,zp),.15,.065,AIS_COPPER,aisG);
+  hvWire(new THREE.Vector3(480,13.0,zp),new THREE.Vector3(488,16.8,zp),.28,.06,AIS_COPPER,aisG);
+}
+aisLabel("220kV AIS 户外配电装置",421,19,-88);
+aisLabel("主变高压侧 → AIS → 220kV 架空出线",430,22,88);
+
+// ---------- 220kV steel gantries and public grid connection ----------
+const HV_STEEL = new THREE.MeshStandardMaterial({color:0x78858a,metalness:.78,roughness:.34});
+const HV_GALV = new THREE.MeshStandardMaterial({color:0xaeb8ba,metalness:.82,roughness:.28});
+const HV_INS = new THREE.MeshStandardMaterial({color:0x252c31,metalness:.22,roughness:.42});
+const HV_WIRE = new THREE.MeshStandardMaterial({color:0x343b3d,metalness:.86,roughness:.26});
+function hvWire(a,b,sag=.8,r=.045,mat=HV_WIRE,parent=groups.equipment){
+ const mid=new THREE.Vector3((a.x+b.x)/2,(a.y+b.y)/2-sag,(a.z+b.z)/2);
+ const curve=new THREE.QuadraticBezierCurve3(a,mid,b);
+ return mesh(new THREE.TubeGeometry(curve,18,r,7,false),mat,0,0,0,parent);
+}
+function latticeTower(x,z,h=34,scale=1){
+ const g=new THREE.Group();groups.equipment.add(g);
+ const half=4.8*scale, top=1.05*scale;
+ // Four tapered legs
+ for(const sx of [-1,1])for(const sz of [-1,1]){
+   const foot=new THREE.Vector3(x+sx*half,.25,z+sz*half);
+   const crown=new THREE.Vector3(x+sx*top,h,z+sz*top);
+   pipe(foot,crown,.16*scale,HV_STEEL,g);
+   box(.82*scale,.22*scale,.82*scale, MAT.concrete,foot.x,.12,foot.z,g,null,.01);
+ }
+ // Horizontal lattice levels and X bracing on all four faces
+ const levels=[.8,4.5,8.5,12.5,16.5,20.5,24.5,28.5,h-1.2].filter(v=>v<h);
+ for(const y of levels){
+   const t=1-(y/h), w=top+(half-top)*t;
+   for(const sz of [-1,1])pipe(new THREE.Vector3(x-w,y,z+sz*w),new THREE.Vector3(x+w,y,z+sz*w),.075*scale,HV_STEEL,g);
+   for(const sx of [-1,1])pipe(new THREE.Vector3(x+sx*w,y,z-w),new THREE.Vector3(x+sx*w,y,z+w),.075*scale,HV_STEEL,g);
+ }
+ for(let i=0;i<levels.length-1;i++){
+   const y0=levels[i],y1=levels[i+1],t0=1-y0/h,t1=1-y1/h,w0=top+(half-top)*t0,w1=top+(half-top)*t1;
+   for(const sz of [-1,1]){
+     pipe(new THREE.Vector3(x-w0,y0,z+sz*w0),new THREE.Vector3(x+w1,y1,z+sz*w1),.055*scale,HV_GALV,g);
+     pipe(new THREE.Vector3(x+w0,y0,z+sz*w0),new THREE.Vector3(x-w1,y1,z+sz*w1),.055*scale,HV_GALV,g);
+   }
+   for(const sx of [-1,1]){
+     pipe(new THREE.Vector3(x+sx*w0,y0,z-w0),new THREE.Vector3(x+sx*w1,y1,z+w1),.055*scale,HV_GALV,g);
+     pipe(new THREE.Vector3(x+sx*w0,y0,z+w0),new THREE.Vector3(x+sx*w1,y1,z-w1),.055*scale,HV_GALV,g);
+   }
+ }
+ // Double-circuit cross arms, insulator strings and phase attachment points
+ for(const [yy,spread] of [[h*.78,8.8],[h*.66,7.0],[h*.54,5.2]]){
+   pipe(new THREE.Vector3(x,yy,z-spread),new THREE.Vector3(x,yy,z+spread),.16*scale,HV_STEEL,g);
+   for(const side of [-1,1]){
+     const zz=z+side*spread;
+     pipe(new THREE.Vector3(x,yy,zz),new THREE.Vector3(x,yy-1.25*scale,zz),.10*scale,HV_STEEL,g);
+     for(let k=0;k<5;k++){
+       const ins=cyl(.19*scale,.22*scale,HV_INS,x,yy-1.42*scale-k*.25*scale,zz,g,null,14);
+       ins.rotation.z=Math.PI/2;
+     }
+     cyl(.10*scale,.28*scale,HV_GALV,x,yy-2.65*scale,zz,g,null,12);
+   }
+ }
+ // Peak earth-wire peak and lightning shield wire support
+ pipe(new THREE.Vector3(x,h-1.2,z),new THREE.Vector3(x,h+2.2,z),.12*scale,HV_STEEL,g);
+ pipe(new THREE.Vector3(x-2.2*scale,h+1.0,z),new THREE.Vector3(x+2.2*scale,h+1.0,z),.10*scale,HV_STEEL,g);
+ return g;
+}
+function portalGantry(x,zCenter,width=150,height=18){
+ const g=new THREE.Group();groups.equipment.add(g);
+ const zL=zCenter-width/2,zR=zCenter+width/2;
+ // Portal columns with tapered bracing
+ for(const zz of [zL,zR]){
+   pipe(new THREE.Vector3(x,.35,zz),new THREE.Vector3(x,height,zz),.22,HV_STEEL,g);
+   pipe(new THREE.Vector3(x-1.1,.35,zz),new THREE.Vector3(x,height-1.2,zz),.10,HV_GALV,g);
+   pipe(new THREE.Vector3(x+1.1,.35,zz),new THREE.Vector3(x,height-1.2,zz),.10,HV_GALV,g);
+   box(1.7,.28,1.7,MAT.concrete,x,.16,zz,g,null,.02);
+ }
+ // Trussed top cross beam
+ pipe(new THREE.Vector3(x,height,zL),new THREE.Vector3(x,height,zR),.25,HV_STEEL,g);
+ pipe(new THREE.Vector3(x,height+.55,zL),new THREE.Vector3(x,height+.55,zR),.16,HV_GALV,g);
+ for(let i=0;i<24;i++){
+   const zz=zL+(zR-zL)*i/24;
+   pipe(new THREE.Vector3(x,height,zz),new THREE.Vector3(x,height+.55,zz+(i%2===0?width/24:-width/24)),.045,HV_GALV,g);
+ }
+ // Vertical suspension insulator strings and phase clamps across the bay
+ for(let zz=zL+15;zz<zR;zz+=15){
+   for(let ph=0;ph<3;ph++){
+     const z=zz+(ph-1)*1.25;
+     for(let k=0;k<7;k++)cyl(.22-k*.012,.11,HV_INS,x,height-.95-k*.19,z,g,null,14);
+     box(.28,.12,.28,HV_GALV,x,height-2.45,z,g,null,0);
+   }
+ }
+ return g;
+}
+// Two station gantry bays form the visible 220kV outgoing portal structure.
+portalGantry(488,0,150,18.5);
+portalGantry(502,0,150,19.5);
+// AIS outgoing three-phase conductors continue across the portal gantry.
+for(let ph=0;ph<3;ph++){
+ const zz=(ph-1)*2.7;
+ hvWire(new THREE.Vector3(488,16.8,zz),new THREE.Vector3(502,17.8,zz),.35,.06,HV_WIRE);
+}
+// Main 220kV lattice transmission tower at the station boundary and a distant grid tower.
+latticeTower(535,0,36,1.0);
+latticeTower(665,0,33,.78);
+// Three-phase outgoing lines (double-circuit visual arrangement) from gantry to tower and onward.
+for(const z0 of [-8.8,0,8.8]){
+ const y0=z0===0?15.0:19.0;
+ hvWire(new THREE.Vector3(502,y0,z0),new THREE.Vector3(535,y0-1.0,z0),1.25,.052,HV_WIRE);
+ hvWire(new THREE.Vector3(535,y0-1.0,z0),new THREE.Vector3(665,y0-2.0,z0),3.8,.052,HV_WIRE);
+ hvWire(new THREE.Vector3(665,y0-2.0,z0),new THREE.Vector3(790,y0-1.2,z0),3.2,.052,HV_WIRE);
+}
+// Shield / earth wire above the phase conductors
+hvWire(new THREE.Vector3(502,22.0,0),new THREE.Vector3(535,38.0,0),.4,.032,HV_GALV);
+hvWire(new THREE.Vector3(535,38.0,0),new THREE.Vector3(665,35.5,0),4.0,.032,HV_GALV);
+hvWire(new THREE.Vector3(665,35.5,0),new THREE.Vector3(790,36.0,0),3.0,.032,HV_GALV);
+label("220kV AIS 构架 / 架空出线",495,25,-82,27);
+label("公共电网 · 220kV 输电线路",650,28,24,30);
 
 // control building
 const admin=new THREE.Group();groups.equipment.add(admin);
@@ -489,7 +1161,7 @@ for(let i=-17;i<=17;i+=7)for(let y=3;y<=7;y+=4)box(3.2,2,.10,MAT.glass,310+i,y,1
 label("储能区 · 100 个 5MW/20MWh 单元",-60,22,-318,62);
 label("35kV 配电装置",270,18,0,30);
 label("主变区 · 2×35/220kV",337,19,0,34);
-label("220kV GIS / 并网区",440,21,-75,34);
+label("220kV AIS / 户外升压站",440,21,-75,34);
 
 // ---------- fence & greenery ----------
 const outline=[[-450,-340],[545,-340],[545,340],[-450,340],[-450,-340]];
@@ -506,11 +1178,11 @@ for(let i=0;i<100;i++){
 // ---------- time presets ----------
 function setTime(mode){
  if(mode==="day"){
-  scene.background.set(0xaebcc1);scene.fog.color.set(0xaab8bc);sun.color.set(0xfff1d2);sun.intensity=3;sun.position.set(-180,330,-120);hemi.intensity=1.3;fill.intensity=.38;renderer.toneMappingExposure=.92;
+  scene.background.set(0xaebcc1);scene.fog.color.set(0xaab8bc);sun.color.set(0xfff1d2);sun.intensity=3;sun.position.set(-180,330,-120);hemi.intensity=1.12;fill.intensity=.30;renderer.toneMappingExposure=1.02;
  }else if(mode==="golden"){
-  scene.background.set(0x9b8172);scene.fog.color.set(0x9d8b80);sun.color.set(0xffb26b);sun.intensity=3.8;sun.position.set(-320,120,-150);hemi.color.set(0xb6c6d6);hemi.intensity=.9;fill.intensity=.22;renderer.toneMappingExposure=.86;
+  scene.background.set(0x9b8172);scene.fog.color.set(0x9d8b80);sun.color.set(0xffb26b);sun.intensity=3.8;sun.position.set(-320,120,-150);hemi.color.set(0xb6c6d6);hemi.intensity=.92;fill.intensity=.20;renderer.toneMappingExposure=.94;
  }else{
-  scene.background.set(0x07101a);scene.fog.color.set(0x0a1620);sun.color.set(0x87a8c8);sun.intensity=.35;sun.position.set(-120,260,-90);hemi.color.set(0x36506b);hemi.groundColor.set(0x111a12);hemi.intensity=.65;fill.intensity=.12;renderer.toneMappingExposure=.72;
+  scene.background.set(0x07101a);scene.fog.color.set(0x0a1620);sun.color.set(0x87a8c8);sun.intensity=.35;sun.position.set(-120,260,-90);hemi.color.set(0x36506b);hemi.groundColor.set(0x111a12);hemi.intensity=.72;fill.intensity=.16;renderer.toneMappingExposure=.82;
  }
  sun.target.updateMatrixWorld();
 }
@@ -520,7 +1192,7 @@ const kv=document.getElementById("kv");
 function show(d){
  const a=[];const add=(k,v)=>a.push(`<div class="k">${k}</div><div class="v">${v}</div>`);
  add("当前选择",d.name||"设备");
- if(d.type==="battery"){add("所属单元",`#${d.unit}`);add("所属集电线",`#${d.feeder}`);add("容量",d.energy);add("直流侧",d.dc)}
+ if(d.type==="battery"){add("所属单元",`#${d.unit}`);add("所属集电线",`#${d.feeder}`);add("容量",d.energy);add("直流侧",d.dc);if(d.model)add("3D 模型",d.model)}
  if(d.type==="pcs"){add("所属单元",`#${d.unit}`);add("所属集电线",`#${d.feeder}`);add("功率",d.power);add("能量路径",d.path)}
  if(d.type==="unit"){add("规模",d.rating);add("组成",d.composition);add("所属集电线",`#${d.feeder}`)}
  if(d.type==="trench"){add("所属回路",`#${d.feeder}`);add("敷设方式",d.laying)}
@@ -531,58 +1203,228 @@ function show(d){
  if(d.type==="building")add("用途",d.role);
  kv.innerHTML=a.join("");
 }
-renderer.domElement.addEventListener("pointerdown",e=>{
- const r=renderer.domElement.getBoundingClientRect();pointer.x=(e.clientX-r.left)/r.width*2-1;pointer.y=-(e.clientY-r.top)/r.height*2+1;ray.setFromCamera(pointer,camera);
- const h=ray.intersectObjects(clickable,true);if(h.length)show(h[0].object.userData);
+// 第三人称：pointerdown 只记录开始位置，不进行耗时拾取或捕获指针。
+renderer.domElement.addEventListener('pointerdown',e=>{
+  e.preventDefault();
+  if(viewMode!=='orbit'||(e.button!==0&&e.button!==2))return;
+  orbitDrag={id:e.pointerId,button:e.button,x:e.clientX,y:e.clientY,startX:e.clientX,startY:e.clientY,moved:false};
 });
+window.addEventListener('pointermove',e=>{
+  if(!orbitDrag||viewMode!=='orbit'||e.pointerId!==orbitDrag.id)return;
+  e.preventDefault();
+  const dx=Math.max(-80,Math.min(80,e.clientX-orbitDrag.x)),dy=Math.max(-80,Math.min(80,e.clientY-orbitDrag.y));
+  if(Math.hypot(e.clientX-orbitDrag.startX,e.clientY-orbitDrag.startY)>5)orbitDrag.moved=true;
+  orbitDrag.x=e.clientX;orbitDrag.y=e.clientY;
+  if(orbitDrag.moved){if(orbitDrag.button===0)rotateOrbit(dx,dy);else panOrbit(dx,dy)}
+});
+window.addEventListener('pointerup',e=>{
+  if(!orbitDrag||e.pointerId!==orbitDrag.id)return;
+  const action=orbitDrag;orbitDrag=null;
+  // 只有左键、移动小于 5 像素的真正单击才检测设备。
+  if(viewMode==='orbit'&&action.button===0&&!action.moved){
+    const r=renderer.domElement.getBoundingClientRect();
+    if(e.clientX<r.left||e.clientX>r.right||e.clientY<r.top||e.clientY>r.bottom)return;
+    pointer.x=(e.clientX-r.left)/r.width*2-1;pointer.y=-(e.clientY-r.top)/r.height*2+1;
+    ray.setFromCamera(pointer,camera);
+    const hit=ray.intersectObjects(clickable,false);
+    if(hit.length)show(hit[0].object.userData);
+  }
+});
+window.addEventListener('pointercancel',()=>orbitDrag=null);
+window.addEventListener('blur',()=>{orbitDrag=null});
+renderer.domElement.addEventListener('contextmenu',e=>e.preventDefault());
+renderer.domElement.addEventListener('wheel',e=>{
+  if(viewMode!=='orbit')return;
+  e.preventDefault();zoomOrbit(e.deltaY);
+},{passive:false});
 
 // ---------- UI ----------
 const feeder=document.getElementById("feeder");for(let i=1;i<=20;i++){const o=document.createElement("option");o.value=i-1;o.textContent=`35kV 集电线路 #${i}`;feeder.appendChild(o)}
-function cam(x,y,z,tx,ty,tz){camera.position.set(x,y,z);controls.target.set(tx,ty,tz);controls.update()}
-document.getElementById("reset").onclick=()=>cam(430,270,430,20,0,15);
-document.getElementById("topview").onclick=()=>cam(0,720,.01,10,0,10);
-document.getElementById("walk").onclick=()=>cam(-135,13,275,-80,3,95);
+function cam(x,y,z,tx,ty,tz){if(viewMode==='fps')exitFPS();camera.position.set(x,y,z);controls.target.set(tx,ty,tz);controls.update()}
+let viewMode='orbit';
+const keyDown=new Set(), walkPos=new THREE.Vector3(-353,1.76,-188);
+let yaw=0.78,pitch=-.04,lastUpdate=performance.now(),dragLook=null;
+const walkHud=document.getElementById('walkHUD'),lockBtn=document.getElementById('lockMouse');
+const orbBtn=document.getElementById('thirdPerson'),fpsBtn=document.getElementById('firstPerson');
+function setModeUI(){
+  walkHud.hidden=viewMode!=='fps';orbBtn.classList.toggle('active',viewMode==='orbit');fpsBtn.classList.toggle('active',viewMode==='fps');
+  lockBtn.hidden=viewMode!=='fps'||document.pointerLockElement===renderer.domElement;
+  document.getElementById('tip').style.display=viewMode==='fps'?'none':'';
+}
+function enterFPS(){
+  viewMode='fps';orbitDrag=null;controls.enabled=false;keyDown.clear();lastUpdate=performance.now();camera.position.copy(walkPos);
+  camera.rotation.order='YXZ';camera.rotation.set(pitch,yaw,0,'YXZ');
+  setModeUI();
+  // 稳定模式：进入第一人称不自动锁定鼠标，防止嵌入预览器切换焦点或关闭。
+}
+function exitFPS(){
+  if(viewMode!=='fps')return;
+  viewMode='orbit';orbitDrag=null;keyDown.clear();lastUpdate=performance.now();controls.enabled=true;
+  if(document.pointerLockElement===renderer.domElement)document.exitPointerLock?.();
+  const target=walkPos.clone().add(new THREE.Vector3(-Math.sin(yaw)*18,0,-Math.cos(yaw)*18));
+  controls.target.copy(target);camera.position.copy(walkPos).add(new THREE.Vector3(-34,24,32));controls.update();setModeUI();
+}
+document.getElementById('reset').onclick=()=>cam(430,270,430,20,0,15);
+document.getElementById('topview').onclick=()=>cam(0,720,.01,10,0,10);
+document.getElementById('detailView').onclick=()=>cam(-345,8,-198,-345,2,-210);
+orbBtn.onclick=()=>exitFPS();fpsBtn.onclick=()=>enterFPS();
+lockBtn.onclick=()=>{try{const p=renderer.domElement.requestPointerLock?.();if(p&&typeof p.catch==='function')p.catch(e=>console.warn('鼠标锁定被浏览器拒绝，仍可拖动环视',e));}catch(e){console.warn('鼠标锁定不可用',e)}};
+document.addEventListener('pointerlockchange',setModeUI);
+document.addEventListener('mousemove',e=>{if(viewMode!=='fps')return;if(document.pointerLockElement===renderer.domElement){yaw-=e.movementX*.0022;pitch=Math.max(-1.46,Math.min(1.46,pitch-e.movementY*.0021))}});
+renderer.domElement.addEventListener('pointerdown',e=>{if(viewMode==='fps'&&e.button===0&&document.pointerLockElement!==renderer.domElement){dragLook={x:e.clientX,y:e.clientY};renderer.domElement.focus({preventScroll:true})}});
+renderer.domElement.addEventListener('pointermove',e=>{if(viewMode==='fps'&&dragLook&&document.pointerLockElement!==renderer.domElement){yaw-=(e.clientX-dragLook.x)*.004;pitch=Math.max(-1.46,Math.min(1.46,pitch-(e.clientY-dragLook.y)*.004));dragLook={x:e.clientX,y:e.clientY}}});
+window.addEventListener('pointerup',()=>dragLook=null);
+document.addEventListener('keydown',e=>{
+  if(['KeyW','KeyA','KeyS','KeyD','ShiftLeft','ShiftRight','ArrowUp','ArrowDown','ArrowLeft','ArrowRight','KeyV'].includes(e.code)&&viewMode==='fps')e.preventDefault();
+  if(e.code==='KeyV'&&!e.repeat){viewMode==='fps'?exitFPS():enterFPS();return}
+  keyDown.add(e.code);
+});
+document.addEventListener('keyup',e=>keyDown.delete(e.code));
+window.addEventListener('blur',()=>keyDown.clear());
+function freePosition(x,z){
+  if(x<-446||x>541||z<-334||z>334)return false;
+  const radius=.43;
+  for(const b of walkObstacles)if(x>b.minX-radius&&x<b.maxX+radius&&z>b.minZ-radius&&z<b.maxZ+radius)return false;
+  return true;
+}
+function updateFPS(dt){
+  if(viewMode!=='fps')return;
+  let f=(keyDown.has('KeyW')||keyDown.has('ArrowUp')?1:0)-(keyDown.has('KeyS')||keyDown.has('ArrowDown')?1:0);
+  let r=(keyDown.has('KeyD')||keyDown.has('ArrowRight')?1:0)-(keyDown.has('KeyA')||keyDown.has('ArrowLeft')?1:0);
+  const scale=Math.hypot(f,r)||1,speed=(keyDown.has('ShiftLeft')||keyDown.has('ShiftRight'))?12:5.4;
+  // Three.js YXZ camera convention: forward=(-sin(yaw),0,-cos(yaw)), right=(cos(yaw),0,-sin(yaw)).
+  // Keep movement horizontal even when looking up or down; normalize diagonal input.
+  const forwardX=-Math.sin(yaw),forwardZ=-Math.cos(yaw);
+  const rightX=Math.cos(yaw),rightZ=-Math.sin(yaw);
+  const dx=(forwardX*f+rightX*r)/scale*speed*dt;
+  const dz=(forwardZ*f+rightZ*r)/scale*speed*dt;
+  if(freePosition(walkPos.x+dx,walkPos.z))walkPos.x+=dx;
+  if(freePosition(walkPos.x,walkPos.z+dz))walkPos.z+=dz;
+  camera.position.copy(walkPos);
+  camera.rotation.set(pitch,yaw,0,'YXZ');
+}
+setModeUI();
 document.getElementById("trenches").onclick=e=>{e.currentTarget.classList.toggle("active");groups.trenches.visible=e.currentTarget.classList.contains("active")};
 document.getElementById("labels").onclick=e=>{e.currentTarget.classList.toggle("active");groups.labels.visible=e.currentTarget.classList.contains("active")};
 document.getElementById("time").onchange=e=>setTime(e.target.value);
-function detectQuality(){
-  if(/Android|iPhone|iPad|Mobile/i.test(navigator.userAgent)) return "low";
-  const cores=navigator.hardwareConcurrency||4;
-  const mem=navigator.deviceMemory||4;
-  if(cores<=4 || mem<=4) return "medium";
-  return "high";
+// Safety profile intentionally wins over platform heuristic: Chrome/Edge process crashes
+// cannot be caught in JavaScript. Start at a conservative workload, opt in to High manually.
+let currentQuality='safe';
+let detailPolicy='auto';
+let fineDetailsVisible=null;
+const diagEl=document.getElementById('diag');
+const diagText=document.getElementById('diagText');
+const diagToggle=document.getElementById('diagToggle');
+let contextStatus='OK';
+let movingMs=0;
+let fpsSamples=0;
+let fpsTime=0;
+let lastFPS=0;
+let lastStatsUpdate=0;
+let recentLog=[];
+function logDiagnostic(message){
+  recentLog.push(`${new Date().toLocaleTimeString()} ${message}`);
+  if(recentLog.length>14)recentLog.shift();
 }
-function applyQuality(q){
-  if(q==="auto") q=detectQuality();
-  const dpr=window.devicePixelRatio||1;
-  if(q==="high"){
-    renderer.setPixelRatio(Math.min(dpr,1.35));
-    sun.shadow.mapSize.set(2048,2048);
-    renderer.shadowMap.enabled=true;
-    scene.fog.density=.00145;
-  }else if(q==="medium"){
-    renderer.setPixelRatio(Math.min(dpr,1.0));
-    sun.shadow.mapSize.set(1536,1536);
-    renderer.shadowMap.enabled=true;
-    scene.fog.density=.0016;
-  }else{
-    renderer.setPixelRatio(Math.min(dpr,.8));
-    sun.shadow.mapSize.set(1024,1024);
-    renderer.shadowMap.enabled=false;
-    scene.fog.density=.0018;
+function applyDetailPolicy(){
+  let visible=false;
+  if(detailPolicy==='on')visible=true;
+  else if(detailPolicy==='off')visible=false;
+  else {
+    // Hide tiny instanced parts in aerial view, expose at realistic close distances.
+    // Avoid all 400*component detail draw batches in every full-station rotation.
+    let nearest=Infinity;
+    if(camera.position.y<65){
+      for(const p of bessPositions){
+        const dx=camera.position.x-p[0], dz=camera.position.z-p[1];
+        const dist=dx*dx+dz*dz;
+        if(dist<nearest)nearest=dist;
+      }
+    }
+    visible=camera.position.y<35 && nearest<85*85;
   }
-  renderer.setSize(innerWidth,innerHeight,false);
+  if(fineDetailsVisible!==visible){
+    fineDetailsVisible=visible;
+    for(const bucket of Object.values(bessParts))bucket.mesh.visible=visible;
+    bessDecals.mesh.visible=visible;
+    logDiagnostic(`近景部件：${visible?'显示':'隐藏'}`);
+  }
 }
-const qualitySel=document.getElementById("quality");
+function changeDetailPolicy(){
+  detailPolicy=detailPolicy==='auto'?'off':detailPolicy==='off'?'on':'auto';
+  document.getElementById('detailToggle').textContent='细节：'+({auto:'自动',off:'关闭',on:'强制开启'}[detailPolicy]);
+  logDiagnostic(`细节策略：${detailPolicy}`);
+  applyDetailPolicy();
+}
+document.getElementById('detailToggle').onclick=changeDetailPolicy;
+diagToggle.onclick=()=>{diagEl.hidden=!diagEl.hidden;diagToggle.classList.toggle('active',!diagEl.hidden);updateDiag(true)};
+function updateDiag(force=false){
+  if(diagEl.hidden && !force)return;
+  const ri=renderer.info;
+  const gl=renderer.getContext();
+  diagText.textContent=[
+    `状态：${contextStatus}`,
+    `视角：${viewMode==='fps'?'第一人称':'第三人称'}`,
+    `画质：${currentQuality} / 实际 DPR ${renderer.getPixelRatio().toFixed(2)}`,
+    `分辨率：${renderer.domElement.width}×${renderer.domElement.height}`,
+    `FPS(估计)：${lastFPS}`,
+    `每帧绘制：${ri.render.calls} calls / ${ri.render.triangles} tris`,
+    `资源：${ri.memory.geometries} geometries / ${ri.memory.textures} textures`,
+    `细节：${detailPolicy}, ${fineDetailsVisible?'近景开启':'远景关闭'}`,
+    `浏览器：${navigator.userAgent.slice(0,100)}`,
+    `渲染器：${gl.getParameter(gl.RENDERER)}`,
+    '最近记录：', ...recentLog.slice(-5)
+  ].join('\n');
+}
+document.getElementById('copyDiag').onclick=()=>{
+  updateDiag(true);
+  navigator.clipboard?.writeText(diagText.textContent).catch(()=>prompt('复制诊断信息',diagText.textContent));
+};
+function applyQuality(q){
+  currentQuality=q;
+  const dpr=window.devicePixelRatio||1;
+  // Keep the safe preset at native resolution on common 1080p displays.
+  // Higher presets allow supersampling on capable GPUs, while pixel budgets
+  // prevent excessive framebuffer allocations on large/high-DPI displays.
+  let ratio=q==='high'?Math.min(dpr,1.5):
+            q==='medium'?Math.min(dpr,1.25):
+            q==='low'?Math.min(dpr,.75):Math.min(dpr,1.0);
+  const maxPixels=q==='high'?5500000:
+                  q==='medium'?4000000:
+                  q==='low'?1200000:3000000;
+  ratio=Math.min(ratio,Math.sqrt(maxPixels/Math.max(1,innerWidth*innerHeight)));
+  renderer.setPixelRatio(ratio);
+  sun.shadow.mapSize.set(q==='high'?2048:q==='medium'?1536:512,q==='high'?2048:q==='medium'?1536:512);
+  renderer.shadowMap.enabled=(q==='high'||q==='medium');
+  if(renderer.shadowMap.enabled){sun.shadow.map?.dispose();sun.shadow.map=null;sun.shadow.needsUpdate=true}
+  scene.fog.density=q==='high'?.00115:q==='medium'?.00128:.00142;
+  renderer.setSize(innerWidth,innerHeight,false);
+  logDiagnostic('画质切换：'+q+' / DPR '+ratio.toFixed(2));
+  updateDiag();
+}
+const qualitySel=document.getElementById('quality');
 qualitySel.onchange=e=>applyQuality(e.target.value);
-applyQuality("auto");
+applyQuality('safe');
+applyDetailPolicy(); // keep huge fine-detail instance batches hidden before first render
+// On HTML page resizing or moving between screens, *preserve* user's chosen quality cap.
+window.addEventListener('resize',()=>{
+  camera.aspect=innerWidth/innerHeight;
+  camera.updateProjectionMatrix();
+  applyQuality(currentQuality);
+});
+renderer.domElement.addEventListener('webglcontextrestored',()=>{
+  contextStatus='RESTORED';logDiagnostic('WebGL context restored');
+  document.getElementById('fatal').style.display='none';
+});
+window.addEventListener('error',e=>logDiagnostic('JS error: '+e.message));
+window.addEventListener('unhandledrejection',e=>logDiagnostic('Promise rejection: '+String(e.reason)));
 
 feeder.onchange=()=>{
  const n=+feeder.value;
  feederGroups.forEach((g,i)=>g.traverse(o=>{if(o.isMesh){ if(n<0){ if(o.userData && o.userData.type==="trench"){ o.material = o.userData.name.includes("主电缆沟") ? MAT.trenchHi : MAT.trench; } } else { o.material = (i===n) ? ((o.userData && o.userData.type==="trench" && o.userData.name.includes("主电缆沟")) ? MAT.trenchHi : MAT.yellow) : MAT.dark; } }}));
  if(n>=0){const row=n<10?0:1,idx=n%10,x=feederX0+idx*feederDX,z=rowZ[row]+2*unitDZ;cam(x+70,95,z+90,x+5,0,z);show({type:"trench",name:`35kV 集电线路 #${n+1}`,feeder:n+1,laying:"5 个储能单元 → 接入井 → 支线电缆沟 → 分支井 → 本回主电缆沟 → 汇集转角井 → 横向汇集主通道 → 进站总井 → 35kV 配电装置"})}
 };
-window.addEventListener("resize",()=>{camera.aspect=innerWidth/innerHeight;camera.updateProjectionMatrix();renderer.setPixelRatio(Math.min(devicePixelRatio,1.15));renderer.setSize(innerWidth,innerHeight,false)});
+
 
 // ---------- boot ----------
 document.getElementById("fill").style.width="65%";
@@ -595,13 +1437,23 @@ let lastFrame=0, running=true;
 document.addEventListener("visibilitychange",()=>{running=!document.hidden});
 function loop(now=0){
  requestAnimationFrame(loop);
- if(!running) return;
- if(now-lastFrame<22) return; // ~45 fps cap; reduces GPU/CPU load while keeping motion smooth
+ if(!running){lastUpdate=now;return;}
+ if(now-lastFrame<33) return; // ~30fps workload cap for Chrome/Edge stability
+ const dt=Math.min(Math.max((now-lastUpdate)/1000,0),.05);
+ lastUpdate=now;
  lastFrame=now;
- controls.update();
+ fpsSamples++;fpsTime+=dt;
+ if(fpsTime>=1){lastFPS=Math.round(fpsSamples/fpsTime);fpsSamples=0;fpsTime=0;}
+ if(now-lastStatsUpdate>400){applyDetailPolicy();lastStatsUpdate=now;updateDiag()}
+ if(viewMode==='fps') updateFPS(dt);
+ else controls.update();
  const t=clock.getElapsedTime();
  fill.intensity+=(0.32+Math.sin(t*.14)*.015-fill.intensity)*.01;
- renderer.render(scene,camera);
+ try{renderer.render(scene,camera)}catch(e){
+   contextStatus='RENDER ERROR';logDiagnostic(String(e));
+   const f=document.getElementById('fatal');f.style.display='block';f.textContent='渲染错误：'+String(e);
+   running=false;
+ }
 }
 loop();
 
