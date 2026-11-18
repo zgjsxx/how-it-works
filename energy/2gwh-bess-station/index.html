@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<title>500MW / 2GWh 储能电站 · V7.3 电气设备与连接关系升级版</title>
+<title>500MW / 2000MWh 储能电站｜三维工程展示系统</title>
 <script type="importmap">
 {
   "imports":{
@@ -43,25 +43,25 @@ button:hover,select:hover{border-color:#e8e4da;background:rgba(30,36,40,.78)}but
 <div id="app">
 <canvas id="view" tabindex="0"></canvas>
 <div class="hud">
-  <div class="top"><div class="title"><b>500MW / 2000MWh 储能电站 · 写实工程场景 V7.7 · 主变近端构架与AIS连续连接优化版</b><span>100 个 5MW/20MWh 单元 · 20 回 35kV 地下集电回路（电缆沟/电缆井/排管）· 2×主变 · 220kV GIS</span></div></div>
+  <div class="top"><div class="title"><b>500MW / 2000MWh 储能电站</b><span>三维工程展示系统 ｜ 储能区 · 35kV 集电系统 · 主变压器 · 220kV AIS 配电装置</span></div></div>
   <div class="ctrls">
-    <button id="reset">全站总览</button><button id="topview">俯视</button><button id="detailView">储能舱特写</button><button id="thirdPerson" class="active">第三人称 · 鸟瞰</button><button id="firstPerson">第一人称 · 漫游</button><select id="quality"><option value="safe" selected>安全（推荐）</option><option value="medium">中</option><option value="high">高</option><option value="low">极低</option></select>
+    <button id="reset">全站总览</button><button id="topview">俯视</button><button id="detailView">储能舱特写</button><button id="aisView">AIS 工程特写</button><button id="thirdPerson" class="active">第三人称 · 鸟瞰</button><button id="firstPerson">第一人称 · 漫游</button><select id="quality"><option value="safe" selected>安全（推荐）</option><option value="medium">中</option><option value="high">高</option><option value="low">极低</option></select>
     <button id="detailToggle" title="全站远景自动隐藏精细零件">细节：自动</button><button id="diagToggle">性能诊断</button><button id="trenches" class="active">电缆沟/井</button><button id="labels" class="active">设备标识</button>
     <select id="feeder"><option value="-1">全部 20 回集电线路</option></select>
     <select id="time"><option value="day">晴天午后</option><option value="golden">傍晚</option><option value="night">夜间</option></select>
   </div>
   <div id="legend" class="panel">
-    <h3>PROJECT HIERARCHY / 项目层级</h3>
+    <h3>工程设备概况</h3>
     <div class="row"><span><i class="sw" style="background:#d7dbda"></i>5MWh 电池舱</span><b>400 台</b></div>
     <div class="row"><span><i class="sw" style="background:#c48b41"></i>PCS + 升压一体机</span><b>100 套</b></div>
     <div class="row"><span><i class="sw" style="background:#80878a"></i>35kV 主/支电缆沟 + 电缆井</span><b>20 回</b></div>
     <div class="row"><span><i class="sw" style="background:#9b784d"></i>主变 35/220kV</span><b>2 台</b></div>
     <div class="row"><span>单回集电线</span><b>5 单元 = 25MW/100MWh</b></div>
   </div>
-  <div id="info" class="panel"><h3>ASSET INSPECTOR / 设备信息</h3><div id="kv"><div class="k">当前选择</div><div class="v">点击设备、单元或电缆井查看</div><div class="k">敷设方式</div><div class="v">35kV 集电线路不做斜向直连：PCS 出线先入接入井，经支沟进入本回主沟，再通过汇集转角井进入横向主通道，最后经进站井接入 35kV 配电装置</div></div></div>
+  <div id="info" class="panel"><h3>设备信息</h3><div id="kv"><div class="k">当前选择</div><div class="v">点击设备、单元或电缆井查看</div><div class="k">敷设方式</div><div class="v">35kV 集电线路不做斜向直连：PCS 出线先入接入井，经支沟进入本回主沟，再通过汇集转角井进入横向主通道，最后经进站井接入 35kV 配电装置</div></div></div>
   <div id="tip">第三人称：左键拖动旋转 / 右键拖动平移 / 滚轮缩放 / 单击选择设备 · 第一人称：WASD 移动 / 按住左键拖动画面转向 / Shift 加速 / V 切视角；鼠标锁定为可选</div><div id="walkHUD" class="walk-hud" hidden><div class="crosshair">+</div><div class="walkguide">第一人称漫游 · WASD 移动 · 按住左键拖动转向 · Shift 加速 · V 返回第三人称</div><button id="lockMouse">可选：锁定鼠标（Esc 退出）</button></div>
 </div>
-<div id="boot"><div class="bootbox"><div class="bootname">储能场站 V7.7</div><div class="bootsub" id="bootmsg">正在生成高保真主变、连接附件与全站场景...</div><div class="bar"><i id="fill"></i></div></div></div>
+<div id="boot"><div class="bootbox"><div class="bootname">储能电站三维工程展示</div><div class="bootsub" id="bootmsg">正在加载站区设施与电气设备…</div><div class="bar"><i id="fill"></i></div></div></div>
 <div id="fatal"></div><div id="diag" hidden><div><b>渲染诊断</b><button id="copyDiag">复制诊断</button></div><pre id="diagText">初始化中…</pre><small>若浏览器窗口直接消失，请查看 chrome://crashes、chrome://gpu、Windows 事件查看器或 macOS 崩溃报告。此页无法捕获浏览器进程崩溃。</small></div>
 </div>
 
@@ -362,7 +362,7 @@ function addBessLabel(x,y,z){
 function batteryContainer(cx,cz,unit,feeder,parent){
   cabinNo++;
   bessPositions.push([cx,cz]);
-  const d={type:'battery',name:`5MWh 电池舱 #${cabinNo}`,unit,feeder,energy:'约 5MWh',dc:'直流侧（概念示意）',model:'BESS V7 · 游戏化程序材质模型'};
+  const d={type:'battery',name:`5MWh 电池舱 #${cabinNo}`,unit,feeder,energy:'约 5MWh',dc:'直流侧系统',model:'储能电池舱三维设备模型'};
   const body=box(10.72,4.06,3.15,MAT.bessWhite,cx,2.22,cz,parent,d,.05); body.castShadow=true;
   walkObstacles.push({minX:cx-5.65,maxX:cx+5.65,minZ:cz-1.80,maxZ:cz+1.80});
   bp('base',MAT.dark,cx,.34,cz,10.95,.40,3.40);
@@ -946,102 +946,321 @@ function transformerPortalGantry(x,zc,no){
 transformerPortalGantry(344.5,-58,1);
 transformerPortalGantry(344.5,58,2);
 
-// Two transformer bays. Each bay has a visible open-air sequence:
-// LA -> CVT -> CT -> disconnector -> circuit breaker -> disconnector -> bus.
-for(const zc of [-58,58]){
-  // Bay equipment foundation strips and steel support stools.
-  box(112,.16,17,MAT.concrete,405,.25,zc,aisG,null,.02);
-  for(const xx of [350,365,380,395,410,425,440,455]){
-    for(const dz of [-5.7,5.7]){
-      box(.82,.72,.82,MAT.concrete,xx,.68,zc+dz,aisG,null,.02);
-      box(.42,.18,.42,AIS_STEEL,xx,1.12,zc+dz,aisG,null,.01);
-    }
-  }
-  // Phase conductors are arranged across the bay, with clearly separated A/B/C phases.
-  for(let ph=0;ph<3;ph++){
-    const zp=zc+(ph-1)*2.55;
-    const bushing=new THREE.Vector3(332.05,10.05,zp);
-    const laTop=aisPost(351.5,1.45,zp,4.65);
-    // Surge arrester (LA): ribbed porcelain column and top grading terminal.
-    cyl(.42,.42,AIS_STEEL,351.5,1.18,zp,aisG,null,16);
-    cyl(.18,3.45,AIS_PORCELAIN,351.5,3.20,zp,aisG,null,18);
-    for(let k=0;k<9;k++)cyl(.31-k*.012,.12,AIS_PORCELAIN,351.5,1.85+k*.34,zp,aisG,null,18);
-    cyl(.13,.38,AIS_COPPER,351.5,5.12,zp,aisG,null,12);
-    box(.42,.16,.42,AIS_STEEL,351.5,1.45,zp,aisG,null,.01);
-    // CVT / voltage transformer: stacked porcelain body, upper capacitor head and terminal.
-    const cvtTop=aisPost(367,1.45,zp,4.25);
-    cyl(.56,.70,AIS_STEEL,367,5.72,zp,aisG,null,18);
-    cyl(.38,1.65,AIS_PORCELAIN,367,4.42,zp,aisG,null,18);
-    for(let k=0;k<6;k++)cyl(.51-k*.018,.12,AIS_PORCELAIN,367,3.80+k*.28,zp,aisG,null,18);
-    box(.72,.30,.72,AIS_DARK,367,1.65,zp,aisG,null,.02);
-    // CT: pedestal with a recognizable toroidal current-transformer head.
-    const ctTop=aisPost(382.5,1.45,zp,4.05);
-    cyl(.55,.70,AIS_STEEL,382.5,5.70,zp,aisG,null,18);
-    const ctRing=mesh(new THREE.TorusGeometry(.38,.13,10,24),AIS_PORCELAIN,382.5,6.15,zp,aisG);
-    ctRing.rotation.x=Math.PI/2;
-    cyl(.12,.34,AIS_COPPER,382.5,6.55,zp,aisG,null,12);
-    // First disconnector: two porcelain posts and a visible open blade.
-    const ds1a=aisPost(397,1.45,zp,4.35), ds1b=aisPost(401.2,1.45,zp,4.35);
-    pipe(new THREE.Vector3(397,ds1a.y,zp),new THREE.Vector3(399.35,ds1a.y+.35,zp),.095,AIS_COPPER,aisG);
-    pipe(new THREE.Vector3(400.15,ds1b.y,zp),new THREE.Vector3(401.2,ds1b.y,zp),.095,AIS_COPPER,aisG);
-    cyl(.16,.18,AIS_STEEL,399.75,ds1a.y+.05,zp,aisG,null,12);
-    pipe(new THREE.Vector3(397,2.0,zp),new THREE.Vector3(397,1.45,zp),.07,AIS_STEEL,aisG);
-    pipe(new THREE.Vector3(397,1.45,zp),new THREE.Vector3(401.2,1.45,zp),.07,AIS_STEEL,aisG);
-    // Circuit breaker: three individual pole housings and operating mechanism.
-    const cbTop=aisPost(416,1.45,zp,3.75);
-    cyl(.42,1.65,AIS_STEEL,416,5.05,zp,aisG,null,18);
-    cyl(.31,.72,AIS_PORCELAIN,416,6.18,zp,aisG,null,18);
-    for(let k=0;k<5;k++)cyl(.43-k*.025,.10,AIS_PORCELAIN,416,5.85+k*.19,zp,aisG,null,18);
-    box(1.55,.95,1.05,AIS_DARK,416,1.85,zp,aisG,null,.04);
-    box(1.18,.20,.84,AIS_STEEL,416,2.42,zp,aisG,null,.02);
-    pipe(new THREE.Vector3(416,2.35,zp),new THREE.Vector3(416,4.0,zp),.075,AIS_STEEL,aisG);
-    // Second disconnector and bus riser.
-    const ds2a=aisPost(432,1.45,zp,4.35), ds2b=aisPost(436.2,1.45,zp,4.35);
-    pipe(new THREE.Vector3(432,ds2a.y,zp),new THREE.Vector3(434.25,ds2a.y+.30,zp),.095,AIS_COPPER,aisG);
-    pipe(new THREE.Vector3(435.2,ds2b.y,zp),new THREE.Vector3(436.2,ds2b.y,zp),.095,AIS_COPPER,aisG);
-    // Flexible jumpers from transformer bushing through the AIS bay.
-    const portalDrop=new THREE.Vector3(344.5,16.02,zp);
-    hvWire(bushing,new THREE.Vector3(338.5,12.05,zp),.30,.055,AIS_COPPER,aisG);
-    hvWire(new THREE.Vector3(338.5,12.05,zp),portalDrop,.22,.055,AIS_COPPER,aisG);
-    hvWire(portalDrop,new THREE.Vector3(351.5,7.15,zp),.48,.055,AIS_COPPER,aisG);
-    hvWire(new THREE.Vector3(351.5,7.15,zp),new THREE.Vector3(367,7.10,zp),.35,.052,AIS_COPPER,aisG);
-    hvWire(new THREE.Vector3(367,7.10,zp),new THREE.Vector3(382.5,7.15,zp),.35,.052,AIS_COPPER,aisG);
-    hvWire(new THREE.Vector3(382.5,7.15,zp),new THREE.Vector3(397,7.30,zp),.30,.052,AIS_COPPER,aisG);
-    hvWire(new THREE.Vector3(401.2,7.30,zp),new THREE.Vector3(416,7.10,zp),.30,.052,AIS_COPPER,aisG);
-    hvWire(new THREE.Vector3(416,7.10,zp),new THREE.Vector3(432,7.30,zp),.30,.052,AIS_COPPER,aisG);
-    hvWire(new THREE.Vector3(436.2,7.30,zp),new THREE.Vector3(450,12.65,zp),.42,.052,AIS_COPPER,aisG);
-    // Support post for the common 220kV bus.
-    aisPost(450,1.45,zp,9.6);
-  }
-  aisLabel(`220kV 主变 ${zc<0?"#1":"#2"} 出线间隔`,404,12.2,zc-11);
+// AIS BAY TOPOLOGY
+// Targeted upgrade goals:
+// 1) Distinct CT / CVT / CB / DS geometry.
+// 2) Reorganized 220kV common bus aligned to the two transformer bays and one line bay.
+// 3) More legible support points, clamps and conductor sag.
+const AIS_BUS_TOP_Y=1.45+10.95+.52;
+const AIS_BUS_X=462;
+const aisRouteAudit={bayTerminals:0,phaseWireSegments:0,busSupports:0,busSegments:0};
+const aisSupportAudit={posts:[], wireEnds:[]};
+
+// Secondary cable routing and grounding are engineering visualizations, not construction design.
+const AIS_EARTH=new THREE.MeshStandardMaterial({color:0x9b7954,roughness:.53,metalness:.74});
+const AIS_CABLE=new THREE.MeshStandardMaterial({color:0x263b49,roughness:.86,metalness:.12});
+const AIS_MARK=new THREE.MeshStandardMaterial({color:0xe3bd49,roughness:.64,metalness:.05});
+const AIS_PHASE_MATS=[0xdfbb35,0x54a66e,0xcf6355].map(c=>new THREE.MeshStandardMaterial({color:c,roughness:.57,metalness:.16}));
+const aisCivilAudit={foundations:[],groundLeads:[],secondaryCables:[],trenches:[],devices:[],labels:0};
+function aisFoundation(x,z,spanX=2.0,spanZ=1.25,id='',kind='设备基础'){
+ // Narrow stepped pier, base plate and anchors, all on the existing switchyard concrete pad.
+ box(spanX+.40,.36,spanZ+.34,MAT.concrete,x,.39,z,aisG,null,.025);
+ box(spanX+.15,.12,spanZ+.10,AIS_STEEL,x,.62,z,aisG,null,.015);
+ for(const ax of [-1,1])for(const az of [-1,1]){
+   cyl(.055,.14,AIS_DARK,x+ax*(spanX*.43),.73,z+az*(spanZ*.41),aisG,null,8);
+ }
+ aisCivilAudit.foundations.push({id,x,z,width:spanX,depth:spanZ});
+}
+function aisGrounding(x,z,offset=1.3){
+ // Earthing strip is laid below the bus, well away from energised primary terminals.
+ const a=new THREE.Vector3(x,1.45,z),b=new THREE.Vector3(x,.43,z+offset),c=new THREE.Vector3(x+.48,.28,z+offset);
+ pipe(a,b,.055,AIS_EARTH,aisG);pipe(b,c,.048,AIS_EARTH,aisG);
+ box(.35,.04,.21,AIS_EARTH,c.x,.28,c.z,aisG,null,.0);
+ for(const yy of [.50,.72])box(.15,.07,.08,AIS_STEEL,x,yy,z+.06,aisG,null,0);
+ aisCivilAudit.groundLeads.push({x,z});
+}
+function aisControlCabinet(x,z,id,kind,bayNo){
+ const data={type:'aisDevice',name:`${id} ${kind}`,voltage:'220kV',bay:`主变 #${bayNo} 间隔`,note:'设备及二次回路空间关系展示；具体接线以设计图纸为准'};
+ box(.92,1.22,.74,AIS_DARK,x,1.38,z,aisG,data,.045);
+ box(.82,1.03,.058,MAT.bessDoor,x,1.38,z+.405,aisG,data,.015);
+ box(.38,.22,.025,MAT.bessScreen,x,1.63,z+.439,aisG,data,.01);
+ box(.12,.24,.035,AIS_STEEL,x+.27,1.26,z+.441,aisG,data,.005);
+ box(.63,.12,.028,AIS_MARK,x,1.07,z+.441,aisG,data,.003);
+ // One gland below the box and a covered low-level branch to the secondary trench.
+ cyl(.11,.14,AIS_DARK,x,.71,z+.12,aisG,null,10);
+ return data;
+}
+function aisSecondaryCable(x,z,ductZ){
+ // Secondary control cable: under cabinet, down to duct and along lateral access route.
+ const points=[new THREE.Vector3(x,.75,z+.25),new THREE.Vector3(x,.42,z+.75),new THREE.Vector3(x,.33,ductZ)];
+ for(let i=0;i<points.length-1;i++) pipe(points[i],points[i+1],.048,AIS_CABLE,aisG);
+ aisCivilAudit.secondaryCables.push({x,z,ductZ});
+}
+function aisDuct(x0,x1,zc){
+ const ductZ=zc+11.20;
+ const mid=(x0+x1)/2;
+ box(x1-x0,.24,1.25,MAT.dark,mid,.26,ductZ,aisG,null,.015);
+ box(x1-x0,.095,1.44,MAT.concrete,mid,.405,ductZ,aisG,null,.01);
+ // Cover plate seams and small lifting sockets.
+ for(let x=x0+2;x<x1-1;x+=4.8){
+   box(.038,.016,1.42,AIS_DARK,x,.46,ductZ,aisG,null,0);
+   for(const dz of [-.34,.34])box(.14,.015,.09,AIS_STEEL,x-.24,.47,ductZ+dz,aisG,null,0);
+ }
+ // Termination access pit at the aisle edge.
+ const pitX=x1-2;
+ box(2.0,.16,2.0,MAT.dark,pitX,.28,ductZ,aisG,null,.01);
+ box(1.82,.075,1.82,MAT.concrete,pitX,.405,ductZ,aisG,null,.005);
+ for(const xx of [pitX-.48,pitX+.48])box(.19,.025,.15,AIS_DARK,xx,.457,ductZ,aisG,null,0);
+ aisCivilAudit.trenches.push({x0,x1,zc,ductZ});
+ return ductZ;
+}
+function aisEquipmentPlaque(x,z,id,type,bayNo){
+ // Mounted on a slim upright, at the safe service aisle (not at high-voltage conductor).
+ const data={type:'aisDevice',name:`${id} ${type}`,voltage:'220kV',bay:`主变 #${bayNo} 间隔`,note:'设备编号以工程设计文件为准'};
+ box(.07,1.02,.07,AIS_STEEL,x,.96,z,aisG,null,0);
+ box(1.22,.55,.09,AIS_DARK,x,1.53,z,aisG,data,.02);
+ // Small alphanumeric plaque (shared geometry, per-asset texture via canvas).
+ const c=document.createElement('canvas');c.width=256;c.height=96;
+ const ctx=c.getContext('2d');ctx.fillStyle='#e4e8e5';ctx.fillRect(0,0,256,96);
+ ctx.fillStyle='#111e23';ctx.font='bold 31px Arial';ctx.textAlign='center';ctx.fillText(id,128,40);
+ ctx.font='23px Arial';ctx.fillText(type,128,76);
+ const t=new THREE.CanvasTexture(c);t.colorSpace=THREE.SRGBColorSpace;
+ const sign=mesh(new THREE.PlaneGeometry(1.12,.44),new THREE.MeshBasicMaterial({map:t,side:THREE.DoubleSide}),x,1.55,z+.057,aisG,data);
+ sign.renderOrder=2;aisCivilAudit.labels++;
+}
+function aisBayCivil(x,zc,phaseZ,kind,id,bayNo,spanX=2.0){
+ // Apply a single shared foundation plate per three-phase machine group, not dozens
+ // of independent tiny bases floating beside the bus.
+ const basisZ=zc;
+ aisFoundation(x,basisZ,spanX,9.10,id,kind);
+ const zService=zc+7.35;
+ aisGrounding(x,basisZ-3.6,1.0);
+ aisGrounding(x,basisZ+3.6,1.0);
+ aisControlCabinet(x,zService,id,kind,bayNo);
+ aisSecondaryCable(x,zService,zc+11.20);
+ aisEquipmentPlaque(x+1.05,zc+9.03,id,kind,bayNo);
+ aisCivilAudit.devices.push({x,zc,id,kind,bayNo});
 }
 
-// Common three-phase 220kV busbars on elevated post insulators.
-for(const busX of [462,474]){
-  for(let ph=0;ph<3;ph++){
-    const zp=(ph-1)*2.7;
-    for(let z=-82;z<=82;z+=20)aisPost(busX,1.45,z+zp,10.4);
-    for(let z=-82;z<82;z+=20){
-      hvWire(new THREE.Vector3(busX,12.35,z+zp),new THREE.Vector3(busX,12.35,Math.min(82,z+20)+zp),.22,.075,AIS_COPPER,aisG);
-    }
-  }
+function aisConnect(a,b,sag=null,r=.065,mat=AIS_COPPER,parent=aisG){
+ const aa=a.clone(),bb=b.clone();
+ const d=aa.distanceTo(bb);
+ if(d<.005)return;
+ if(sag===null)sag=d>70?1.8:d>35?1.0:d>18?.45:d>7?.18:.04;
+ if(d<1.4||sag===0)pipe(aa,bb,r,mat,parent); else hvWire(aa,bb,sag,r,mat,parent);
+ aisSupportAudit.wireEnds.push([aa.x,aa.y,aa.z],[bb.x,bb.y,bb.z]);
+ aisRouteAudit.phaseWireSegments++;
 }
-// Jumper connections from both transformer bays to the common bus, three phases each.
-for(const zc of [-58,58]){
-  for(let ph=0;ph<3;ph++){
-    const zp=zc+(ph-1)*2.55, busZ=(ph-1)*2.7;
-    hvWire(new THREE.Vector3(450,12.65,zp),new THREE.Vector3(462,13.65,busZ),.28,.06,AIS_COPPER,aisG);
-  }
+// Every conductor-support insulator is generated from its true metallic terminal point.
+// The core extends to its terminal height to maintain visual alignment:
+// the remaining ~38% looked like an empty gap above each post. The porcelain core,
+// sheds, neck, cap and wire endpoint now form one physically contiguous column.
+function insulatorPost(x,yBase,z,height=4.0,parent=aisG,porc=AIS_PORCELAIN){
+ const pedestalTop=yBase+.42;
+ const porcelainTop=yBase+height+.16;
+ const wireY=yBase+height+.52;
+ cyl(.24,.34,AIS_STEEL,x,yBase+.17,z,parent,null,16);
+ const coreH=porcelainTop-pedestalTop;
+ cyl(.18,coreH,porc,x,(pedestalTop+porcelainTop)/2,z,parent,null,18);
+ for(let k=0;k<9;k++){
+   const t=k/8;
+   const yy=pedestalTop+.30+(coreH-.60)*t;
+   cyl(.35-.025*t,.11,porc,x,yy,z,parent,null,18);
+ }
+ // Metallic neck meets the porcelain, the cable lug rests on the cap.
+ cyl(.16,.30,AIS_STEEL,x,porcelainTop+.12,z,parent,null,14);
+ cyl(.12,.19,AIS_COPPER,x,wireY-.095,z,parent,null,12);
+ const top=new THREE.Vector3(x,wireY,z);
+ // Register actual attachment position for visual/topological consistency checks.
+ (aisSupportAudit.posts||(aisSupportAudit.posts=[])).push({x,z,height,wireY,coreTop:porcelainTop});
+ return top;
 }
-// Line bay from the common bus to the outgoing portal gantry.
+function busSupportNode(zCenter){
+ box(5.8,.16,2.4,MAT.concrete,AIS_BUS_X,.14,zCenter,aisG,null,.02);
+ const tops=[];
+ for(let ph=0;ph<3;ph++){
+   const zp=zCenter+(ph-1)*2.7;
+   tops.push(insulatorPost(AIS_BUS_X,1.45,zp,10.95));
+   aisRouteAudit.busSupports++;
+ }
+ return tops;
+}
+function drawGroundLead(x,z){
+ pipe(new THREE.Vector3(x,1.65,z),new THREE.Vector3(x,.48,z+.58),.06,AIS_STEEL,aisG);
+ pipe(new THREE.Vector3(x,.48,z+.58),new THREE.Vector3(x,.22,z+.58),.05,AIS_COPPER,aisG);
+}
+function deviceLA(x,zp){
+ const top=insulatorPost(x,1.45,zp,4.8);
+ cyl(.20,3.25,AIS_PORCELAIN,x,3.55,zp,aisG,null,18);
+ for(let k=0;k<8;k++)cyl(.34-k*.012,.10,AIS_PORCELAIN,x,2.1+k*.40,zp,aisG,null,18);
+ cyl(.12,.36,AIS_RED,x,5.75,zp,aisG,null,12);
+ drawGroundLead(x,zp);
+ return {terminal:top};
+}
+function deviceCVT(x,zp){
+ box(1.05,.55,1.05,AIS_DARK,x,1.62,zp+.58,aisG,null,.03);
+ const top=insulatorPost(x,1.45,zp,4.5);
+ cyl(.44,1.15,AIS_PORCELAIN,x,5.15,zp,aisG,null,18);
+ cyl(.58,.56,AIS_STEEL,x,5.96,zp,aisG,null,18);
+ box(.68,.20,.46,AIS_GALV,x,2.28,zp+.58,aisG,null,.02);
+ return {terminal:top};
+}
+function deviceCT(x,zp){
+ box(1.15,.42,1.15,AIS_DARK,x,1.56,zp,aisG,null,.03);
+ const left=insulatorPost(x-.45,1.45,zp,3.8), right=insulatorPost(x+.45,1.45,zp,3.8);
+ const ring=mesh(new THREE.TorusGeometry(.42,.12,10,24),AIS_PORCELAIN,x,5.62,zp,aisG); ring.rotation.x=Math.PI/2;
+ pipe(new THREE.Vector3(left.x,left.y,left.z),new THREE.Vector3(x-0.18,5.62,zp),.08,AIS_COPPER,aisG);
+ pipe(new THREE.Vector3(x+0.18,5.62,zp),new THREE.Vector3(right.x,right.y,right.z),.08,AIS_COPPER,aisG);
+ pipe(new THREE.Vector3(x-0.18,5.62,zp),new THREE.Vector3(x+0.18,5.62,zp),.07,AIS_COPPER,aisG);
+ return {left,right};
+}
+function deviceDisconnector(x,zp,labelOffset=0){
+ const left=insulatorPost(x-1.15,1.45,zp,4.2), right=insulatorPost(x+1.15,1.45,zp,4.2);
+ // Closed double-break look: two blades meeting at a center contact.
+ const yc=left.y+.12, xc=x;
+ pipe(new THREE.Vector3(left.x,left.y,left.z),new THREE.Vector3(xc-.18,yc,zp),.09,AIS_COPPER,aisG);
+ pipe(new THREE.Vector3(right.x,right.y,right.z),new THREE.Vector3(xc+.18,yc,zp),.09,AIS_COPPER,aisG);
+ pipe(new THREE.Vector3(xc-.18,yc,zp),new THREE.Vector3(xc+.18,yc,zp),.09,AIS_COPPER,aisG);
+ box(.44,.10,.16,AIS_STEEL,xc,yc,zp,aisG,null,.01);
+ pipe(new THREE.Vector3(x-1.15,1.55,zp),new THREE.Vector3(x+1.15,1.55,zp),.06,AIS_STEEL,aisG);
+ pipe(new THREE.Vector3(x,1.55,zp),new THREE.Vector3(x,1.10,zp+.80),.05,AIS_STEEL,aisG);
+ if(labelOffset) box(.26,.24,.18,AIS_DARK,x,1.08,zp+.96,aisG,null,.02);
+ return {left,right,terminalLeft:left,terminalRight:right};
+}
+function deviceBreaker(x,zp){
+ const left=insulatorPost(x-1.28,1.45,zp,3.65), right=insulatorPost(x+1.28,1.45,zp,3.65);
+ // Breaker interrupter tank between supports.
+ cyl(.34,2.55,AIS_STEEL,x,5.25,zp,aisG,null,18).rotation.z=Math.PI/2;
+ for(const xx of [x-1.02,x+1.02])cyl(.22,.60,AIS_STEEL,xx,5.25,zp,aisG,null,16);
+ pipe(new THREE.Vector3(left.x,left.y,left.z),new THREE.Vector3(x-1.30,5.25,zp),.08,AIS_COPPER,aisG);
+ pipe(new THREE.Vector3(x+1.30,5.25,zp),new THREE.Vector3(right.x,right.y,right.z),.08,AIS_COPPER,aisG);
+ box(1.45,1.0,1.05,AIS_DARK,x,1.90,zp,aisG,null,.03);
+ box(1.18,.20,.84,AIS_GALV,x,2.46,zp,aisG,null,.02);
+ pipe(new THREE.Vector3(x,2.40,zp),new THREE.Vector3(x,4.10,zp),.06,AIS_STEEL,aisG);
+ return {left,right};
+}
+function bayAnchorSupport(x,zp,height=9.8){
+ return insulatorPost(x,1.45,zp,height);
+}
+// Reorganized common bus: clearer node logic around left transformer bay, line bay, and right transformer bay.
+const AIS_BUS_Z_NODES=[-76,-58,-40,-16,0,16,40,58,76];
+const AIS_BUS_SUPPORTS=AIS_BUS_Z_NODES.map(z=>busSupportNode(z));
+for(let ph=0;ph<3;ph++){
+ for(let i=0;i<AIS_BUS_SUPPORTS.length-1;i++){
+   aisConnect(AIS_BUS_SUPPORTS[i][ph],AIS_BUS_SUPPORTS[i+1][ph],.10,.082);
+   aisRouteAudit.busSegments++;
+ }
+}
+// Central line-bay marker strip and bus section identity.
+box(7.5,.12,11.5,MAT.concrete,AIS_BUS_X,.10,0,aisG,null,.02);
+box(7.5,.10,.22,AIS_DARK,AIS_BUS_X,.22,0,aisG,null,.01);
+
+// Civil and secondary-system layers occupy the service aisle, outside live porcelain rows.
+// These are intentionally independent of primary conductor geometry and picking.
+for(const [bayNo,zc] of [[1,-58],[2,58]]){
+ aisDuct(344,451,zc);
+ for(const [xx,kind,id,w] of [
+  [351,'避雷器 LA',`LA-${bayNo}01`,2.2],
+  [364.5,'电压互感器 CVT',`CVT-${bayNo}01`,2.6],
+  [378.5,'电流互感器 CT',`CT-${bayNo}01`,2.5],
+  [392.5,'隔离开关 DS',`DS-${bayNo}01`,4.1],
+  [408.5,'断路器 CB',`CB-${bayNo}01`,3.1],
+  [425.5,'隔离开关 DS',`DS-${bayNo}02`,4.1],
+  [445,'母线接入支柱',`BUS-${bayNo}01`,2.5]]){
+  aisBayCivil(xx,zc,zc,kind,id,bayNo,w);
+ }
+ // Access path and yellow safety boundary, spatially separated from high-voltage conductors.
+ box(109,.04,1.55,MAT.concrete,397.5,.34,zc+13.65,aisG,null,0);
+ box(109,.025,.09,MAT.yellow,397.5,.39,zc+12.8,aisG,null,0);
+}
+// The common bus and line bay also have visible foundations, small operation boxes and cable access.
+for(const z of AIS_BUS_Z_NODES){
+ aisFoundation(AIS_BUS_X,z,5.3,9.0,`BUS-${z}`,'公共母线基础');
+ if(Math.abs(z)<3||Math.abs(z)===58){
+   aisGrounding(AIS_BUS_X+1.4,z+3.7,1.0);
+ }
+}
+aisDuct(468.5,484.0,0);
+for(const ph of [-1,0,1]){
+ const zp=ph*2.7;
+ aisFoundation(480.0,zp,2.3,1.75,`LINE-${ph+2}`,'出线间隔基础');
+}
+
+// Two transformer bays laid out as: portal -> LA -> CVT -> CT -> DS -> CB -> DS -> bus support.
+for(const [bayNo,zc] of [[1,-58],[2,58]]){
+  box(116,.16,18.6,MAT.concrete,405,.24,zc,aisG,null,.02);
+  // Per-bay cable/equipment pedestals.
+  for(const xx of [351,364,378,392,408,425,445]) box(1.15,.20,1.15,MAT.concrete,xx,.22,zc,aisG,null,.015);
+  for(let ph=0;ph<3;ph++){
+    const zp=zc+(ph-1)*2.7;
+    const txBushing=new THREE.Vector3(332.05,10.05,zp);
+    const portalClamp=new THREE.Vector3(344.5,16.02,zp);
+    const la=deviceLA(351.0,zp).terminal;
+    const cvt=deviceCVT(364.5,zp).terminal;
+    const ct=deviceCT(378.5,zp);
+    const ds1=deviceDisconnector(392.5,zp,1);
+    const cb=deviceBreaker(408.5,zp);
+    const ds2=deviceDisconnector(425.5,zp,1);
+    const rise=bayAnchorSupport(445.0,zp,9.8);
+    aisRouteAudit.bayTerminals+=8;
+    // Structured electrical path, with recognizable equipment spacing.
+    aisConnect(txBushing,new THREE.Vector3(338.4,12.2,zp),.14);
+    aisConnect(new THREE.Vector3(338.4,12.2,zp),portalClamp,.20);
+    aisConnect(portalClamp,la,.28);
+    aisConnect(la,cvt,.16);
+    aisConnect(cvt,ct.left,.10);
+    aisConnect(ct.right,ds1.terminalLeft,.10);
+    aisConnect(ds1.terminalRight,cb.left,.12);
+    aisConnect(cb.right,ds2.terminalLeft,.12);
+    aisConnect(ds2.terminalRight,rise,.16);
+    // Same-z phase tap into the common bus.
+    const busTap=new THREE.Vector3(AIS_BUS_X,AIS_BUS_TOP_Y,zp);
+    aisConnect(rise,busTap,.11,.078);
+    aisTerminal(AIS_BUS_X,AIS_BUS_TOP_Y,zp,aisG);
+  }
+  aisLabel(`220kV 主变 #${bayNo} AIS 间隔`,404,12.2,zc-11);
+}
+// Dedicated line bay at z=0, one phase per support. This is now a distinct bay,
+// visually separate from the transformer bays instead of blending into the main bus.
 for(let ph=0;ph<3;ph++){
   const zp=(ph-1)*2.7;
-  aisPost(480,1.45,zp,10.4);
-  hvWire(new THREE.Vector3(474,12.35,zp),new THREE.Vector3(480,13.0,zp),.15,.065,AIS_COPPER,aisG);
-  hvWire(new THREE.Vector3(480,13.0,zp),new THREE.Vector3(488,16.8,zp),.28,.06,AIS_COPPER,aisG);
+  box(14,.16,1.6,MAT.concrete,476,.24,zp,aisG,null,.02);
+  const takeoff=bayAnchorSupport(480.0,zp,10.9);
+  const busTap=new THREE.Vector3(AIS_BUS_X,AIS_BUS_TOP_Y,zp);
+  aisConnect(busTap,takeoff,.10,.08);
+  // Strain-connection cue before the outgoing gantry.
+  const strainTop=new THREE.Vector3(486.5,16.55,zp);
+  for(let k=0;k<6;k++)cyl(.22-k*.012,.085,AIS_PORCELAIN,486.5,16.35-k*.15,zp,aisG,null,16);
+  pipe(new THREE.Vector3(486.5,16.85,zp),new THREE.Vector3(486.5,16.55,zp),.08,AIS_STEEL,aisG);
+  aisConnect(takeoff,strainTop,.20,.075);
 }
+// Verify porcelain bodies have no missing upper span. The top cap and conductor
+// are both generated at `wireY`, so no unmodeled gap may remain.
+const aisBadHeight=aisSupportAudit.posts.filter(p=>Math.abs((p.coreTop+.36)-p.wireY)>.005);
+if(aisBadHeight.length)console.warn('AIS column geometry mismatch',aisBadHeight.length,aisBadHeight.slice(0,3));
+console.info('AIS support geometry', {posts:aisSupportAudit.posts.length,missingColumnCaps:aisBadHeight.length});
+console.info('AIS connection geometry audit',aisRouteAudit);
+
+// Geometry consistency checks that run during scene generation (no new frame-loop cost).
+const civilIssues=[];
+if(aisCivilAudit.devices.length!==14)civilIssues.push('两台主变 AIS 设备基础/控制柜数量不是14');
+if(aisCivilAudit.secondaryCables.length!==14)civilIssues.push('二次电缆支线数量与设备不对应');
+if(aisCivilAudit.labels!==14)civilIssues.push('设备编号牌数量与设备不对应');
+if(aisCivilAudit.trenches.length!==3)civilIssues.push('间隔电缆沟数量不正确');
+for(const item of aisCivilAudit.devices){
+ if(!aisCivilAudit.foundations.some(f=>f.id===item.id))civilIssues.push(`缺少基础: ${item.id}`);
+ if(!aisCivilAudit.secondaryCables.some(c=>c.x===item.x&&Math.abs(c.z-(item.zc+7.35))<.001))civilIssues.push(`缺少电缆接口: ${item.id}`);
+}
+for(const p of aisSupportAudit.posts){
+ if(Math.abs(p.coreTop+.36-p.wireY)>.005)civilIssues.push('绝缘柱实体高度不一致');
+ const connected=aisSupportAudit.wireEnds.some(e=>Math.hypot(e[0]-p.x,e[1]-p.wireY,e[2]-p.z)<.12);
+ if(!connected)civilIssues.push(`导线没有连接到绝缘柱: ${p.x.toFixed(1)}, ${p.z.toFixed(1)}`);
+}
+if(civilIssues.length) console.error('AIS Civil Audit FAIL',civilIssues);
+else console.info('AIS Civil Audit PASS',aisCivilAudit.devices.length,'equipment groups',aisCivilAudit.trenches.length,'trenches');
+
 aisLabel("220kV AIS 户外配电装置",421,19,-88);
-aisLabel("主变高压侧 → AIS → 220kV 架空出线",430,22,88);
+aisLabel("主变高压侧 → AIS 间隔 → 公共母线 → 出线间隔",430,22,88);
 
 // ---------- 220kV steel gantries and public grid connection ----------
 const HV_STEEL = new THREE.MeshStandardMaterial({color:0x78858a,metalness:.78,roughness:.34});
@@ -1102,49 +1321,54 @@ function latticeTower(x,z,h=34,scale=1){
 function portalGantry(x,zCenter,width=150,height=18){
  const g=new THREE.Group();groups.equipment.add(g);
  const zL=zCenter-width/2,zR=zCenter+width/2;
- // Portal columns with tapered bracing
+ // Portal columns with tapered bracing and clearer node geometry.
  for(const zz of [zL,zR]){
    pipe(new THREE.Vector3(x,.35,zz),new THREE.Vector3(x,height,zz),.22,HV_STEEL,g);
    pipe(new THREE.Vector3(x-1.1,.35,zz),new THREE.Vector3(x,height-1.2,zz),.10,HV_GALV,g);
    pipe(new THREE.Vector3(x+1.1,.35,zz),new THREE.Vector3(x,height-1.2,zz),.10,HV_GALV,g);
    box(1.7,.28,1.7,MAT.concrete,x,.16,zz,g,null,.02);
  }
- // Trussed top cross beam
+ // Trussed top cross beam.
  pipe(new THREE.Vector3(x,height,zL),new THREE.Vector3(x,height,zR),.25,HV_STEEL,g);
  pipe(new THREE.Vector3(x,height+.55,zL),new THREE.Vector3(x,height+.55,zR),.16,HV_GALV,g);
  for(let i=0;i<24;i++){
    const zz=zL+(zR-zL)*i/24;
    pipe(new THREE.Vector3(x,height,zz),new THREE.Vector3(x,height+.55,zz+(i%2===0?width/24:-width/24)),.045,HV_GALV,g);
  }
- // Vertical suspension insulator strings and phase clamps across the bay
- for(let zz=zL+15;zz<zR;zz+=15){
-   for(let ph=0;ph<3;ph++){
-     const z=zz+(ph-1)*1.25;
-     for(let k=0;k<7;k++)cyl(.22-k*.012,.11,HV_INS,x,height-.95-k*.19,z,g,null,14);
-     box(.28,.12,.28,HV_GALV,x,height-2.45,z,g,null,0);
-   }
+ // Three main outgoing phase suspension points with realistic hanging strings.
+ for(const [z,drop] of [[-8.8,1.65],[0,2.20],[8.8,1.65]]){
+   pipe(new THREE.Vector3(x,height+.20,z),new THREE.Vector3(x,height-drop,z),.08,HV_STEEL,g);
+   for(let k=0;k<7;k++)cyl(.22-k*.012,.11,HV_INS,x,height-drop-.08-k*.18,z,g,null,14);
+   box(.26,.12,.26,HV_GALV,x,height-drop-1.45,z,g,null,.01);
  }
  return g;
 }
 // Two station gantry bays form the visible 220kV outgoing portal structure.
 portalGantry(488,0,150,18.5);
 portalGantry(502,0,150,19.5);
-// AIS outgoing three-phase conductors continue across the portal gantry.
-for(let ph=0;ph<3;ph++){
- const zz=(ph-1)*2.7;
- hvWire(new THREE.Vector3(488,16.8,zz),new THREE.Vector3(502,17.8,zz),.35,.06,HV_WIRE);
+// AIS outgoing three-phase conductors continue across the portal gantry and
+// then transition clearly to the line-side attachment geometry of the first tower.
+const outgoingPhases=[
+ {aisZ:-2.7,gantry0:new THREE.Vector3(486.5,16.55,-2.7),gantry1:new THREE.Vector3(502,17.05,-2.7),lineZ:-8.8,lineY:19.0},
+ {aisZ: 0.0,gantry0:new THREE.Vector3(486.5,16.55, 0.0),gantry1:new THREE.Vector3(502,16.55, 0.0),lineZ: 0.0,lineY:15.0},
+ {aisZ: 2.7,gantry0:new THREE.Vector3(486.5,16.55, 2.7),gantry1:new THREE.Vector3(502,17.05, 2.7),lineZ: 8.8,lineY:19.0}
+];
+for(const ph of outgoingPhases){
+ // AIS line bay -> outgoing gantry.
+ hvWire(ph.gantry0,ph.gantry1,.22,.06,HV_WIRE);
+ // Phase-position transition on the portal side from compact AIS spacing to line spacing.
+ hvWire(ph.gantry1,new THREE.Vector3(510,ph.lineY+.35,ph.lineZ),.28,.055,HV_WIRE);
 }
 // Main 220kV lattice transmission tower at the station boundary and a distant grid tower.
 latticeTower(535,0,36,1.0);
 latticeTower(665,0,33,.78);
-// Three-phase outgoing lines (double-circuit visual arrangement) from gantry to tower and onward.
-for(const z0 of [-8.8,0,8.8]){
- const y0=z0===0?15.0:19.0;
- hvWire(new THREE.Vector3(502,y0,z0),new THREE.Vector3(535,y0-1.0,z0),1.25,.052,HV_WIRE);
- hvWire(new THREE.Vector3(535,y0-1.0,z0),new THREE.Vector3(665,y0-2.0,z0),3.8,.052,HV_WIRE);
- hvWire(new THREE.Vector3(665,y0-2.0,z0),new THREE.Vector3(790,y0-1.2,z0),3.2,.052,HV_WIRE);
+// Three-phase outgoing lines from the line-side portal transition point to the first tower and onward.
+for(const ph of outgoingPhases){
+ hvWire(new THREE.Vector3(510,ph.lineY+.35,ph.lineZ),new THREE.Vector3(535,ph.lineY-1.0,ph.lineZ),1.05,.052,HV_WIRE);
+ hvWire(new THREE.Vector3(535,ph.lineY-1.0,ph.lineZ),new THREE.Vector3(665,ph.lineY-2.0,ph.lineZ),4.1,.052,HV_WIRE);
+ hvWire(new THREE.Vector3(665,ph.lineY-2.0,ph.lineZ),new THREE.Vector3(790,ph.lineY-1.2,ph.lineZ),3.4,.052,HV_WIRE);
 }
-// Shield / earth wire above the phase conductors
+// Shield / earth wire above the phase conductors.
 hvWire(new THREE.Vector3(502,22.0,0),new THREE.Vector3(535,38.0,0),.4,.032,HV_GALV);
 hvWire(new THREE.Vector3(535,38.0,0),new THREE.Vector3(665,35.5,0),4.0,.032,HV_GALV);
 hvWire(new THREE.Vector3(665,35.5,0),new THREE.Vector3(790,36.0,0),3.0,.032,HV_GALV);
@@ -1199,7 +1423,8 @@ function show(d){
  if(d.type==="well"){add("所属回路",`#${d.feeder}`);add("用途",d.role)}
  if(d.type==="bus"){add("接入范围",d.feeders);add("功能",d.role)}
  if(d.type==="transformer"){add("容量",d.rating);add("变比",d.ratio);add("对应母线",d.section)}
- if(d.type==="gis"){add("电压等级",d.voltage);add("作用",d.role)}
+ if(d.type==="gis"||d.type==="ais"){add("电压等级",d.voltage);add("作用",d.role)}
+ if(d.type==="aisDevice"){add("电压等级",d.voltage);add("所在间隔",d.bay);add("说明",d.note)}
  if(d.type==="building")add("用途",d.role);
  kv.innerHTML=a.join("");
 }
@@ -1267,6 +1492,7 @@ function exitFPS(){
 document.getElementById('reset').onclick=()=>cam(430,270,430,20,0,15);
 document.getElementById('topview').onclick=()=>cam(0,720,.01,10,0,10);
 document.getElementById('detailView').onclick=()=>cam(-345,8,-198,-345,2,-210);
+document.getElementById('aisView').onclick=()=>cam(408,36,-106,408,5,-55);
 orbBtn.onclick=()=>exitFPS();fpsBtn.onclick=()=>enterFPS();
 lockBtn.onclick=()=>{try{const p=renderer.domElement.requestPointerLock?.();if(p&&typeof p.catch==='function')p.catch(e=>console.warn('鼠标锁定被浏览器拒绝，仍可拖动环视',e));}catch(e){console.warn('鼠标锁定不可用',e)}};
 document.addEventListener('pointerlockchange',setModeUI);
@@ -1369,6 +1595,8 @@ function updateDiag(force=false){
     `分辨率：${renderer.domElement.width}×${renderer.domElement.height}`,
     `FPS(估计)：${lastFPS}`,
     `每帧绘制：${ri.render.calls} calls / ${ri.render.triangles} tris`,
+    `AIS 土建：${aisCivilAudit.devices.length}组 / 接地${aisCivilAudit.groundLeads.length}处 / 沟${aisCivilAudit.trenches.length}条`,
+    `AIS 端点检查：${civilIssues.length===0?"通过":"异常 "+civilIssues.length+"处"}`,
     `资源：${ri.memory.geometries} geometries / ${ri.memory.textures} textures`,
     `细节：${detailPolicy}, ${fineDetailsVisible?'近景开启':'远景关闭'}`,
     `浏览器：${navigator.userAgent.slice(0,100)}`,
