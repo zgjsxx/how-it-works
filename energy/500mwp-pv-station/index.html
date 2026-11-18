@@ -1,0 +1,196 @@
+<!doctype html>
+<html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>500MWp 光伏电站｜三维工程展示系统</title>
+<script type="importmap">{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.171.0/build/three.module.js","three/addons/":"https://cdn.jsdelivr.net/npm/three@0.171.0/examples/jsm/"}}</script>
+<style>
+:root{color-scheme:dark;--main:#dbeeff;--soft:#a8c0cc;--line:#395669}*{box-sizing:border-box}html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#85b5dc;color:var(--main);font-family:"Microsoft YaHei","PingFang SC",system-ui,sans-serif}canvas{display:block}#screen{position:absolute;inset:0}#ui{position:absolute;inset:0;pointer-events:none}header{position:absolute;left:18px;top:18px;background:linear-gradient(90deg,rgba(3,18,31,.93),rgba(3,18,31,.5));padding:15px 18px;border-left:3px solid #f9bf53;max-width:640px}header strong{display:block;font-size:21px}header small{display:block;margin-top:7px;color:#bad0da;line-height:1.6}#actions{position:absolute;right:16px;top:17px;display:flex;justify-content:flex-end;gap:7px;flex-wrap:wrap;max-width:600px;pointer-events:auto}button,select{border:1px solid #527184;background:rgba(5,24,38,.88);color:#ecf6ff;border-radius:6px;min-height:36px;padding:7px 10px;cursor:pointer;font:inherit;font-size:12px}button:hover{background:#224b64}button.active{border-color:#f3c05e;color:#ffdf9c}#metrics{position:absolute;bottom:17px;left:17px;display:flex;flex-wrap:wrap;gap:8px;max-width:calc(100vw - 370px)}.metric{min-width:120px;padding:10px 13px;background:rgba(5,22,33,.86);border:1px solid #3b5c6e;border-radius:6px}.metric b{display:block;font-size:19px}.metric small{font-size:11px;color:#9dbac9}#detail{position:absolute;right:16px;bottom:16px;width:330px;max-height:52vh;overflow-y:auto;background:rgba(4,20,32,.92);border:1px solid #4c6b77;border-radius:8px;padding:15px;pointer-events:auto;box-shadow:0 8px 25px #0006}#detail h3{margin:0 0 12px;font-size:16px}#detail p,#detail li{color:#b7cfdb;font-size:12px;line-height:1.75;margin:6px 0}#detail strong{color:#fff}#detail .kv{display:grid;grid-template-columns:1fr auto;gap:7px;border-bottom:1px solid #33505c;padding:5px 0;font-size:12px}#note{position:absolute;top:96px;left:18px;color:#e6edf1;background:#061d2cb8;border-radius:4px;padding:8px 12px;font-size:12px;max-width:520px}#status{position:absolute;top:0;left:0;right:0;bottom:0;display:flex;align-items:center;justify-content:center;background:#071d2bea;z-index:5;color:#e8f3fa;font-weight:600;letter-spacing:1px}#cross{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);display:none;color:white;font-size:22px;text-shadow:1px 1px 2px black}#mini{position:absolute;bottom:16px;left:17px;transform:translateY(-80px);font-size:11px;padding:8px 10px;color:#b7cbd4;background:#061d2cb8;border:1px solid #4b6570;border-radius:4px}#compass{position:absolute;bottom:104px;right:18px;color:#e5f5ff77;font-size:11px}@media(max-width:850px){header{max-width:calc(100vw - 36px);padding:10px}header strong{font-size:16px}header small{font-size:10px}#actions{top:100px;left:12px;right:12px;max-width:none;justify-content:flex-start}#detail{width:290px;bottom:10px;right:10px;max-height:32vh}#metrics{bottom:10px;left:10px;max-width:calc(100vw - 310px)}.metric{min-width:94px;padding:6px}.metric b{font-size:15px}#note{top:176px;font-size:10px}#mini{display:none}}
+</style></head><body><div id="screen"></div><div id="status">正在构建 500MWp 光伏方阵…</div><div id="ui"><header><strong>500MWp 光伏电站</strong><small>三维工程展示系统 · 光伏组件 / 组串 / 方阵 / 逆变升压 / 35kV 集电 / 220kV 并网</small></header><div id="actions"><button id="overview" class="active">全站鸟瞰</button><button id="unitView">发电单元特写</button><button id="subView">升压站特写</button><button id="walk">第一人称巡检</button><button id="labels">显示设备编号</button><select id="quality" title="画质"><option value="low">流畅画质</option><option value="high">清晰画质</option></select></div><div id="note">鼠标左键旋转 · 滚轮缩放 · 右键平移 · 点击阵列排查看归属 ｜ 第一人称：WASD 移动、鼠标转向、Shift 加速、Esc 退出 ｜ 远景自动抗摩尔纹简化</div><div id="metrics"><div class="metric"><b>500 MWp</b><small>直流标称装机</small></div><div class="metric"><b>800,000</b><small>光伏组件（块）</small></div><div class="metric"><b>32,000</b><small>光伏组串（串）</small></div><div class="metric"><b>16,000</b><small>支架排（排）</small></div><div class="metric"><b>100</b><small>发电单元</small></div></div><div id="detail"><h3>场站概况</h3><div id="detailBody"><div class="kv"><span>直流装机</span><strong>500 MWp</strong></div><div class="kv"><span>交流逆变额定功率</span><strong>400 MWac</strong></div><div class="kv"><span>组串式逆变器</span><strong>1,600 台</strong></div><div class="kv"><span>35kV 升压箱变</span><strong>100 台</strong></div><div class="kv"><span>35kV 集电线路</span><strong>20 回</strong></div><div class="kv"><span>220kV 主变</span><strong>2 台（暂定）</strong></div><p>每个发电单元：8,000 块组件 / 320 串 / 160 排 / 16 台逆变器 / 1 台箱变，直流 5MWp、交流 4MW。</p><p>点击任一支架排，查看其所在组串、物理方阵区、逆变器及集电线路归属。</p></div></div><div id="cross">+</div><div id="compass">N ↑</div></div>
+<script type="module">
+import * as THREE from 'three';
+import {OrbitControls} from 'three/addons/controls/OrbitControls.js';
+const screen=document.getElementById('screen'),status=document.getElementById('status');
+const scene=new THREE.Scene();scene.background=new THREE.Color(0xa8d3ef);scene.fog=new THREE.FogExp2(0xb5d6e4,.00012);
+const camera=new THREE.PerspectiveCamera(57,innerWidth/innerHeight,.45,19000);camera.position.set(2600,2900,3600);
+const renderer=new THREE.WebGLRenderer({antialias:false,powerPreference:'high-performance'});renderer.setPixelRatio(Math.min(devicePixelRatio,1.3));renderer.setSize(innerWidth,innerHeight);renderer.outputColorSpace=THREE.SRGBColorSpace;renderer.toneMapping=THREE.ACESFilmicToneMapping;renderer.toneMappingExposure=1.26;screen.appendChild(renderer.domElement);
+scene.add(new THREE.HemisphereLight(0xeaf6ff,0xb1a98c,2));const sun=new THREE.DirectionalLight(0xffefd5,2.5);sun.position.set(-600,1100,-850);scene.add(sun);
+const orbit=new OrbitControls(camera,renderer.domElement);orbit.enableDamping=true;orbit.dampingFactor=.075;orbit.maxPolarAngle=Math.PI/2-.025;orbit.minDistance=5;orbit.maxDistance=8200;orbit.target.set(0,0,0);orbit.update();
+const MAT={earth:new THREE.MeshStandardMaterial({color:0x8d9b71,roughness:1}),road:new THREE.MeshStandardMaterial({color:0x777d79,roughness:1}),concrete:new THREE.MeshStandardMaterial({color:0xb8bab5,roughness:.95}),steel:new THREE.MeshStandardMaterial({color:0x7b8789,roughness:.65,metalness:.45}),white:new THREE.MeshStandardMaterial({color:0xe3e7e5,roughness:.74}),blue:new THREE.MeshStandardMaterial({color:0x305d74,roughness:.67}),dark:new THREE.MeshStandardMaterial({color:0x263d48,roughness:.8}),copper:new THREE.MeshStandardMaterial({color:0x866e5a,roughness:.55,metalness:.65}),green:new THREE.MeshStandardMaterial({color:0x678259,roughness:.95}),fence:new THREE.MeshStandardMaterial({color:0x86979b,roughness:.9})};
+const group=new THREE.Group();scene.add(group);
+function cube(w,h,d,x,y,z,mat=MAT.white,parent=group){const a=new THREE.Mesh(new THREE.BoxGeometry(w,h,d),mat);a.position.set(x,y,z);parent.add(a);return a}
+function cyl(r,h,x,y,z,mat=MAT.steel,parent=group,radial=7){const m=new THREE.Mesh(new THREE.CylinderGeometry(r,r,h,radial),mat);m.position.set(x,y,z);parent.add(m);return m}
+function line(pts,rad=.12,mat=MAT.copper,parent=group){for(let i=1;i<pts.length;i++){const a=new THREE.Vector3(...pts[i-1]),b=new THREE.Vector3(...pts[i]);const v=b.clone().sub(a),m=new THREE.Mesh(new THREE.CylinderGeometry(rad,rad,v.length(),6),mat);m.position.copy(a).add(b).multiplyScalar(.5);m.quaternion.setFromUnitVectors(new THREE.Vector3(0,1,0),v.normalize());parent.add(m)}}
+function label(text,x,y,z,size=20){const c=document.createElement('canvas');c.width=512;c.height=128;const ctx=c.getContext('2d');ctx.fillStyle='rgba(5,31,45,.86)';ctx.fillRect(0,0,512,128);ctx.strokeStyle='#8cb6c7';ctx.strokeRect(3,3,506,122);ctx.fillStyle='#fff';ctx.font='bold 46px sans-serif';ctx.textAlign='center';ctx.fillText(text,256,81);let t=new THREE.CanvasTexture(c);t.colorSpace=THREE.SRGBColorSpace;let s=new THREE.Sprite(new THREE.SpriteMaterial({map:t,depthWrite:false}));s.position.set(x,y,z);s.scale.set(size*4,size,1);group.add(s);nameSprites.push(s);return s}
+const nameSprites=[];
+// 100 generation units in a 10x10 grid, each 8 rack columns by 20 rack rows.
+// 8,000 modules per unit; 50 modules per rack. Each module retains a logical identifier,
+// while 16,000 racks are rendered as one instanced draw call.
+const UNIT_COLS=10,UNIT_ROWS=10,RACK_COLS=8,RACK_ROWS=20;const XSTEP=34,ZSTEP=10.4,UX=322,UZ=248;
+const WORLD_W=UX*10,WORLD_D=UZ*10;const units=[];
+for(let iz=0;iz<10;iz++)for(let ix=0;ix<10;ix++)units.push({ix,iz,id:iz*10+ix+1,x:(ix-4.5)*UX,z:(iz-4.5)*UZ});
+let ground=cube(WORLD_W+950,2,WORLD_D+400,330,-1.5,0,MAT.earth);ground.name='ground';
+// PV rack appearance: near view keeps module texture detail, while far view switches
+// to a simplified low-frequency surface to suppress moire / shimmer.
+function makeRackTexture(mode='near'){
+ const atlas=document.createElement('canvas');atlas.width=mode==='near'?2048:1024;atlas.height=mode==='near'?384:192;
+ const w=atlas.width,h=atlas.height,ctx=atlas.getContext('2d');
+ ctx.fillStyle=mode==='near'?'#12202c':'#244d67';ctx.fillRect(0,0,w,h);
+ const rows=2,cols=25,cellW=w/cols,cellH=h/rows;
+ for(let row=0;row<rows;row++)for(let col=0;col<cols;col++){
+   const x=col*cellW,y=row*cellH;
+   if(mode==='near'){
+     ctx.fillStyle=(col+row)%4===0?'#173e6b':'#184877';
+     ctx.fillRect(x+1.8,y+2,cellW-3.6,cellH-4);
+     ctx.strokeStyle='#6b8798';ctx.lineWidth=1.2;ctx.strokeRect(x+2.8,y+3.5,cellW-5.6,cellH-7);
+     ctx.strokeStyle='rgba(145,190,221,.43)';ctx.lineWidth=.75;
+     for(let j=1;j<4;j++){let px=x+j*cellW/4;ctx.beginPath();ctx.moveTo(px,y+7);ctx.lineTo(px,y+cellH-8);ctx.stroke()}
+     for(let j=1;j<7;j++){let py=y+j*cellH/7;ctx.beginPath();ctx.moveTo(x+5,py);ctx.lineTo(x+cellW-5,py);ctx.stroke()}
+   }else{
+     const grad=ctx.createLinearGradient(x,y,x+cellW,y+cellH);
+     grad.addColorStop(0,(col+row)%3===0?'#2d6f8f':'#2a627d');
+     grad.addColorStop(.55,(col+row)%2===0?'#25586f':'#2f7391');
+     grad.addColorStop(1,'#21495d');
+     ctx.fillStyle=grad;ctx.fillRect(x+1,y+1,cellW-2,cellH-2);
+     // Only coarse string-divider lines in far view; no dense cell grid.
+     ctx.strokeStyle='rgba(205,231,244,.16)';ctx.lineWidth=1;
+     if(col===12){ctx.beginPath();ctx.moveTo(x+cellW-.5,y+3);ctx.lineTo(x+cellW-.5,y+cellH-3);ctx.stroke()}
+     if(row===0){ctx.strokeStyle='rgba(215,235,244,.22)';ctx.beginPath();ctx.moveTo(x+4,y+cellH-.5);ctx.lineTo(x+cellW-4,y+cellH-.5);ctx.stroke()}
+   }
+ }
+ const t=new THREE.CanvasTexture(atlas);t.colorSpace=THREE.SRGBColorSpace;
+ t.wrapS=t.wrapT=THREE.ClampToEdgeWrapping;
+ t.generateMipmaps=true;t.minFilter=THREE.LinearMipmapLinearFilter;t.magFilter=THREE.LinearFilter;
+ t.anisotropy=Math.min(renderer.capabilities.getMaxAnisotropy?.()||1, mode==='near'?8:4);
+ return t;
+}
+const txNear=makeRackTexture('near');
+const txFar=makeRackTexture('far');
+const pvMatNear=new THREE.MeshStandardMaterial({map:txNear,side:THREE.DoubleSide,metalness:.18,roughness:.38});
+const pvMatFar=new THREE.MeshStandardMaterial({map:txFar,side:THREE.DoubleSide,metalness:.12,roughness:.52,color:0xdbe7ef});
+const tilt=18*Math.PI/180,spanX=28.35,spanZ=4.765;
+const rackGeom=new THREE.PlaneGeometry(spanX,spanZ);rackGeom.rotateX(-Math.PI/2);rackGeom.rotateX(-tilt);
+const rackNearMesh=new THREE.InstancedMesh(rackGeom,pvMatNear,16000);rackNearMesh.name='光伏支架排';rackNearMesh.frustumCulled=false;rackNearMesh.instanceMatrix.setUsage(THREE.StaticDrawUsage);group.add(rackNearMesh);
+const rackFarMesh=new THREE.InstancedMesh(rackGeom,pvMatFar,16000);rackFarMesh.name='光伏支架排（远景）';rackFarMesh.frustumCulled=false;rackFarMesh.instanceMatrix.setUsage(THREE.StaticDrawUsage);rackFarMesh.visible=false;group.add(rackFarMesh);
+const railGeo=new THREE.BoxGeometry(spanX+0.2,.12,.1),railMat=MAT.steel;
+const railMesh=new THREE.InstancedMesh(railGeo,railMat,32000);railMesh.frustumCulled=false;group.add(railMesh);
+const postGeo=new THREE.CylinderGeometry(.075,.09,2.25,5),postMesh=new THREE.InstancedMesh(postGeo,MAT.steel,48000);postMesh.frustumCulled=false;group.add(postMesh);
+const dummy=new THREE.Object3D();let iid=0,rid=0,pid=0;
+const rackPositions=[];
+for(let ui=0;ui<100;ui++){
+ const u=units[ui];
+ for(let rz=0;rz<20;rz++)for(let rx=0;rx<8;rx++){
+   let x=u.x+(rx-3.5)*XSTEP,z=u.z+(rz-9.5)*ZSTEP;
+   rackPositions.push([x,z]);dummy.position.set(x,2.65,z);dummy.rotation.set(0,0,0);dummy.scale.set(1,1,1);dummy.updateMatrix();rackNearMesh.setMatrixAt(iid,dummy.matrix);rackFarMesh.setMatrixAt(iid,dummy.matrix);iid++;
+   for(let k=0;k<2;k++){dummy.position.set(x,2.6+(k?0.5:-0.5),z+(k?1.75:-1.75));dummy.rotation.set(0,0,0);dummy.updateMatrix();railMesh.setMatrixAt(rid++,dummy.matrix)}
+   for(let k=0;k<3;k++){dummy.position.set(x+(k-1)*11.5,1.1,z);dummy.updateMatrix();postMesh.setMatrixAt(pid++,dummy.matrix)}
+ }
+}
+rackNearMesh.instanceMatrix.needsUpdate=true;rackFarMesh.instanceMatrix.needsUpdate=true;railMesh.instanceMatrix.needsUpdate=true;postMesh.instanceMatrix.needsUpdate=true;
+// Roads. Unit-level collector routes and a simplified transformer/inverter installation lane.
+for(let i=0;i<=10;i++){let x=(i-5)*UX;cube(10,.18,WORLD_D+95,x,.05,0,MAT.road)}
+for(let i=0;i<=10;i++){let z=(i-5)*UZ;cube(WORLD_W+135,.18,9,0,.05,z,MAT.road)}
+// Each generation unit: 16 250kW string inverters, 1 35kV step-up transformer.
+const inverterGeo=new THREE.BoxGeometry(3,2.2,1.5);const inverterBody=new THREE.InstancedMesh(inverterGeo,MAT.white,1600);inverterBody.frustumCulled=false;group.add(inverterBody);
+const vents=new THREE.InstancedMesh(new THREE.BoxGeometry(2,.85,.025),MAT.dark,1600);vents.frustumCulled=false;group.add(vents);
+let n=0;
+for(const u of units){
+  const baseX=u.x+146,baseZ=u.z;
+  cube(10,.38,14,u.x+146,.19,u.z+111,MAT.concrete);
+  cube(7.5,3.6,8.5,u.x+146,2.2,u.z+111,MAT.white);
+  cube(7.7,.25,8.7,u.x+146,4.12,u.z+111,MAT.blue);
+  cube(4,1.3,.09,u.x+149.83,2.15,u.z+111,MAT.dark);
+  cube(.2,2.6,2.2,u.x+146,2.0,u.z+115.3,MAT.steel);
+  for(let t=0;t<16;t++){
+     const x=baseX,z=baseZ-93+t*12;
+     dummy.position.set(x,1.24,z);dummy.rotation.set(0,0,0);dummy.scale.set(1,1,1);dummy.updateMatrix();inverterBody.setMatrixAt(n,dummy.matrix);
+     dummy.position.set(x,1.5,z+.77);dummy.updateMatrix();vents.setMatrixAt(n,dummy.matrix);n++;
+  }
+  cube(8,.25,205,u.x+146,.12,u.z,MAT.concrete);
+  // Unit-side cable duct: conceptual DC/AC collection only, not a full schematic.
+  cube(.5,.08,202,u.x+139,.18,u.z,MAT.steel);
+}
+inverterBody.instanceMatrix.needsUpdate=true;vents.instanceMatrix.needsUpdate=true;
+// 20 collection circuits: unit IDs in each row grouped five-by-five; cables illustrated along service lanes.
+const collectionGroups=[];
+for(let rz=0;rz<10;rz++)for(let half=0;half<2;half++){
+ const ids=[];for(let k=0;k<5;k++)ids.push(rz*10+half*5+k+1);collectionGroups.push(ids);
+ const z=(rz-4.5)*UZ+103;const x0=(half*5-4.5)*UX+146,x1=((half*5+4)-4.5)*UX+146;
+ line([[x0,.65,z],[x1,.65,z]],.3,new THREE.MeshStandardMaterial({color:0xc77c36,roughness:.87}));
+ for(const id of ids){let u=units[id-1];line([[u.x+146,.6,u.z+10],[u.x+146,.6,z]],.12,MAT.copper)}
+}
+// Substation on east of PV field (conceptual visual representation, separate fenced sector).
+const SUBX=WORLD_W/2+160,SUBZ=0;
+cube(280,.65,275,SUBX,.05,SUBZ,MAT.concrete);cube(230,.6,16,SUBX,.42,SUBZ-100,MAT.road);
+const sub=new THREE.Group();group.add(sub);sub.position.set(SUBX,0,SUBZ);
+function Sbox(w,h,d,x,y,z,mat=MAT.white){return cube(w,h,d,x,y,z,mat,sub)}
+function Spole(x,z,h=20){cyl(.35,h,x,h/2,z,MAT.steel,sub);Sbox(4,.3,.3,x,h,z,MAT.steel)}
+Sbox(88,5,32,-30,2.5,55,MAT.white);Sbox(91,.45,34,-30,5.25,55,MAT.blue);label('35kV 配电装置',SUBX-30,16,70,12);
+for(let k=0;k<2;k++){
+ const x=k?45:-45;Sbox(23,7,15,x,4,-20,MAT.blue);Sbox(24,.7,16,x,7.8,-20,MAT.dark);
+ for(let f=-2;f<=2;f++)Sbox(.5,5,13,x+f*4.2,4,-20,MAT.steel);
+ for(let q=-1;q<=1;q++){cyl(.85,6,x+q*6,11,-20,MAT.white,sub);cyl(.27,2,x+q*6,14.7,-20,MAT.steel,sub)}
+ label('220kV 主变 '+(k+1),SUBX+x,22,-20,10);
+}
+for(let k=0;k<3;k++){
+ const z=-110+k*38;
+ for(let q=0;q<6;q++){
+  let x=-105+q*42;Spole(x,z,16);for(let phase=0;phase<3;phase++)cyl(.28,2.1,x+phase*.7-1,17.4,z,MAT.white,sub);
+ }
+ for(let phase=0;phase<3;phase++)line([[-106,19+phase*.7,z],[105,19+phase*.7,z]],.12,MAT.copper,sub);
+}
+label('220kV AIS 开关场',SUBX,35,-112,13);
+// outgoing gantry and short transmission corridor
+for(let xx of [SUBX+125,SUBX+220,SUBX+335]){
+ const z=-52;for(let side of [-14,14]){cyl(.55,35,xx,17.5,z+side,MAT.steel)}
+ cube(32,.75,.75,xx,35,z,MAT.steel);
+ for(let k=-1;k<=1;k++)line([[xx-35,31,z+k*10],[xx+25,31,z+k*10]],.12,MAT.copper);
+}
+label('公共电网接入方向',SUBX+270,46,-52,12);
+// Service building and security perimeter
+Sbox(46,9,27,-85,4.5,-65,MAT.white);Sbox(48,.5,29,-85,9.2,-65,MAT.blue);
+for(let j=0;j<8;j++)Sbox(3.6,2,.09,-102+j*4.9,5.0,-51.45,MAT.dark);
+const fencePts=[[-135,-130],[140,-130],[140,133],[-135,133],[-135,-130]];
+for(let i=1;i<fencePts.length;i++){const a=fencePts[i-1],b=fencePts[i];line([[a[0],2,a[1]],[b[0],2,b[1]]],.12,MAT.fence,sub);line([[a[0],4,a[1]],[b[0],4,b[1]]],.12,MAT.fence,sub)}
+for(let i=0;i<10;i++){let u=units[i*10];label('方阵区 '+String(i+1).padStart(2,'0'),u.x+110,24,u.z-85,13)}
+const labelButton=document.getElementById('labels');let showNames=true;labelButton.onclick=()=>{showNames=!showNames;for(let s of nameSprites)s.visible=showNames;labelButton.textContent=showNames?'隐藏设备编号':'显示设备编号'};
+const body=document.getElementById('detailBody');
+function kv(k,v){return `<div class="kv"><span>${k}</span><strong>${v}</strong></div>`}
+function showRack(id){const unit=Math.floor(id/160)+1,local=id%160,rz=Math.floor(local/8),rx=local%8;const physicalQuadrant=(rz<10?0:2)+(rx<4?0:1)+1;
+ const rackInZone=(rz%10)*4+(rx%4);const stringA=local*2+1,stringB=stringA+1;const inverterA=Math.floor(local/10)+1;const circuit=Math.floor((unit-1)/10)*2+Math.floor(((unit-1)%10)/5)+1;
+ document.querySelector('#detail h3').textContent=`支架排 ${String(unit).padStart(3,'0')}-${String(local+1).padStart(3,'0')}`;
+ body.innerHTML=kv('所属发电单元',`U-${String(unit).padStart(3,'0')}`)+kv('所在物理方阵区',`P-${physicalQuadrant}`)+kv('区内支架序号',rackInZone+1)+kv('组件数量','50 块 × 625Wp')+kv('组串数量','2 串 × 25 块')+kv('支架排直流容量','31.25 kWp')+kv('组串编号（单元内）',`${stringA}、${stringB}`)+kv('逆变器编号',`INV-${String(inverterA).padStart(2,'0')}`)+kv('MPPT / 输入接口','需按逆变器型号配置')+kv('箱变编号',`T-${String(unit).padStart(3,'0')}`)+kv('35kV 集电回路',`F-${String(circuit).padStart(2,'0')}`)+'<p>物理排与电气组串分别编码；此处以每10排汇集至一台逆变器的逻辑映射做交互演示，实际电缆路由须按工程图确认。</p>';
+}
+const ray=new THREE.Raycaster(),mouse=new THREE.Vector2();let down=null;
+renderer.domElement.addEventListener('pointerdown',e=>{down={x:e.clientX,y:e.clientY}});
+renderer.domElement.addEventListener('pointerup',e=>{if(fp||!down||Math.hypot(down.x-e.clientX,down.y-e.clientY)>5)return;mouse.x=e.clientX/innerWidth*2-1;mouse.y=-(e.clientY/innerHeight)*2+1;ray.setFromCamera(mouse,camera);const hit=ray.intersectObjects([rackNearMesh,rackFarMesh],false)[0];if(hit&&hit.instanceId!==undefined)showRack(hit.instanceId)});
+function fly(x,y,z,tx,ty,tz){if(fp)leaveFP();camera.position.set(x,y,z);orbit.target.set(tx,ty,tz);orbit.update()}
+const buttons=['overview','unitView','subView'];function active(id){for(const b of buttons)document.getElementById(b).classList.toggle('active',b===id)}
+document.getElementById('overview').onclick=()=>{fly(2550,2850,3700,0,0,0);active('overview')};
+document.getElementById('unitView').onclick=()=>{let u=units[44];fly(u.x+140,135,u.z+180,u.x,2,u.z);active('unitView')};
+document.getElementById('subView').onclick=()=>{fly(SUBX+255,180,230,SUBX,0,0);active('subView')};
+let fp=false,yaw=0,pitch=0;const keys={};
+function enterFP(){fp=true;orbit.enabled=false;camera.position.set(units[44].x,2.0,units[44].z-90);const v=new THREE.Vector3();camera.getWorldDirection(v);yaw=Math.atan2(-v.x,-v.z);pitch=Math.asin(Math.max(-.99,Math.min(.99,v.y)));document.getElementById('walk').textContent='退出第一人称';document.getElementById('cross').style.display='block';renderer.domElement.requestPointerLock?.()}
+function leaveFP(){fp=false;orbit.enabled=true;document.getElementById('walk').textContent='第一人称巡检';document.getElementById('cross').style.display='none';if(document.pointerLockElement)document.exitPointerLock();let v=new THREE.Vector3();camera.getWorldDirection(v);orbit.target.copy(camera.position).addScaledVector(v,65);orbit.update()}
+document.getElementById('walk').onclick=()=>fp?leaveFP():enterFP();
+document.addEventListener('pointerlockchange',()=>{if(fp&&document.pointerLockElement!==renderer.domElement)leaveFP()});
+document.addEventListener('mousemove',e=>{if(fp&&document.pointerLockElement===renderer.domElement){yaw-=e.movementX*.0024;pitch=Math.max(-1.45,Math.min(1.45,pitch-e.movementY*.0024))}});
+document.addEventListener('keydown',e=>{keys[e.code]=true;if(e.code==='Escape'&&fp)leaveFP()});document.addEventListener('keyup',e=>{keys[e.code]=false});
+document.getElementById('quality').onchange=e=>renderer.setPixelRatio(Math.min(devicePixelRatio,e.target.value==='high'?1.85:1.15));
+window.addEventListener('resize',()=>{camera.aspect=innerWidth/innerHeight;camera.updateProjectionMatrix();renderer.setSize(innerWidth,innerHeight)});
+let rackLOD='near';
+function updateRackLOD(){
+ const target=orbit.target||new THREE.Vector3();
+ const dist=fp?0:camera.position.distanceTo(target);
+ const farMode=(!fp)&&(camera.position.y>210||dist>1050);
+ if(farMode && rackLOD!=='far'){
+   rackLOD='far';
+   rackNearMesh.visible=false;rackFarMesh.visible=true;
+   railMesh.visible=false;postMesh.visible=false;
+ }else if(!farMode && rackLOD!=='near'){
+   rackLOD='near';
+   rackNearMesh.visible=true;rackFarMesh.visible=false;
+   railMesh.visible=true;postMesh.visible=true;
+ }
+}
+const clock=new THREE.Clock();function frame(){requestAnimationFrame(frame);let dt=Math.min(.07,clock.getDelta());if(fp){let dir=new THREE.Vector3(-Math.sin(yaw),0,-Math.cos(yaw));let right=new THREE.Vector3(Math.cos(yaw),0,-Math.sin(yaw));let move=new THREE.Vector3();if(keys.KeyW)move.add(dir);if(keys.KeyS)move.sub(dir);if(keys.KeyD)move.add(right);if(keys.KeyA)move.sub(right);if(move.lengthSq())camera.position.addScaledVector(move.normalize(),dt*(keys.ShiftLeft?78:27));camera.position.y=keys.Space?Math.min(camera.position.y+dt*11,15):2.0;camera.rotation.order='YXZ';camera.rotation.set(pitch,yaw,0);camera.position.x=THREE.MathUtils.clamp(camera.position.x,-WORLD_W/2-140,SUBX+380);camera.position.z=THREE.MathUtils.clamp(camera.position.z,-WORLD_D/2-180,WORLD_D/2+180)}else orbit.update();updateRackLOD();renderer.render(scene,camera)}
+frame();status.remove();
+</script></body></html>
+
