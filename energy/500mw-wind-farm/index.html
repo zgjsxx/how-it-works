@@ -1,0 +1,98 @@
+<!doctype html>
+<html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>500MW陆上风电场｜三维工程展示系统</title>
+<script type="importmap">{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.171.0/build/three.module.js","three/addons/":"https://cdn.jsdelivr.net/npm/three@0.171.0/examples/jsm/"}}</script>
+<style>
+:root{color-scheme:dark;--txt:#e5f2fa;--muted:#a9c1cf;--line:#466273}*{box-sizing:border-box}html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#9bc1d9;color:var(--txt);font-family:"Microsoft YaHei","PingFang SC",system-ui,sans-serif}canvas{display:block}#screen{position:absolute;inset:0}#ui{position:absolute;inset:0;pointer-events:none}header{position:absolute;top:16px;left:17px;max-width:620px;padding:14px 17px;background:linear-gradient(90deg,#061a2beF,#061a2b99);border-left:3px solid #e6b75c}header strong{font-size:20px;display:block}header small{display:block;color:#b8ced9;line-height:1.6;margin-top:5px}#actions{position:absolute;right:16px;top:16px;display:flex;gap:7px;flex-wrap:wrap;justify-content:flex-end;max-width:620px;pointer-events:auto}button,select{border:1px solid #587487;background:#071e30eF;color:#edf7fc;border-radius:6px;padding:8px 11px;min-height:36px;font:inherit;font-size:12px;cursor:pointer}button:hover{background:#20445c}button.active{border-color:#efc56d;color:#ffe0a0}#note{position:absolute;top:92px;left:17px;background:#071e30b8;padding:8px 11px;border-radius:5px;font-size:12px;color:#e2edf3;max-width:580px}#metrics{position:absolute;left:16px;bottom:16px;display:flex;gap:8px;flex-wrap:wrap;max-width:calc(100vw - 380px)}.metric{background:#061b2be8;border:1px solid #3d5b6d;border-radius:6px;padding:9px 12px;min-width:112px}.metric b{font-size:19px;display:block}.metric small{font-size:11px;color:#a8c1cf}#detail{position:absolute;right:16px;bottom:16px;width:320px;max-height:48vh;overflow:auto;background:#061a2bed;border:1px solid #496777;border-radius:8px;padding:14px;pointer-events:auto}#detail h3{margin:0 0 10px;font-size:16px}#detail .kv{display:flex;justify-content:space-between;gap:12px;padding:6px 0;border-bottom:1px solid #294757;font-size:12px}#detail strong{color:#fff}#detail p{font-size:11px;line-height:1.65;color:#a9c2cf}#cross{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);display:none;color:white;font-size:22px;text-shadow:1px 1px 3px black}#status{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;background:#071b2bea;z-index:5;font-weight:600;letter-spacing:1px}#compass{position:absolute;right:18px;bottom:110px;color:#f1f8ff99;font-size:11px}@media(max-width:850px){header{max-width:calc(100vw - 34px);padding:10px}header strong{font-size:16px}header small{font-size:10px}#actions{top:105px;left:10px;right:10px;justify-content:flex-start}#note{top:160px;font-size:10px}#detail{width:270px;max-height:32vh;right:9px;bottom:9px}#metrics{left:9px;bottom:9px;max-width:calc(100vw - 290px)}.metric{min-width:88px;padding:6px}.metric b{font-size:15px}}
+</style></head><body><div id="screen"></div><div id="ui">
+<header><strong>500MW 陆上风电场</strong><small>三维工程展示系统 · 80 × 6.25MW · 一机一变 · 35kV集电 · 220kV并网</small></header>
+<div id="actions"><button id="overview" class="active">全场鸟瞰</button><button id="turbineView">风机特写</button><button id="subView">升压站</button><button id="labels">隐藏编号</button><button id="walk">第一人称巡检</button><button id="wind" class="active">暂停叶片</button><select id="quality"><option value="high">高画质</option><option value="balanced">性能优先</option></select></div>
+<div id="note">鼠标拖动旋转 · 滚轮缩放 · 点击风机查看设备信息 ｜ 第一人称：WASD移动、鼠标转向、Shift加速、Esc退出</div>
+<div id="metrics"><div class="metric"><b>500 MW</b><small>场站装机容量</small></div><div class="metric"><b>80 台</b><small>6.25MW风机</small></div><div class="metric"><b>80 套</b><small>机组箱变（一机一变）</small></div><div class="metric"><b>20 回</b><small>35kV集电回路（概念）</small></div></div>
+<div id="detail"><h3>场站总览</h3><div id="detailBody"><div class="kv"><span>风机数量</span><strong>80台</strong></div><div class="kv"><span>单机额定功率</span><strong>6.25MW</strong></div><div class="kv"><span>总装机容量</span><strong>500MW</strong></div><div class="kv"><span>集电电压</span><strong>35kV</strong></div><div class="kv"><span>并网电压</span><strong>220kV</strong></div><p>本场景为概念级工程展示。风机机位、集电回路和升压站设备布置用于表达工程层级，不替代风资源评估、微观选址、尾流计算及电气施工设计。</p></div></div><div id="cross">＋</div><div id="compass">N ↑　概念布局</div><div id="status">正在构建风电场三维场景…</div></div>
+<script type="module">
+import * as THREE from 'three';
+import {OrbitControls} from 'three/addons/controls/OrbitControls.js';
+const host=document.getElementById('screen');
+const scene=new THREE.Scene();scene.background=new THREE.Color(0x9bc1d9);scene.fog=new THREE.Fog(0x9bc1d9,2600,8500);
+const camera=new THREE.PerspectiveCamera(52,innerWidth/innerHeight,.5,14000);camera.position.set(3100,2450,3650);
+const renderer=new THREE.WebGLRenderer({antialias:true,powerPreference:'high-performance'});renderer.setPixelRatio(Math.min(devicePixelRatio,1.65));renderer.setSize(innerWidth,innerHeight);renderer.shadowMap.enabled=true;renderer.shadowMap.type=THREE.PCFSoftShadowMap;renderer.outputColorSpace=THREE.SRGBColorSpace;renderer.toneMapping=THREE.ACESFilmicToneMapping;renderer.toneMappingExposure=1.12;host.appendChild(renderer.domElement);
+scene.add(new THREE.HemisphereLight(0xe5f5ff,0x66734f,2.0));const sun=new THREE.DirectionalLight(0xfff0d7,2.6);sun.position.set(-900,1700,1100);sun.castShadow=true;sun.shadow.mapSize.set(2048,2048);sun.shadow.camera.left=-2600;sun.shadow.camera.right=2600;sun.shadow.camera.top=2600;sun.shadow.camera.bottom=-2600;scene.add(sun);
+const orbit=new OrbitControls(camera,renderer.domElement);orbit.target.set(0,0,0);orbit.enableDamping=true;orbit.dampingFactor=.06;orbit.maxPolarAngle=Math.PI*.48;orbit.minDistance=90;orbit.maxDistance=9000;
+const mat=(color,roughness=.8,metalness=0)=>new THREE.MeshStandardMaterial({color,roughness,metalness});
+const M={ground:mat(0x87966f),grass:mat(0x71875c),road:mat(0x777c7c),roadEdge:mat(0xb6b5a8),white:mat(0xe7ebed,.48,.12),tower:mat(0xdce1e3,.5,.25),dark:mat(0x34434b,.65,.25),concrete:mat(0x9a9d98),steel:mat(0x687d89,.38,.65),cable:mat(0xb77836),blue:mat(0x526b7a),roof:mat(0x405d6d),glass:mat(0x263f4c,.25,.25)};
+const ground=new THREE.Mesh(new THREE.PlaneGeometry(7200,7600),M.ground);ground.rotation.x=-Math.PI/2;ground.position.y=-1;ground.receiveShadow=true;scene.add(ground);
+// terrain undulation using a coarse shared mesh
+const terrainGeo=new THREE.PlaneGeometry(7200,7600,100,100);const p=terrainGeo.attributes.position;for(let i=0;i<p.count;i++){const x=p.getX(i),z=p.getY(i);p.setZ(i,7*Math.sin(x/410)*Math.cos(z/520)+4*Math.sin((x+z)/230));}terrainGeo.computeVertexNormals();const terrain=new THREE.Mesh(terrainGeo,new THREE.MeshStandardMaterial({color:0x87966f,roughness:1}));terrain.rotation.x=-Math.PI/2;terrain.position.y=-.8;terrain.receiveShadow=true;scene.add(terrain);
+function box(w,h,d,x,y,z,material,parent=scene){const o=new THREE.Mesh(new THREE.BoxGeometry(w,h,d),material);o.position.set(x,y,z);o.castShadow=true;o.receiveShadow=true;parent.add(o);return o}
+function cylinder(rt,rb,h,x,y,z,material,parent=scene,radial=12){const o=new THREE.Mesh(new THREE.CylinderGeometry(rt,rb,h,radial),material);o.position.set(x,y,z);o.castShadow=true;o.receiveShadow=true;parent.add(o);return o}
+function line(points,r,material,parent=scene){const curve=new THREE.CatmullRomCurve3(points.map(v=>new THREE.Vector3(...v)));const o=new THREE.Mesh(new THREE.TubeGeometry(curve,Math.max(8,points.length*4),r,5,false),material);parent.add(o);return o}
+function textSprite(text,scale=1){const c=document.createElement('canvas');c.width=512;c.height=128;const ctx=c.getContext('2d');ctx.fillStyle='rgba(4,20,30,.78)';ctx.fillRect(0,0,512,128);ctx.strokeStyle='rgba(210,230,240,.5)';ctx.strokeRect(2,2,508,124);ctx.fillStyle='#f0f7fb';ctx.font='bold 46px Microsoft YaHei, sans-serif';ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText(text,256,64);const t=new THREE.CanvasTexture(c);t.colorSpace=THREE.SRGBColorSpace;const s=new THREE.Sprite(new THREE.SpriteMaterial({map:t,depthWrite:false}));s.scale.set(90*scale,22*scale,1);return s}
+// roads and pads
+for(let r=-4;r<=4;r++){const z=r*590;box(22,.35,5600,0,.05,z,M.road);box(30,.08,5600,0,.25,z,M.roadEdge)}
+for(let c=-3;c<=3;c++){const x=c*620;box(5600,.35,18,x,.05,0,M.road);}
+// turbine procedural geometry, 80 units in 8 x 10 arrangement
+const turbines=[];const rows=10,cols=8,dx=590,dz=650;const startX=-(cols-1)*dx/2,startZ=-(rows-1)*dz/2;
+const towerGeo=new THREE.CylinderGeometry(3.0,5.2,112,16,1);const nacelleGeo=new THREE.BoxGeometry(17,7,7);const hubGeo=new THREE.SphereGeometry(4.8,20,16);
+ const bladeShape=new THREE.Shape();bladeShape.moveTo(-2.0,0);bladeShape.quadraticCurveTo(-1.3,18,-.9,34);bladeShape.quadraticCurveTo(-.2,62,.15,88);bladeShape.lineTo(.55,105);bladeShape.quadraticCurveTo(2.2,83,2.8,57);bladeShape.quadraticCurveTo(3.1,25,2.0,0);bladeShape.closePath();
+ const bladeGeo=new THREE.ExtrudeGeometry(bladeShape,{depth:1.15,bevelEnabled:true,bevelSegments:2,steps:1,bevelSize:.32,bevelThickness:.28,curveSegments:8});bladeGeo.translate(0,0,-.575);
+ const rotorMat=new THREE.MeshStandardMaterial({color:0xf4f6f5,roughness:.42,metalness:.06,side:THREE.DoubleSide});
+for(let i=0;i<80;i++){
+ const row=Math.floor(i/cols),col=i%cols;const x=startX+col*dx+(row%2)*45,z=startZ+row*dz;const g=new THREE.Group();g.position.set(x,0,z);scene.add(g);
+ // foundation and tower
+ cylinder(11,13,2.2,0,0,0,M.concrete,g,20);cylinder(5.1,5.7,112,0,57,0,M.tower,g,20);
+ // tower door
+ box(2.4,5,.25,0,5.2,5.05,M.dark,g);
+ // nacelle and rotor axis
+ const nac=new THREE.Group();nac.position.set(0,113,0);g.add(nac);nac.rotation.y=-2.43;
+ box(17,7,7,0,0,0,M.white,nac);box(5,1.2,7,2,3.6,0,M.glass,nac);cylinder(2.2,2.2,3,0,-4,0,M.dark,nac,12);
+ const rotor=new THREE.Group();rotor.position.set(0,0,-5);nac.add(rotor);const hub=new THREE.Mesh(hubGeo,M.white);hub.position.z=-1.8;hub.castShadow=true;hub.receiveShadow=true;rotor.add(hub);
+ for(let b=0;b<3;b++){const pivot=new THREE.Group();pivot.rotation.z=b*Math.PI*2/3;const blade=new THREE.Mesh(bladeGeo,rotorMat);blade.position.y=4.2;blade.castShadow=true;blade.receiveShadow=true;pivot.add(blade);rotor.add(pivot)}
+ // rear generator / yaw deck details
+ cylinder(4.2,4.2,2,5,0,0,M.dark,nac,12);for(let q=-2;q<=2;q++)box(.35,1.5,.35,q*2.5,-4.2,0,M.steel,nac);
+ // transformer pad near tower
+ box(13,.65,11,22,.35,17,M.concrete,g);box(8,5,6,22,3.1,17,M.blue,g);box(8.3,.3,6.3,22,5.75,17,M.dark,g);for(let f=-2;f<=2;f++)box(.25,2.8,6.4,22+f*1.5,3.2,17,M.steel,g);
+ const label=textSprite('WTG-'+String(i+1).padStart(2,'0'),.65);label.position.set(0,143,0);g.add(label);
+ turbines.push({id:i+1,row:row+1,col:col+1,x,z,group:g,rotor,nac,transformer:{x:x+22,z:z+17},feeder:Math.floor(i/4)+1});
+}
+// conceptual collector feeder cable routes: four turbines per feeder, cable trunks along roads
+for(let f=0;f<20;f++){
+ const group=turbines.slice(f*4,f*4+4);const zAvg=group.reduce((a,t)=>a+t.z,0)/4;const pts=[];
+ for(let j=0;j<group.length;j++){const t=group[j];line([[t.x+22,.55,t.z+17],[t.x+22,.55,zAvg],[t.x+40,.55,zAvg]],.65,M.cable)}
+ const xs=group.map(t=>t.x+40);line([[Math.min(...xs),.6,zAvg],[Math.max(...xs),.6,zAvg]],.8,M.cable);
+ const trunkX=group[0].x+100;line([[trunkX,.65,zAvg],[trunkX,.65,0],[1450,.65,0]],.8,M.cable);
+}
+// substation fenced yard on east side
+const sx=1740,sz=0;box(470,.7,390,sx,.1,sz,M.concrete);box(445,.12,365,sx,.52,sz,M.road);
+// control building
+box(64,9,34,sx-150,5,sz+128,M.white);box(66,.6,36,sx-150,9.8,sz+128,M.roof);for(let w=0;w<8;w++)box(3.5,3,.12,sx-178+w*8,4.2,sz+110,M.glass);
+// 35kV switchgear hall
+box(105,8,32,sx-115,4,sz-120,M.white);box(107,.5,34,sx-115,8.3,sz-120,M.roof);
+// two main transformers
+for(let k=0;k<2;k++){const x=sx-20+k*115,z=sz+10;box(38,1.5,29,x,.9,z,M.concrete);box(28,13,21,x,8,z,M.blue);box(30,.8,23,x,14.8,z,M.dark);for(let q=-3;q<=3;q++)cylinder(1.2,1.2,10,x+q*3.7,20,z+13,M.steel,scene,10);for(let q=-2;q<=2;q++)box(.7,9,18,x+q*4,7,z-13,M.steel)}
+// AIS gantries, breakers, isolators, bus bars
+for(let r=0;r<4;r++){const z=sz-100+r*58;for(let c=0;c<7;c++){const x=sx-195+c*57;cylinder(.8,.9,18,x,9,z,M.steel,scene,8);cylinder(1.1,1.1,2,x,19,z,M.white,scene,10);box(4,1,2,x,20.5,z,M.steel)}line([[sx-205,22,z],[sx+160,22,z]],.65,M.cable);line([[sx-205,25,z+4],[sx+160,25,z+4]],.45,M.cable)}
+// gantry and grid exit
+for(const x of [sx+210,sx+300]){for(const z of [-45,45])cylinder(.7,.9,35,x,17.5,z,M.steel,scene,8);box(100,.8,.8,x,35,0,M.steel);for(let q=-2;q<=2;q++)line([[x-50,31,q*13],[x+65,31,q*13]],.22,M.cable)}
+// transmission corridor to the east
+for(let n=0;n<4;n++){const x=sx+390+n*220;for(const z of [-20,20]){cylinder(.65,.9,43,x,21.5,z,M.steel,scene,8);for(let h=9;h<=39;h+=10)box(13,.45,.45,x,h,0,M.steel)}for(let ph=-1;ph<=1;ph++)line([[x-25,38,ph*8],[x+220,38,ph*8]],.18,M.cable)}
+// perimeter fence and access road around substation
+for(let side of [-1,1]){line([[sx-240,2,side*200],[sx+240,2,side*200]],.18,M.steel);line([[sx+240,2,side*200],[sx+240,2,-side*200]],.18,M.steel)}
+const subLabel=textSprite('220kV 升压站',1);subLabel.position.set(sx,52,sz-190);scene.add(subLabel);
+const fieldLabel=textSprite('35kV 集电线路 · 20回概念分组',1.2);fieldLabel.position.set(0,95,0);scene.add(fieldLabel);
+// labels and interaction
+let showLabels=true;function toggleLabels(){showLabels=!showLabels;for(const t of turbines)t.group.children.forEach(o=>{if(o.isSprite)o.visible=showLabels});subLabel.visible=showLabels;fieldLabel.visible=showLabels;document.getElementById('labels').textContent=showLabels?'隐藏编号':'显示编号'}
+document.getElementById('labels').onclick=toggleLabels;
+const ray=new THREE.Raycaster(),mouse=new THREE.Vector2();let down=null;
+renderer.domElement.addEventListener('pointerdown',e=>down={x:e.clientX,y:e.clientY});renderer.domElement.addEventListener('pointerup',e=>{if(fp||!down||Math.hypot(down.x-e.clientX,down.y-e.clientY)>5)return;mouse.x=e.clientX/innerWidth*2-1;mouse.y=-(e.clientY/innerHeight)*2+1;ray.setFromCamera(mouse,camera);const hits=ray.intersectObjects(turbines.map(t=>t.group),true);if(hits.length){let o=hits[0].object;while(o.parent&&!turbines.some(t=>t.group===o))o=o.parent;const t=turbines.find(v=>v.group===o);if(t)showTurbine(t)}});
+function kv(k,v){return `<div class="kv"><span>${k}</span><strong>${v}</strong></div>`}
+function showTurbine(t){document.querySelector('#detail h3').textContent=`风力发电机组 WTG-${String(t.id).padStart(2,'0')}`;document.querySelector('#detailBody').innerHTML=kv('额定功率','6.25MW')+kv('所属集电回路',`F-${String(t.feeder).padStart(2,'0')}`)+kv('机组变电单元',`T-${String(t.id).padStart(2,'0')}（一机一变）`)+kv('机位坐标',`X ${Math.round(t.x)}m / Z ${Math.round(t.z)}m`)+kv('轮毂高度','约113m（概念参数）')+kv('叶轮直径','约210m（概念参数）')+kv('变流系统','机组内部集成')+kv('箱变位置','塔筒附近独立布置')+'<p>风机机型尺寸为三维展示用概念参数，并非指定厂商6.25MW机型的正式技术数据。实际机位和集电回路须经风资源评估、尾流计算及电气设计确定。</p>';fly(t.x+260,190,t.z+300,t.x,70,t.z)}
+function fly(x,y,z,tx,ty,tz){if(fp)leaveFP();camera.position.set(x,y,z);orbit.target.set(tx,ty,tz);orbit.update()}
+document.getElementById('overview').onclick=()=>{fly(3100,2450,3650,0,0,0);active('overview')};document.getElementById('turbineView').onclick=()=>{const t=turbines[35];showTurbine(t);fly(t.x+310,165,t.z+360,t.x,78,t.z);active('turbineView')};document.getElementById('subView').onclick=()=>{fly(sx+540,300,650,sx,0,0);active('subView')};function active(id){for(const b of ['overview','turbineView','subView'])document.getElementById(b).classList.toggle('active',b===id)}
+let spinning=true;document.getElementById('wind').onclick=()=>{spinning=!spinning;document.getElementById('wind').textContent=spinning?'暂停叶片':'启动叶片';document.getElementById('wind').classList.toggle('active',spinning)};
+// first-person navigation
+let fp=false,yaw=0,pitch=0;const keys={};function enterFP(){fp=true;orbit.enabled=false;camera.position.set(turbines[35].x+35,2,turbines[35].z+80);yaw=Math.PI;pitch=0;camera.rotation.order='YXZ';document.getElementById('walk').textContent='退出第一人称';document.getElementById('cross').style.display='block';renderer.domElement.requestPointerLock?.()}function leaveFP(){fp=false;orbit.enabled=true;document.getElementById('walk').textContent='第一人称巡检';document.getElementById('cross').style.display='none';if(document.pointerLockElement)document.exitPointerLock();const v=new THREE.Vector3();camera.getWorldDirection(v);orbit.target.copy(camera.position).addScaledVector(v,80)}document.getElementById('walk').onclick=()=>fp?leaveFP():enterFP();document.addEventListener('pointerlockchange',()=>{if(fp&&document.pointerLockElement!==renderer.domElement)leaveFP()});document.addEventListener('mousemove',e=>{if(fp&&document.pointerLockElement===renderer.domElement){yaw-=e.movementX*.0024;pitch=THREE.MathUtils.clamp(pitch-e.movementY*.0024,-1.35,1.35)}});document.addEventListener('keydown',e=>{keys[e.code]=true;if(e.code==='Escape'&&fp)leaveFP()});document.addEventListener('keyup',e=>keys[e.code]=false);
+document.getElementById('quality').onchange=e=>{renderer.setPixelRatio(Math.min(devicePixelRatio,e.target.value==='high'?1.65:1.05));sun.castShadow=e.target.value==='high'};
+const clock=new THREE.Clock();function animate(){requestAnimationFrame(animate);const dt=Math.min(clock.getDelta(),.05);if(spinning)for(const t of turbines)t.rotor.rotation.z+=dt*.42;if(fp){const forward=new THREE.Vector3(-Math.sin(yaw),0,-Math.cos(yaw)),right=new THREE.Vector3(Math.cos(yaw),0,-Math.sin(yaw)),move=new THREE.Vector3();if(keys.KeyW)move.add(forward);if(keys.KeyS)move.sub(forward);if(keys.KeyD)move.add(right);if(keys.KeyA)move.sub(right);if(move.lengthSq())camera.position.addScaledVector(move.normalize(),dt*(keys.ShiftLeft?42:15));camera.position.y=2;camera.rotation.order='YXZ';camera.rotation.set(pitch,yaw,0)}else orbit.update();renderer.render(scene,camera)}animate();window.addEventListener('resize',()=>{camera.aspect=innerWidth/innerHeight;camera.updateProjectionMatrix();renderer.setSize(innerWidth,innerHeight)});document.getElementById('status').remove();
+</script></body></html>
+
+
