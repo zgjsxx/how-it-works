@@ -18,6 +18,7 @@
 | [BMS 一阶 RC 模型](energy/bms-rc-model/) | 从端电压曲线推导 R₀、R₁、C₁ 的作用与离散递推 | 1RC · 8 节 · 可调曲线 |
 | [磷酸铁锂电芯原理](energy/lifepo4-cell-principles/) | 充放电、析锂、自放电与内短路的机理与判读边界 | 3 场景 · 5 专题 |
 | [电励磁同步发电机](energy/synchronous-generator/) | 可拖拽剖切模型 + 相量图 + 并网合闸：旋转磁场、电枢反应、有功无功 | 100 MW · 3 000 r/min · 4 并网条件 |
+| [光储充一体化场站](energy/pv-storage-charging/) | 3D 数字孪生 + 可运行的 EMS：光伏 / 储能 / 10 台充电桩 / 变压器 / 电网，5 种调度策略与故障场景 | 1 MWp · 500 kW/1 MWh · 10×120 kW |
 
 ### AI
 
@@ -69,6 +70,7 @@ how-it-works/
 ```bash
 node tests/5mwh-bess.test.js
 node tests/synchronous-generator.test.js
+node tests/pv-storage-charging.test.js
 ```
 
 这些测试守着几件容易被改坏的事：页面必须无外部 script 引用（保证单文件可分发性）、three.js 已内联、拖拽旋转的方向与角度钳制、模组必须是 104 只电芯、点击必须能命中电芯网格。
