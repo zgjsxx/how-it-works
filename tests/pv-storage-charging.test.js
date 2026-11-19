@@ -1,3 +1,8 @@
+/**
+ * 光储充场站 · 计划 / 跟踪 / 约束 回归测试
+ * 运行：node tests/pv-storage-charging.test.js
+ * 约定：单文件、无依赖、只用 node 原生模块
+ */
 const assert = require('node:assert/strict');
 const fs = require('node:fs');
 const path = require('node:path');
@@ -12,109 +17,164 @@ assert.match(home, /href="energy\/pv-storage-charging\/index\.html"/, '首页应
 assert.doesNotMatch(page, /<script[^>]+src=/i, '单文件分发：不能引用外部 script');
 assert.doesNotMatch(page, /<link[^>]+href=/i, '不能引用外部样式表');
 assert.match(page, /three\.js r160/, 'three.js 必须已内联');
-for (const id of ['view', 'chartPv', 'chartBess', 'chartSoc', 'chartGrid', 'chartBal', 'logList', 'modal', 'selcard']) {
+
+for (const id of ['view', 'chartPlan', 'chartSoc', 'chartMargin', 'objSel', 'limReverse', 'limKva', 'limDemand',
+                  'cmdPlan', 'cmdCut', 'cmdActual', 'cmdWhy', 'trkMae', 'trkSoc', 'logList', 'modal']) {
   assert.match(page, new RegExp('id="' + id + '"'), '缺少界面元素 #' + id);
 }
-for (const s of ['pv', 'bess', 'tou', 'anti', 'manual']) {
-  assert.match(page, new RegExp('data-s="' + s + '"'), '缺少 EMS 策略按钮：' + s);
+for (const v of ['tou', 'peakShaving', 'demandMin', 'selfConsume', 'manual']) {
+  assert.match(page, new RegExp('<option value="' + v + '"'), '目标下拉缺少：' + v);
 }
-for (const s of ['night', 'cloud', 'pvdrop', 'surge', 'lowsoc', 'gridlimit', 'outage']) {
-  assert.match(page, new RegExp('data-sc="' + s + '"'), '缺少场景按钮：' + s);
-}
+/* 旧的一排策略按钮不应再出现 */
+assert.doesNotMatch(page, /data-s="anti"/, '互斥策略按钮应已被 目标 + 约束 取代');
 
 const scripts = [...page.matchAll(/<script(?:\s[^>]*)?>([\s\S]*?)<\/script>/g)].map(m => m[1]);
-assert.ok(scripts.length >= 3, '页面应包含 three.js、仿真内核、3D 与界面脚本');
+assert.ok(scripts.length >= 3, '页面应包含 three.js、仿真内核与界面脚本');
 for (const code of scripts) {
   if (!code.trim()) continue;
   assert.doesNotThrow(() => new Function(code), '内联脚本必须保持合法 JavaScript');
 }
 
-/* ---------- 仿真内核：真实计算 ---------- */
-const coreMatch = page.match(/<script id="sim-core">([\s\S]*?)<\/script>/);
-assert.ok(coreMatch, '应存在独立的仿真内核 <script id="sim-core">');
+/* ---------- 仿真内核 ---------- */
+const core = page.match(/<script id="sim-core">([\s\S]*?)<\/script>/)[1];
 const ctx = { console };
 vm.createContext(ctx);
-vm.runInContext(coreMatch[1], ctx, { filename: 'sim-core.js' });
+vm.runInContext(core, ctx, { filename: 'sim-core.js' });
 const S = ctx.SIMCORE;
-const CFG = S.CFG;
+const C = S.CFG;
 
-assert.equal(CFG.pvKwp, 1000, '光伏装机应为 1 MWp');
-assert.equal(CFG.bessKw, 500, '储能 PCS 应为 500 kW');
-assert.equal(CFG.bessKwh, 1000, '储能容量应为 1 MWh');
-assert.equal(CFG.chargers, 10, '充电桩应为 10 台');
-assert.equal(CFG.chargerKw, 120, '单桩功率应为 120 kW');
+assert.equal(C.pvKwp, 1000, '光伏装机 1 MWp');
+assert.equal(C.bessKw, 500, 'PCS 500 kW');
+assert.equal(C.bessKwh, 1000, '电池 1 MWh');
+assert.equal(C.chargers, 10, '10 台充电桩');
+assert.equal(C.chargerKw, 120, '单桩 120 kW');
+assert.equal(C.kva, 1250, '配变 1250 kVA');
+assert.equal(C.demandKw, 900, '申报需量 900 kW');
+assert.equal(S.TARIFF.feedIn, 0.35, '上网电价应为固定 0.35 元/kWh');
 
-/* 拓扑：变压器只与 0.4kV 母线和 10kV 开关柜相连，不能串在光伏/储能/充电之间 */
-const topo = S.TOPO;
-const byId = Object.fromEntries(topo.edges.map(e => [e.id, e]));
-assert.equal(byId.e_tr.from, 'bus');
-assert.equal(byId.e_tr.to, 'tr');
-assert.equal(byId.e_hv.from, 'tr');
-assert.equal(byId.e_hv.to, 'sw10');
-assert.equal(byId.e_grid.from, 'sw10');
-assert.equal(byId.e_grid.to, 'grid');
-assert.equal(byId.e_pv_ac.to, 'bus');
-assert.equal(byId.e_pcs.to, 'bus');
-assert.equal(byId.e_chg.from, 'bus');
-assert.equal(topo.edges.filter(e => e.to.startsWith('ev')).length, 10, '应有 10 条充电馈线');
-
-/* 08:00 光伏优先：富余充电，功率平衡 */
-let st = S.createSim();
-let s = st.snap;
-assert.ok(Math.abs(s.pv - 451) < 30, '08:00 光伏出力应在 450 kW 左右');
-assert.ok(s.pcs > 0, '08:00 光伏富余应给电池充电');
-assert.ok(Math.abs(s.load + s.pcs - s.pv - s.grid) < 0.01, '功率平衡必须闭合');
-
-/* 连续 4 小时：PCS 不超额定，SOC 在 10%–95%，SOC 与功率自洽 */
-st = S.createSim();
-st.t = 10 * 60;
-for (let i = 0; i < 240; i++) {
-  const x = S.stepSim(st);
-  assert.ok(Math.abs(x.pcs) <= CFG.bessKw + 1e-6, 'PCS 功率不得超过 500 kW');
-  assert.ok(x.soc >= 0 && x.soc <= 1, 'SOC 必须被约束在 0–1');
+/* ---------- 计划 ---------- */
+{
+  const st = S.createSim({ t: 0, soc: 0.55 });
+  assert.ok(st.plan && st.plan.pcs.length === 1440, '应生成 1440 点计划');
+  assert.equal(st.plan.from, 0, '计划应覆盖全天');
+  const p0 = st.plan.soc[0], pEnd = st.plan.soc[1439];
+  assert.ok(Math.abs(pEnd - p0) < 0.02, '计划首尾 SOC 应闭环（' + p0.toFixed(3) + ' → ' + pEnd.toFixed(3) + '）');
 }
-assert.ok(st.soc >= CFG.socMin - 1e-9 && st.soc <= CFG.socMax + 1e-9, 'SOC 必须落在 10%–95% 运行区间');
 
-/* 防逆流 + 满电：必须弃光，不能倒送 */
-st = S.createSim(); st.strategy = 'anti'; st.t = 12 * 60; st.soc = 0.95;
-s = S.stepSim(st);
-assert.ok(s.grid > -0.5, '防逆流模式不得向电网倒送');
-assert.ok(s.curtailed > 100, '满电时应限制光伏出力');
-assert.ok(s.flags.includes('pv-curtail'), '应记录弃光标记');
+/* ---------- 不变式：目标 × 约束 × 场景 ---------- */
+const SCEN = [null, 'cloud', 'pvdrop', 'surge', 'outage', 'gridlimit'];
+for (const objective of S.OBJECTIVES) {
+  for (const reverseKw of [0, null]) {
+    for (const scen of SCEN) {
+      const st = S.createSim({ t: 6 * 60, soc: 0.6, objective, reverseKw });
+      if (scen) S.applyScenario(st, scen);
+      for (let i = 0; i < 300; i++) {
+        const x = S.stepSim(st);
+        const tag = objective + '/' + (reverseKw === 0 ? '防逆流' : '允许上网') + '/' + (scen || '晴');
+        assert.ok(Math.abs((x.load + x.pcs - x.pv) - x.grid) < 1e-6, tag + ' 功率平衡 @' + x.time);
+        assert.ok(Math.abs(x.pcs) <= C.bessKw + 1e-6, tag + ' PCS 不超额定 @' + x.time);
+        assert.ok(x.soc >= C.socMin - 1e-9 && x.soc <= C.socMax + 1e-9, tag + ' SOC 在 10–95% @' + x.time);
+        assert.ok(x.kvaLoad <= C.kva + 1, tag + ' 配变不超容 @' + x.time);
+        assert.ok(x.demand15 <= C.demandKw + 1, tag + ' 15min 需量不超 @' + x.time);
+        if (reverseKw === 0) assert.ok(x.grid >= -0.5, tag + ' 不得反送 @' + x.time + ' grid=' + x.grid.toFixed(1));
+      }
+    }
+  }
+}
 
-/* 电网断电：进线功率为 0，不足部分限负荷 */
-st = S.createSim(); st.t = 19 * 60;
-S.stepSim(st);
-S.applyScenario(st, 'outage');
-s = st.snap;
-assert.ok(Math.abs(s.grid) < 0.5, '断电时电网功率应为 0');
-assert.ok(s.shed > 0, '断电且储能不足时应限负荷');
-assert.ok(s.flags.includes('load-shed'), '应记录限负荷标记');
+/* ---------- 防逆流开关：一天的上网电量 ---------- */
+{
+  const runDay = function(reverseKw) {
+    const st = S.createSim({ t: 0, soc: 0.55, objective: 'selfConsume', reverseKw });
+    for (let i = 0; i < 1440; i++) S.stepSim(st);
+    return S.metricsOf(st);
+  };
+  const noExport = runDay(0);
+  const canExport = runDay(null);
+  assert.ok(noExport.eOut < 1, '防逆流开启时不应有上网电量（实际 ' + noExport.eOut.toFixed(1) + ' kWh）');
+  assert.ok(canExport.eOut > 100, '允许上网时应产生上网电量（实际 ' + canExport.eOut.toFixed(1) + ' kWh）');
+  assert.ok(noExport.eCurt > canExport.eCurt, '防逆流时应以弃光换收益');
+}
 
-/* 峰谷电价：谷段从电网充电 */
-st = S.createSim(); st.strategy = 'tou'; st.t = 2 * 60; st.soc = 0.4;
-s = S.stepSim(st);
-assert.ok(s.pcs > 400, '谷段应满功率充电');
-assert.ok(s.grid > 400, '谷段充电功率应来自电网');
+/* ---------- 旧 bug 回归：放电同时倒送 ---------- */
+for (const objective of ['tou', 'peakShaving', 'demandMin', 'selfConsume']) {
+  for (const reverseKw of [0, null]) {
+    const st = S.createSim({ t: 10 * 60, soc: 0.6, objective, reverseKw });
+    for (let i = 0; i < 120; i++) {
+      const x = S.stepSim(st);
+      assert.ok(!(x.pcs < -1 && x.grid < -1),
+        objective + '/' + (reverseKw === 0 ? '防逆流' : '允许上网') + ' 峰段出现"边放电边倒送" @' + x.time);
+    }
+  }
+}
 
-/* 手动模式：PCS 指令生效并受 SOC 约束 */
-st = S.createSim(); st.strategy = 'manual'; st.t = 12 * 60;
-st.manual = { pcs: 300, pv: 800, load: 400 };
-s = S.stepSim(st);
-assert.ok(Math.abs(s.pcs - 300) < 0.01, '手动 PCS 功率应被采用');
-assert.ok(Math.abs(s.grid - (400 + 300 - 800)) < 0.01, '手动模式电网功率应按平衡计算');
+/* ---------- 电网断电：进线为 0，不足部分限负荷 ---------- */
+{
+  const st = S.createSim({ t: 19 * 60, soc: 0.55, objective: 'tou' });
+  S.applyScenario(st, 'outage');
+  const x = S.stepSim(st);
+  assert.ok(Math.abs(x.grid) < 0.5, '断电时电网功率应为 0（实际 ' + x.grid.toFixed(1) + '）');
+  assert.ok(x.shed > 0, '断电且储能不足时应限负荷');
+  assert.ok(x.reasons.some(r => r.code === 'import'), '断电应记录购电封锁原因');
+}
 
-/* 决策日志：有可解释字段 */
-st = S.createSim();
-for (let i = 0; i < 30; i++) S.stepSim(st);
-assert.ok(st.log.length > 0, '应产生 EMS 决策日志');
-assert.ok(typeof st.log[0].note === 'string' && st.log[0].note.length > 5, '日志应包含决策说明');
-assert.ok(st.log[0].snap.battery && st.log[0].snap.battery.maxCharge >= 0, '日志应记录电池约束');
+/* ---------- 跟踪与重计划 ---------- */
+{
+  const st = S.createSim({ t: 8 * 60, soc: 0.55, objective: 'tou' });
+  for (let i = 0; i < 120; i++) S.stepSim(st);
+  assert.ok(st.replans >= 1, '应发生滚动重计划');
+  assert.ok(st.trackN >= 120, '每个仿真步都应记录跟踪误差');
+  const m = S.metricsOf(st);
+  assert.ok(m.trackMae >= 0 && m.trackMae < 500, '跟踪误差应在合理范围（实际 ' + m.trackMae.toFixed(1) + ' kW）');
+}
 
-/* 仿真时间推进 */
-st = S.createSim();
-const t0 = st.t;
-S.stepSim(st);
-assert.equal(st.t, (t0 + 1) % 1440, '每步推进 1 分钟');
+/* ---------- 手动模式 ---------- */
+{
+  const st = S.createSim({ t: 12 * 60, soc: 0.6, objective: 'manual' });
+  st.manual = { pcs: 200, pv: 600, load: 400 };
+  const x = S.stepSim(st);
+  assert.ok(Math.abs(x.pcs - 200) < 0.01, '手动 PCS 指令应被执行');
+  assert.ok(Math.abs(x.grid - (400 + 200 - 600)) < 0.01, '手动模式仍应满足功率平衡');
+}
+
+/* ---------- 昼夜光照：早上日出、中午最亮、晚上天黑 ---------- */
+{
+  const noon = S.timeOfDay(12 * 60);
+  const night = S.timeOfDay(0);
+  const dawn = S.timeOfDay(6 * 60);
+  const dusk = S.timeOfDay(18 * 60);
+  const dusk2 = S.timeOfDay(18 * 60 + 30);
+
+  assert.ok(noon.day > 0.95, '正午应为全白天（day=' + noon.day.toFixed(2) + '）');
+  assert.ok(noon.sunI > 3, '正午太阳光应最强');
+  assert.ok(!noon.lampOn, '正午不应开灯');
+  assert.ok(night.lampOn, '夜间应开灯');
+  assert.ok(night.sunI < 1.2, '夜间太阳光应接近熄灭');
+  assert.ok(night.exposure < noon.exposure, '夜间整体应更暗');
+  assert.ok(night.sky !== noon.sky, '天空颜色应随昼夜变化');
+
+  /* 早上 8 点就该亮起来，不能等到正午才达标 */
+  const morning = S.timeOfDay(8 * 60);
+  assert.ok(morning.sunI > noon.sunI * 0.8, '8:00 应接近满亮度（' + morning.sunI.toFixed(2) + ' vs ' + noon.sunI.toFixed(2) + '）');
+  assert.ok(morning.exposure > noon.exposure * 0.9, '8:00 曝光应接近正午');
+  const evening = S.timeOfDay(17 * 60);
+  assert.ok(evening.sunI > noon.sunI * 0.4, '17:00 仍应有较强光照（' + evening.sunI.toFixed(2) + '）');
+
+  assert.ok(dawn.dusk > 0.9 && dusk.dusk > 0.9, '日出/日落应有暖色窗口');
+  assert.ok(dawn.lampOn && dusk2.lampOn, '日出前 / 日落后应开灯');
+  const warm = c => (((c >> 16) & 255) - (c & 255)) > 60;
+  assert.ok(warm(dawn.sunColor), '日出时阳光应偏暖');
+  assert.ok(warm(dusk.sunColor), '日落时阳光应偏暖');
+  assert.ok(warm(0xffb277) && !warm(0xfff2dc), '暖色判定自检');
+
+  assert.ok(dawn.sunX > 20, '6 点太阳应在东侧（+x）');
+  assert.ok(dusk.sunX < -20, '18 点太阳应在西侧（−x）');
+  assert.ok(Math.abs(noon.sunX) < 10, '正午太阳应接近正上方');
+  assert.ok(noon.sunY > dawn.sunY, '正午太阳高度应更高');
+
+  const cloudyNoon = S.timeOfDay(12 * 60, 0.6);
+  assert.ok(cloudyNoon.sunI < noon.sunI * 0.8, '阴天光照应明显弱于晴天');
+  assert.ok(cloudyNoon.sky !== noon.sky, '阴天天空应转灰');
+}
 
 console.log('pv-storage-charging: all checks passed');

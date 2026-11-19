@@ -26,7 +26,11 @@ jobs:
         with:
           node-version: '20'
       - name: Run regression tests
-        run: node tests/5mwh-bess.test.js
+        run: |
+          for f in tests/*.test.js; do
+            echo "== $f"
+            node "$f"
+          done
 
   deploy:
     needs: verify

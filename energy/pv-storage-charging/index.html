@@ -1,10 +1,10 @@
-<!doctype html>
+﻿<!doctype html>
 <html lang="zh-CN">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>光储充一体化场站 · 3D 数字孪生与 EMS 能量管理</title>
-<meta name="description" content="用可拖拽的 3D 场站、真实计算的功率仿真与可切换的 EMS 策略，理解光伏、储能、充电桩与电网之间的能量调度：SOC 演化、功率平衡、决策日志与故障场景。">
+<title>光储充一体化场站 · EMS 计划与约束</title>
+<meta name="description" content="用可拖拽的 3D 场站演示 EMS 的完整闭环：日前计划 → 实时跟踪 → 逆流/超容/超需三重约束校核 → 15 分钟滚动重计划，理解储能为什么按计划运行、又为什么被迫偏离。">
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
 :root{
@@ -189,7 +189,7 @@ input[type=range]:disabled{opacity:.4}
 
 /* ---------------- 底部 ---------------- */
 #bottom{grid-area:bottom;display:flex;min-height:0;border-top:1px solid var(--line2);background:#060d16}
-#charts{flex:1;display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:1px;background:rgba(100,160,225,.1);min-width:0}
+#charts{flex:1;display:grid;grid-template-columns:repeat(3,minmax(0,1fr)) 186px;gap:1px;background:rgba(100,160,225,.1);min-width:0}
 .chart{background:#07101b;padding:6px 8px 4px;display:flex;flex-direction:column;min-width:0;position:relative}
 .chart .ch{display:flex;align-items:baseline;justify-content:space-between;gap:4px;margin-bottom:2px}
 .chart .ch b{font-size:9.5px;color:#79a6d0;font-weight:600;letter-spacing:.04em;white-space:nowrap}
@@ -230,6 +230,48 @@ input[type=range]:disabled{opacity:.4}
 .mbox .close{margin-top:16px;width:100%;padding:9px;border-radius:7px;background:rgba(40,224,208,.12);border:1px solid rgba(40,224,208,.4);color:#a9f4ea;font-size:11.5px}
 .mbox .close:hover{background:rgba(40,224,208,.2)}
 
+
+.spd{background:#0e1e30;color:#c9dcee;border:1px solid rgba(100,160,225,.28);border-radius:6px;padding:4px 6px;font:11px ui-monospace,monospace}
+/* ---- 计划 / 约束 / 跟踪 ---- */
+.chart{position:relative}
+.zbtns{display:flex;gap:3px;margin-left:auto}
+.zbtns button{font:9.5px ui-monospace,monospace;padding:1px 6px;border-radius:4px;border:1px solid rgba(120,150,180,.28);color:#7d8fa3;background:transparent}
+.zbtns button.on{color:#a9f4ea;border-color:rgba(40,224,208,.45);background:rgba(40,224,208,.10)}
+.chart-tip{position:absolute;z-index:30;display:none;max-width:240px;padding:6px 8px;border-radius:6px;
+  background:rgba(6,13,22,.97);border:1px solid rgba(100,160,225,.35);font:10.5px/1.55 inherit;
+  color:#c9dcee;pointer-events:none;box-shadow:0 6px 20px rgba(0,0,0,.55)}
+.chart-tip b{color:#eaf4ff}
+.chart-tip .why{color:#ffce6a}
+.chart-tip .t{font-family:ui-monospace,monospace;color:#8fb8d8}
+.mbox.wide{max-width:1180px;width:94vw}
+.bigchart{position:relative;margin:8px 0 6px}
+.bigchart canvas{width:100%;height:340px;display:block;background:#070f18;border:1px solid rgba(100,160,225,.18);border-radius:6px}
+.bigbar{display:flex;align-items:center;gap:8px;margin:6px 0 2px;font-size:11px;color:#9db2ca}
+.bigbar .zbtns{margin-left:0}
+.bigbar .sp{flex:1}
+.biglegend{display:flex;gap:14px;flex-wrap:wrap;font-size:10.5px;color:#9db2ca;margin:6px 0 2px}
+.biglegend i{display:inline-block;width:8px;height:8px;border-radius:50%;margin-right:4px;vertical-align:middle}
+.bigdetail{font-size:11.5px;color:#c9dcee;background:rgba(40,224,208,.06);border:1px solid rgba(40,224,208,.18);
+  border-radius:6px;padding:7px 9px;margin-top:6px;line-height:1.6}
+.bigdetail b{color:#eaf4ff}
+.bigdetail .why{color:#ffce6a}
+.objrow{display:flex;align-items:center;gap:8px;margin-bottom:8px}
+.objrow label{font-size:11px;color:#9db2ca;flex:none}
+.objrow select{flex:1;min-width:0;background:#0e1e30;color:#dbe9f8;border:1px solid rgba(100,160,225,.28);border-radius:6px;padding:5px 7px;font:11.5px/1.3 inherit}
+.limrow{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:9px}
+.limb{}
+.limb.on{}
+.limbtn{font-size:10px;font-family:ui-monospace,monospace;padding:4px 8px;border-radius:999px;border:1px solid rgba(120,150,180,.26);color:#7d8fa3;background:transparent;white-space:nowrap}
+.limbtn.on{color:#a9f4ea;border-color:rgba(40,224,208,.45);background:rgba(40,224,208,.10)}
+.cmd{border-top:1px dashed rgba(100,160,225,.14);margin-top:2px;padding-top:6px}
+.crow{display:flex;justify-content:space-between;align-items:baseline;font-size:11px;padding:2.5px 0;color:#9db2ca}
+.crow b{font-family:ui-monospace,monospace;font-size:11.5px;color:#dbe9f8}
+.crow b.warn{color:#ffce6a}
+.wbtn{margin-top:8px;width:100%;padding:6px;border-radius:6px;border:1px solid rgba(40,224,208,.4);background:rgba(40,224,208,.10);color:#a9f4ea;font-size:11px}
+.wbtn:hover{background:rgba(40,224,208,.18)}
+.kv{display:flex;justify-content:space-between;font-size:11px;padding:2.5px 0;color:#9db2ca}
+.kv b{font-family:ui-monospace,monospace;color:#dbe9f8}
+.sumcard{background:#070f1a;padding:8px 10px;display:flex;flex-direction:column;justify-content:center;gap:2px}
 @media(max-width:1280px){
   #app{grid-template-columns:212px minmax(0,1fr) 300px}
   .brand b{font-size:13px}
@@ -240,7 +282,7 @@ input[type=range]:disabled{opacity:.4}
   #left{display:none}
   .brand span{display:none}
   #charts{grid-template-columns:repeat(3,1fr)}
-  #charts .chart:nth-child(n+4){display:none}
+  .sumcard{display:none}
   #logbox{width:320px}
   #legend{gap:8px;padding:6px 8px}
   #legend span{font-size:8.5px}
@@ -268,13 +310,14 @@ input[type=range]:disabled{opacity:.4}
   <header id="topbar">
     <div class="brand">
       <b>光储充一体化场站 · 3D 数字孪生</b>
-      <span>PV · BESS · EV CHARGING / EMS SIMULATOR</span>
+      <span>SCHEDULE · TRACKING · CONSTRAINTS</span>
     </div>
     <div class="topmid">
       <span class="pill run" id="simState"><i></i>仿真运行中</span>
-      <span class="pill" id="modeName">策略 · 光伏优先</span>
+      <span class="pill" id="modeName">目标 · 峰谷套利</span>
       <span class="pill" id="weatherName">天气 · 晴</span>
       <span id="clock">08:00<small>SIM TIME</small></span>
+      <select class="spd" id="speedSel" title="仿真速度"><option value="1">1×</option><option value="4">4×</option><option value="12">12×</option></select>
       <button class="tbtn" id="btnPlay">暂停</button>
       <button class="tbtn" id="btnStep">单步</button>
       <button class="tbtn" id="btnReset">重置</button>
@@ -324,12 +367,12 @@ input[type=range]:disabled{opacity:.4}
     <div class="rsec">
       <div class="h"><b>实时功率</b><span>REAL-TIME</span></div>
       <div class="kpis">
-        <div class="kpi pv"><div class="k">光伏发电</div><div class="v" id="kpiPV">0<small>kW</small></div><div class="sub" id="kpiPV2">辐照 0%</div></div>
-        <div class="kpi ld"><div class="k">充电负荷</div><div class="v" id="kpiLoad">0<small>kW</small></div><div class="sub" id="kpiLoad2">10 桩 · 0 台充电</div></div>
+        <div class="kpi pv"><div class="k">光伏发电</div><div class="v" id="kpiPV">0<small>kW</small></div><div class="sub" id="kpiPV2">可用 0 kW</div></div>
+        <div class="kpi ld"><div class="k">充电负荷</div><div class="v" id="kpiLoad">0<small>kW</small></div><div class="sub" id="kpiLoad2">10 桩 · 需求 0 kW</div></div>
         <div class="kpi bs"><div class="k">储能功率</div><div class="v" id="kpiBESS">0<small>kW</small></div><div class="sub" id="kpiBESS2">待机</div></div>
         <div class="kpi gr"><div class="k">电网功率</div><div class="v" id="kpiGrid">0<small>kW</small></div><div class="sub" id="kpiGrid2">购电</div></div>
       </div>
-      <div class="kline"><span id="kpiStation">净功率 0 kW</span><span id="kpiPrice">0.00 元/kWh</span></div>
+      <div class="kline"><span id="kpiStation">需量 0 kW</span><span id="kpiPrice">0.00 元/kWh</span></div>
       <div class="socwrap">
         <div class="sochead"><span>储能 SOC</span><b id="socVal">55.0%</b></div>
         <div class="socbar"><i id="socFill" style="width:55%"></i><u class="lo"></u><u class="hi"></u></div>
@@ -338,13 +381,21 @@ input[type=range]:disabled{opacity:.4}
     </div>
 
     <div class="rsec">
-      <div class="h"><b>EMS 控制策略</b><span>STRATEGY</span></div>
-      <div class="strat" id="strategy">
-        <button data-s="pv" class="on"><i></i>光伏优先<em>A</em></button>
-        <button data-s="bess"><i></i>储能优先<em>B</em></button>
-        <button data-s="tou"><i></i>峰谷电价<em>C</em></button>
-        <button data-s="anti"><i></i>防逆流<em>D</em></button>
-        <button data-s="manual"><i></i>手动控制<em>E</em></button>
+      <div class="h"><b>计划目标与约束</b><span>SCHEDULE</span></div>
+      <div class="objrow">
+        <label for="objSel">目标</label>
+        <select id="objSel">
+          <option value="tou">峰谷套利</option>
+          <option value="peakShaving">消峰填谷</option>
+          <option value="demandMin">需量最小</option>
+          <option value="selfConsume">自发自用最大</option>
+          <option value="manual">手动控制</option>
+        </select>
+      </div>
+      <div class="limrow">
+        <button class="limbtn on" id="limReverse">✓ 防逆流 0 kW</button>
+        <button class="limbtn on" id="limKva">✓ 防超容 1250 kVA</button>
+        <button class="limbtn on" id="limDemand">✓ 防超需 900 kW</button>
       </div>
       <div class="manual" id="manualPanel">
         <div class="ctl">
@@ -360,6 +411,21 @@ input[type=range]:disabled{opacity:.4}
           <input id="mLoad" type="range" min="0" max="1200" step="10" value="0" disabled>
         </div>
       </div>
+      <div class="cmd">
+        <div class="crow"><span>计划功率</span><b id="cmdPlan">0 kW</b></div>
+        <div class="crow"><span>约束裁剪</span><b id="cmdCut">未裁剪</b></div>
+        <div class="crow"><span>实际下发</span><b id="cmdActual">0 kW</b></div>
+        <div class="crow"><span>拦截原因</span><b id="cmdWhy">—</b></div>
+      </div>
+      <button class="wbtn" id="btnReplan">立即重计划</button>
+    </div>
+
+    <div class="rsec">
+      <div class="h"><b>跟踪质量</b><span>TRACKING</span></div>
+      <div class="kv"><span>功率跟踪误差</span><b id="trkMae">0 kW</b></div>
+      <div class="kv"><span>SOC 偏差</span><b id="trkSoc">0 %</b></div>
+      <div class="kv"><span>今日重计划</span><b id="trkReplan">0 次</b></div>
+      <div class="kv"><span>约束拦截</span><b id="trkIntercept">0 次</b></div>
     </div>
 
     <div class="rsec">
@@ -368,26 +434,31 @@ input[type=range]:disabled{opacity:.4}
         <button data-sc="day">白天模式</button>
         <button data-sc="night">夜间模式</button>
         <button data-sc="cloud">阴天模式</button>
-        <button data-sc="pvdrop">光伏突降</button>
+        <button data-sc="pvdrop">光伏骤降</button>
         <button data-sc="surge">负荷突增</button>
-        <button data-sc="lowsoc">SOC 低值</button>
         <button data-sc="gridlimit">电网限功率</button>
         <button data-sc="outage">电网断电</button>
-        <button data-sc="clear" style="grid-column:span 3">清除场景 · 恢复晴好</button>
+        <button data-sc="clear" style="grid-column:span 2">清除场景 · 恢复晴好</button>
       </div>
     </div>
   </aside>
 
   <footer id="bottom">
     <div id="charts">
-      <div class="chart"><div class="ch"><b>光伏 / 充电负荷</b><span id="chPvV">0 / 0 kW</span></div><canvas id="chartPv"></canvas></div>
-      <div class="chart"><div class="ch"><b>储能充放电</b><span id="chBessV">0 kW</span></div><canvas id="chartBess"></canvas></div>
-      <div class="chart"><div class="ch"><b>SOC 变化</b><span id="chSocV">55%</span></div><canvas id="chartSoc"></canvas></div>
-      <div class="chart"><div class="ch"><b>电网购售电</b><span id="chGridV">0 kW</span></div><canvas id="chartGrid"></canvas></div>
-      <div class="chart"><div class="ch"><b>功率平衡</b><span id="chBalV">源 = 荷</span></div><canvas id="chartBal"></canvas></div>
+      <div class="chart"><div class="ch"><b>计划 vs 实际 · PCS</b><span id="chPlanV">0 / 0</span>
+        <span class="zbtns" id="zoomBtns"><button data-z="1440" class="on">24h</button><button data-z="720">12h</button><button data-z="240">4h</button></span>
+      </div><canvas id="chartPlan"></canvas><div id="chartTip" class="chart-tip"></div></div>
+      <div class="chart"><div class="ch"><b>SOC 跟踪</b><span id="chSocV">55%</span></div><canvas id="chartSoc"></canvas></div>
+      <div class="chart"><div class="ch"><b>约束余量（近 8 小时）</b><span id="chMarginV">—</span></div><canvas id="chartMargin"></canvas></div>
+      <div class="sumcard">
+        <div class="kv"><span>今日电费</span><b id="sumCost">0 元</b></div>
+        <div class="kv"><span>购 / 售电</span><b id="sumInOut">0 / 0 kWh</b></div>
+        <div class="kv"><span>15min 需量</span><b id="sumDemand">0 kW</b></div>
+        <div class="kv"><span>累计弃光</span><b id="sumCurt">0 kWh</b></div>
+      </div>
     </div>
     <div id="logbox">
-      <div class="lh"><b>EMS 决策日志</b><span>教学仿真 · 点击日志看计算过程</span></div>
+      <div class="lh"><b>计划 / 跟踪 / 约束事件</b><span>点击任意一行看计算过程</span></div>
       <div id="logList"></div>
     </div>
   </footer>
@@ -408,12 +479,12 @@ function(t,e){"object"==typeof exports&&"undefined"!=typeof module?e(exports):"f
 </script>
 
 <script id="sim-core">
-/* =====================================================================
-   光储充场站 · 仿真内核与 EMS 控制算法（纯 JS，可脱离 DOM 运行）
-   功率单位 kW，能量 kWh，时间 min
-   ===================================================================== */
 (function(root){
   'use strict';
+  /* =====================================================================
+     光储充场站 · 仿真内核：计划 → 跟踪 → 约束 → 滚动重计划
+     功率 kW，能量 kWh，时间 min
+     ===================================================================== */
 
   const CFG = {
     pvKwp: 1000,          /* 光伏装机 1 MWp */
@@ -426,8 +497,21 @@ function(t,e){"object"==typeof exports&&"undefined"!=typeof module?e(exports):"f
     chargers: 10,
     chargerKw: 120,
     dtMin: 1,
-    feedInRatio: 0.35,     /* 上网电价 = 分时电价 × 0.35 */
+    kva: 1250,            /* 配变容量 */
+    pf: 0.98,             /* 功率因数（把有功折算成视在） */
+    demandKw: 900,        /* 申报需量 */
     transformerEff: 0.98
+  };
+
+  const TARIFF = {
+    valley: 0.30, flat: 0.65, peak: 1.05,
+    feedIn: 0.35,         /* 上网电价固定 0.35 元/kWh */
+    demandPrice: 38       /* 需量电价 元/kW·月 */
+  };
+
+  const OBJECTIVES = ['tou', 'peakShaving', 'demandMin', 'selfConsume'];
+  const OBJECTIVE_NAME = {
+    tou: '峰谷套利', peakShaving: '消峰填谷', demandMin: '需量最小', selfConsume: '自发自用最大'
   };
 
   const TOPO = {
@@ -444,11 +528,11 @@ function(t,e){"object"==typeof exports&&"undefined"!=typeof module?e(exports):"f
       { id:'bess', zone:'bess', name:'储能电池舱 1MWh', tags:['LFP','1 MWh'], desc:'磷酸铁锂电池舱，内部由电池簇、PACK、BMS、温控与消防系统组成。', specs:[['额定容量','1 000 kWh'],['电池类型','LFP'],['SOC 范围','10%–95%']] },
       { id:'pcs', zone:'bess', name:'储能 PCS 500kW', tags:['双向','500 kW'], desc:'双向变流器：充电时把交流整成直流，放电时把直流逆变成交流。', specs:[['额定功率','500 kW'],['效率','≥ 97%'],['响应','毫秒级']] },
       { id:'chg', zone:'charger', name:'充电配电柜', tags:['0.4 kV','馈线'], desc:'从 0.4kV 母线取电，分成 10 路馈线供给直流快充桩，并配置计量与保护。', specs:[['进线','0.4 kV'],['馈线','10 路'],['计量','分项计量']] },
-      { id:'ems', zone:'ems', name:'EMS 控制中心', tags:['EMS','调度'], desc:'采集全场站功率、SOC 与电价，按策略计算 PCS 与光伏的功率指令，并记录每一条决策依据。', specs:[['采样周期','1 min'],['策略','5 种'],['通信','Modbus / IEC 61850']] },
+      { id:'ems', zone:'ems', name:'EMS 控制中心', tags:['EMS','调度'], desc:'先生成全天计划，再按分钟跟踪计划下发指令；逆流、配变容量与需量三条约束始终生效。', specs:[['计划周期','15 min 滚动'],['约束','逆流 / 超容 / 超需'],['通信','Modbus / IEC 61850']] },
       { id:'bus', zone:'grid', name:'0.4kV 交流汇流母线', tags:['0.4 kV','汇流'], desc:'全场站低压交流电能的交换中心：光伏、储能、充电与变压器都挂接在这条母线上。', specs:[['电压','0.4 kV'],['型式','单母线'],['短路耐受','示意']] },
       { id:'tr', zone:'grid', name:'0.4/10kV 升压变压器', tags:['1 250 kVA','升压'], desc:'把 0.4kV 母线电压升到 10kV 并入电网，是场站与电网之间唯一的升压通道。', specs:[['容量','1 250 kVA'],['变比','0.4/10 kV'],['接线','Dyn11']] },
       { id:'sw10', zone:'grid', name:'10kV 高压开关柜', tags:['10 kV','保护'], desc:'10kV 侧的断路器、保护、计量与并网点，故障时快速切除场站。', specs:[['电压','10 kV'],['回路','1 进线 + 1 计量'],['保护','过流 / 速断']] },
-      { id:'grid', zone:'grid', name:'公共电网 10kV', tags:['双向','购售电'], desc:'电网是场站的功率缓冲池：缺电时购电，余电时上网。', specs:[['电压','10 kV'],['计量','双向'],['上网','按政策允许']] }
+      { id:'grid', zone:'grid', name:'公共电网 10kV', tags:['双向','购售电'], desc:'电网是场站的功率缓冲池：缺电时购电，余电时按并网许可上网。', specs:[['电压','10 kV'],['计量','双向'],['上网','视并网许可']] }
     ],
     edges: [
       { id:'e_pv', from:'pv', to:'pvinv', kind:'dc', label:'光伏直流' },
@@ -461,42 +545,40 @@ function(t,e){"object"==typeof exports&&"undefined"!=typeof module?e(exports):"f
       { id:'e_grid', from:'sw10', to:'grid', kind:'hv', label:'10kV → 电网' }
     ]
   };
-  for(let i = 1; i <= 10; i++){
+  for (let i = 1; i <= 10; i++){
     TOPO.nodes.push({ id:'ev' + i, zone:'charger', name:'直流快充桩 #' + i, tags:['120 kW', 'CCS2'], desc:'单枪直流快充桩，额定 120kW；由充电配电柜引来 0.4kV 电源，经桩内整流模块输出直流给车辆。', specs:[['额定功率','120 kW'],['输出电压','200–750 V'],['通信','OCPP']] });
     TOPO.edges.push({ id:'e_ev' + i, from:'chg', to:'ev' + i, kind:'ac', label:'充电馈线 #' + i });
   }
 
   function clamp(v, a, b){ return v < a ? a : (v > b ? b : v); }
-  function sign(v){ return v > 0.5 ? 1 : (v < -0.5 ? -1 : 0); }
   function fmtMin(min){
     const m = ((min % 1440) + 1440) % 1440;
-    const h = Math.floor(m / 60), mm = Math.floor(m % 60);
-    return String(h).padStart(2, '0') + ':' + String(mm).padStart(2, '0');
+    return String(Math.floor(m / 60)).padStart(2, '0') + ':' + String(Math.floor(m % 60)).padStart(2, '0');
   }
-  function fmtKw(v){ return (Math.round(v * 10) / 10).toFixed(1); }
-  function fmtKwh(v){ return (Math.round(v)).toLocaleString('en-US'); }
+  function r1(v){ return Math.round(v * 10) / 10; }
+  function r0(v){ return Math.round(v); }
 
-  /* 太阳辐照：6:00–18:00 之间按正弦变化，峰值 1.0 */
+  /* ---------------- 环境：真实值与预测值分离 ---------------- */
+  function noise(a, b, m){
+    const v = Math.sin(m * a + b) * 43758.5453;
+    return (v - Math.floor(v)) - 0.5;   /* −0.5 … 0.5，对同一分钟恒定 */
+  }
   function sunAt(min){
     const h = (((min % 1440) + 1440) % 1440) / 60;
-    if(h < 6 || h > 18) return 0;
-    const x = (h - 6) / 12;
-    return Math.pow(Math.sin(Math.PI * x), 1.15);
+    if (h < 6 || h > 18) return 0;
+    return Math.pow(Math.sin(Math.PI * (h - 6) / 12), 1.15);
   }
-
-  /* 分时电价：谷 0.30 / 平 0.65 / 峰 1.05 元/kWh */
+  function weatherFactor(w){ return w === 'cloud' ? 0.35 : (w === 'night' ? 0 : 1); }
   function priceAt(min){
     const h = (((min % 1440) + 1440) % 1440) / 60;
-    if(h >= 23 || h < 7) return 0.30;
-    if((h >= 10 && h < 12) || (h >= 17 && h < 21)) return 1.05;
-    return 0.65;
+    if (h >= 23 || h < 7) return TARIFF.valley;
+    if ((h >= 10 && h < 12) || (h >= 17 && h < 21)) return TARIFF.peak;
+    return TARIFF.flat;
   }
   function priceName(min){
     const p = priceAt(min);
     return p < 0.4 ? '谷段' : (p > 0.9 ? '峰段' : '平段');
   }
-
-  /* 充电负荷日曲线（确定性，非随机）：kW */
   function loadDemand(min){
     const h = (((min % 1440) + 1440) % 1440) / 60;
     const base = 0.16
@@ -506,288 +588,459 @@ function(t,e){"object"==typeof exports&&"undefined"!=typeof module?e(exports):"f
     const ripple = 0.030 * Math.sin(min / 6.1) + 0.018 * Math.sin(min / 2.3 + 1.1);
     return clamp((base + ripple) * CFG.chargers * CFG.chargerKw, 0, CFG.chargers * CFG.chargerKw);
   }
+  /* 真实环境：含突发扰动（云遮 / 光伏骤降 / 负荷突增） */
+  function actualEnv(m, mods){
+    const sun = sunAt(m) * weatherFactor(mods.weather) * (mods.pvDrop > 0 ? 0.15 : 1);
+    const load = loadDemand(m) * (mods.surge > 0 ? 1.35 : 1);
+    return { sun, pv: clamp(CFG.pvKwp * sun, 0, CFG.pvKwp),
+             load: clamp(load, 0, CFG.chargers * CFG.chargerKw) };
+  }
+  /* 预测：只知道天气趋势，不知道突然的扰动，且带固定噪声 */
+  function forecastEnv(m, mods){
+    const sun = sunAt(m) * weatherFactor(mods.weather);
+    const pv = clamp(CFG.pvKwp * sun * (1 + noise(12.9898, 1.7, m) * 0.16), 0, CFG.pvKwp);
+    const load = clamp(loadDemand(m) * (1 + noise(78.233, 4.1, m) * 0.28), 0, CFG.chargers * CFG.chargerKw);
+    return { sun, pv, load };
+  }
 
-  function createSim(){
-    const st = {
-      t: 8 * 60,
-      soc: 0.55,
-      strategy: 'pv',
-      auto: true,
-      pv: 0, load: 0, pcs: 0, grid: 0, price: 0.65, sun: 0,
-      cost: 0, ePv: 0, eLoad: 0, eIn: 0, eOut: 0,
-      mods: { weather:'clear', pvScale:1, loadScale:1, importLimit:null, exportLimit:null,
-              pvDrop:0, surge:0, gridLimit:0, outage:0, lowSoc:false },
-      manual: { pcs:0, pv:0, load:0 },
-      history: [], log: [], seq: 0, snap: null, _key: ''
+  /* ---------------- SOC 与功率能力 ---------------- */
+  function socCaps(soc, dtH){
+    return {
+      maxCharge: Math.min(CFG.bessKw, Math.max(0, (CFG.socMax - soc) * CFG.bessKwh / (dtH * CFG.etaCh))),
+      maxDis: Math.min(CFG.bessKw, Math.max(0, (soc - CFG.socMin) * CFG.bessKwh * CFG.etaDis / dtH))
     };
-    const s = stepSim(st);
-    st.snap = s;
+  }
+  function nextSoc(soc, pcs, dtH){
+    const s = pcs > 0 ? soc + pcs * dtH * CFG.etaCh / CFG.bessKwh
+                      : (pcs < 0 ? soc + pcs * dtH / (CFG.etaDis * CFG.bessKwh) : soc);
+    return clamp(s, 0, 1);
+  }
+
+  /* ---------------- 目标：这一分钟想让 PCS 做什么 ---------------- */
+  function objectiveCmd(st, m, env, soc, win, pvAhead){
+    const dtH = CFG.dtMin / 60;
+    const caps = socCaps(soc, dtH);
+    const h = (m % 1440) / 60;
+    const price = priceAt(m);
+    const surplus = env.pv - env.load;
+    const net = env.load - env.pv;
+
+    /* 收尾段：23:00–24:00 把 SOC 拉回日初值，保证日循环闭环 */
+    if (m >= 23 * 60){
+      const remainH = Math.max(1 / 60, (1440 - m) / 60);
+      const need = (st.socEnd - soc) * CFG.bessKwh;
+      if (need > 1) return Math.min(caps.maxCharge, need / (remainH * CFG.etaCh));
+      return 0;
+    }
+
+    if (st.objective === 'manual') return clamp(st.manual.pcs, -CFG.bessKw, CFG.bessKw);
+
+    if (st.objective === 'selfConsume'){
+      if (surplus > 5) return Math.min(surplus, caps.maxCharge);
+      if (surplus < -5) return -Math.min(-surplus, caps.maxDis);
+      return 0;
+    }
+
+    if (st.objective === 'tou'){
+      if (price < 0.4){
+        /* 谷段：有上网权限就充满套利；没有则按"白天还能白捡多少光伏"反推需要买多少 */
+        const target = st.limits.reverseKw == null
+          ? CFG.socMax
+          : clamp(CFG.socMax - (pvAhead || 0) / (CFG.bessKwh * CFG.etaCh), 0.15, CFG.socMax);
+        if (soc < target - 0.01) return Math.min(CFG.bessKw, caps.maxCharge);
+        return 0;
+      }
+      if (price > 0.9) return -Math.min(Math.max(0, net), caps.maxDis);   /* 只补净缺额，不额外放电 */
+      if (surplus > 5) return Math.min(surplus, caps.maxCharge);
+      if (surplus < -5) return -Math.min(-surplus, caps.maxDis);
+      return 0;
+    }
+
+    if (st.objective === 'peakShaving'){
+      if (surplus > 5 && soc < CFG.socMax - 0.02) return Math.min(surplus, caps.maxCharge);
+      const target = clamp(CFG.socMax - (pvAhead || 0) / (CFG.bessKwh * CFG.etaCh), 0.20, 0.90);
+      if (price < 0.4 && soc < target - 0.01) return Math.min(CFG.bessKw, caps.maxCharge);
+      if (net > 520) return -Math.min(net - 520, caps.maxDis);
+      return 0;
+    }
+
+    /* demandMin：先把 15min 均值压在申报需量以下，再考虑套利 */
+    const prevSum = win.reduce(function(a, b){ return a + b; }, 0);
+    const allow = st.limits.demandKw == null ? 1e9 : Math.max(0, st.limits.demandKw * 15 - prevSum);
+    if (net > allow) return -Math.min(net - allow, caps.maxDis);
+    const dTarget = clamp(0.85 - (pvAhead || 0) / (CFG.bessKwh * CFG.etaCh), 0.20, 0.85);
+    if (price < 0.4 && soc < dTarget - 0.01) return Math.min(CFG.bessKw, caps.maxCharge);
+    if (surplus > 5) return Math.min(surplus, caps.maxCharge);
+    return 0;
+  }
+
+  /* ---------------- 约束引擎：目标 → 可行 ---------------- */
+  function solve(ctx, cmd, env){
+    const dtH = CFG.dtMin / 60;
+    const caps = socCaps(ctx.soc, dtH);
+    let pcs = clamp(cmd, -caps.maxDis, caps.maxCharge);
+    let pv = env.pv, load = env.load, curt = 0, shed = 0;
+    const reasons = [];
+    let grid = load + pcs - pv;
+
+    /* ① 逆流：不许倒送 */
+    if (ctx.limits.reverseKw != null && grid < -ctx.limits.reverseKw){
+      const need = -ctx.limits.reverseKw - grid;
+      const add = Math.min(need, Math.max(0, caps.maxCharge - pcs));
+      pcs += add;
+      let left = need - add;
+      if (left > 0.01){ curt = Math.min(left, pv); pv -= curt; }
+      reasons.push({ code:'reverse', need:r1(need), added:r1(add), curtailed:r1(curt) });
+      grid = load + pcs - pv;
+    }
+
+    /* ② 购电上限：配变容量 / 断电容许 / 场景限值 取最小 */
+    const importCaps = [];
+    if (ctx.limits.kva != null) importCaps.push(ctx.limits.kva * CFG.pf);
+    if (ctx.limits.importKw != null) importCaps.push(ctx.limits.importKw);
+    const importCap = importCaps.length ? Math.min.apply(null, importCaps) : 1e9;
+    if (grid > importCap){
+      const over = grid - importCap;
+      const cut = Math.min(over, Math.max(0, pcs + caps.maxDis));
+      pcs -= cut;
+      let left = over - cut;
+      if (left > 0.01){ shed = Math.min(left, load); load -= shed; }
+      reasons.push({ code: ctx.limits.importKw != null ? 'import' : 'kva', over:r1(over), cut:r1(cut), shed:r1(shed) });
+      grid = load + pcs - pv;
+    }
+
+    /* ③ 超需：15min 滑动平均 */
+    if (ctx.limits.demandKw != null){
+      const prev = ctx.win.slice(-14);
+      const allow = Math.max(0, ctx.limits.demandKw * 15 - prev.reduce(function(a, b){ return a + b; }, 0));
+      if (grid > allow){
+        const over = grid - allow;
+        const cut = Math.min(over, Math.max(0, pcs + caps.maxDis));
+        pcs -= cut;
+        let left = over - cut;
+        if (left > 0.01){ const s2 = Math.min(left, load); shed += s2; load -= s2; }
+        reasons.push({ code:'demand', allow:r1(allow), cut:r1(cut), shed:r1(left) });
+        grid = load + pcs - pv;
+      }
+    }
+
+    /* ④ 最终钳位，保证不越 PCS 与 SOC 能力 */
+    pcs = clamp(pcs, -caps.maxDis, caps.maxCharge);
+    grid = load + pcs - pv;
+
+    return { pcs, pv, load, curtailed: curt, shed, grid, reasons, caps };
+  }
+
+  /* ---------------- 计划 ---------------- */
+  function makePlan(st){
+    const plan = {
+      pcs: new Float32Array(1440), soc: new Float32Array(1440),
+      from: st.t, objective: st.objective, madeAt: st.t, socEnd: st.socEnd
+    };
+    /* 预算：从当前分钟到 17:00 还能"白捡"多少光伏富余电量（kWh） */
+    const pvAhead = new Float64Array(1441);
+    for (let m = 1439; m >= 0; m--){
+      const e = forecastEnv(m, st.mods);
+      const cur = Math.max(0, e.pv - e.load) / 60;
+      pvAhead[m] = (m >= 17 * 60 ? 0 : cur + pvAhead[m + 1]);
+    }
+    const win = st.win.slice();
+    let soc = st.soc;
+    for (let m = st.t; m < 1440; m++){
+      const env = forecastEnv(m, st.mods);
+      const cmd = objectiveCmd(st, m, env, soc, win, pvAhead[m]);
+      const r = solve({ soc, limits: st.limits, win }, cmd, env);
+      plan.pcs[m] = r.pcs;
+      plan.soc[m] = soc;
+      soc = clamp(nextSoc(soc, r.pcs, CFG.dtMin / 60), CFG.socMin, CFG.socMax);
+      win.push(Math.max(0, r.grid));
+      if (win.length > 15) win.shift();
+    }
+    plan.socEndActual = soc;
+    return plan;
+  }
+
+  /* ---------------- 状态与单步 ---------------- */
+  function createSim(opts){
+    opts = opts || {};
+    const st = {
+      t: opts.t == null ? 0 : opts.t,
+      soc: opts.soc == null ? 0.55 : opts.soc,
+      socEnd: opts.soc == null ? 0.55 : opts.soc,
+      objective: opts.objective || 'tou',
+      mode: 'auto',
+      limits: {
+        reverseKw: opts.reverseKw === undefined ? 0 : opts.reverseKw,   /* 0=防逆流，null=允许上网 */
+        kva: opts.kva === undefined ? CFG.kva : opts.kva,
+        demandKw: opts.demandKw === undefined ? CFG.demandKw : opts.demandKw,
+        importKw: opts.importKw === undefined ? null : opts.importKw
+      },
+      manual: { pcs: 0, pv: 0, load: 0 },
+      mods: { weather:'clear', pvDrop:0, surge:0, outage:0, gridLimit:0 },
+      win: [],
+      pv: 0, load: 0, pcs: 0, grid: 0, socPlan: 0,
+      cost: 0, eIn: 0, eOut: 0, eCurt: 0, eShed: 0,
+      trackSum: 0, trackN: 0, socDevMax: 0, intercepts: 0, replans: 1,
+      day: 0, history: [], log: [], events: [], seq: 0, snap: null, plan: null
+    };
+    st.plan = makePlan(st);
+    st.snap = step(st, true);
     return st;
   }
 
-  /* ---- 策略：只决定“想用 PCS 做什么”和电网约束，实际功率由功率平衡得出 ---- */
-  function planFor(strategy, c){
-    const h = (((c.t % 1440) + 1440) % 1440) / 60;
-    const surplus = c.pv - c.load;
-    let pcs = 0, expLimit = c.expLimit, impLimit = c.impLimit;
-    let code = 'idle', note = '', target = '待机';
-
-    if(strategy === 'manual'){
-      pcs = clamp(c.manual.pcs, -CFG.bessKw, CFG.bessKw);
-      code = pcs > 0 ? 'manual-charge' : (pcs < 0 ? 'manual-discharge' : 'manual-idle');
-      target = pcs > 0 ? '手动充电' : (pcs < 0 ? '手动放电' : '手动待机');
-      note = '手动模式：PCS 指令由操作员给定，EMS 只校核电池 SOC 与功率上限。';
-      return { pcs, expLimit, impLimit, code, note, target };
-    }
-
-    if(strategy === 'anti'){
-      expLimit = Math.min(expLimit == null ? 1e6 : expLimit, 0);
-      if(surplus > 0){
-        pcs = Math.min(surplus, c.maxCharge);
-        target = pcs > 0.5 ? '防逆流 · 多余光伏充电' : '防逆流 · 限制光伏';
-        code = pcs > 0.5 ? 'anti-charge' : 'anti-curtail';
-        note = '防逆流模式禁止向电网倒送：优先把多余光伏充进电池，电池满了就压低光伏出力。';
-      }else{
-        pcs = -Math.min(-surplus, c.maxDis);
-        target = '防逆流 · 储能补缺';
-        code = 'anti-discharge';
-        note = '防逆流模式不限制买电，负荷缺额由储能和电网按能力补足。';
-      }
-      return { pcs, expLimit, impLimit, code, note, target };
-    }
-
-    if(strategy === 'tou'){
-      const valley = (h < 7 || h >= 23), peak = ((h >= 10 && h < 12) || (h >= 17 && h < 21));
-      if(valley && c.soc < 0.90){
-        pcs = Math.min(CFG.bessKw, c.maxCharge);
-        code = 'tou-charge'; target = '谷电充电';
-        note = '当前为谷段电价（0.30 元/kWh），EMS 用市电把电池充到 90%，为白天峰段留出放电空间。';
-      }else if(peak && c.soc > 0.15 && c.load > 20){
-        pcs = -Math.min(c.load, c.maxDis);
-        code = 'tou-discharge'; target = '峰段放电';
-        note = '当前为峰段电价（1.05 元/kWh），储能放电替代高价市电，降低充电成本。';
-      }else{
-        if(surplus > 0){ pcs = Math.min(surplus, c.maxCharge); code = 'tou-pv-charge'; target = '平段 · 光伏充电'; note = '非峰谷时段按光伏优先运行：先用光伏满足负荷，富余电量给电池充电。'; }
-        else { pcs = -Math.min(-surplus, c.maxDis); code = 'tou-pv-discharge'; target = '平段 · 储能补缺'; note = '非峰谷时段光伏不足，储能按能力补充负荷缺口，剩余由电网提供。'; }
-      }
-      return { pcs, expLimit, impLimit, code, note, target };
-    }
-
-    if(strategy === 'bess'){
-      /* 储能优先：SOC 允许时尽量由电池承担负荷，光伏富余时回充 */
-      if(c.soc > 0.30 && c.load > 20){
-        const cap = (c.soc - 0.30) * CFG.bessKwh * CFG.etaDis / (CFG.dtMin / 60);
-        pcs = -Math.min(c.load * 0.65, c.maxDis, Math.max(0, cap));
-        target = '储能优先放电';
-        note = '储能优先模式下，SOC 高于 30% 时让电池承担约 65% 的充电负荷，减少市电购电。';
-        code = pcs < -0.5 ? 'bess-discharge' : 'bess-idle';
-      }else if(surplus > 0 && c.soc < 0.55){
-        pcs = Math.min(surplus, c.maxCharge);
-        target = '储能优先充电'; code = 'bess-charge';
-        note = 'SOC 低于 55%，把光伏富余电量优先回充电池，为下一次负荷高峰做准备。';
-      }else{
-        pcs = surplus > 0 ? Math.min(surplus, c.maxCharge) : -Math.min(-surplus, c.maxDis);
-        target = '储能优先 · 平衡';
-        code = surplus > 0 ? 'bess-charge2' : 'bess-discharge2';
-        note = 'SOC 已进入安全区间，按光伏富余/缺口做功率平衡。';
-      }
-      return { pcs, expLimit, impLimit, code, note, target };
-    }
-
-    /* 默认：光伏优先 */
-    if(surplus > 0){
-      pcs = Math.min(surplus, c.maxCharge);
-      code = pcs > 0.5 ? 'pv-charge' : 'pv-export';
-      target = pcs > 0.5 ? '光伏富余充电' : '光伏富余上网';
-      note = pcs > 0.5
-        ? '光伏出力大于充电负荷，富余功率优先给储能充电（受 PCS 与 SOC 上限约束）。'
-        : '光伏富余但储能已满或已到功率上限，余电送入电网。';
-    }else if(surplus < 0){
-      const dis = Math.min(-surplus, c.maxDis);
-      pcs = -dis;
-      code = 'pv-deficit';
-      target = dis > 0.5 ? '储能补缺' : '电网补缺';
-      note = dis > 0.5
-        ? '光伏不足以覆盖充电负荷，储能按可放功率补足缺口，剩余由电网提供。'
-        : '光伏不足且储能已到下限或功率受限，缺口全部由电网提供。';
-    }else{
-      code = 'balanced'; target = '功率平衡'; note = '光伏出力与充电负荷基本相等，储能与电网不需要动作。';
-    }
-    return { pcs, expLimit, impLimit, code, note, target };
+  function tickMods(st){
+    ['pvDrop', 'surge', 'outage', 'gridLimit'].forEach(function(k){
+      if (st.mods[k] > 0) st.mods[k] = Math.max(0, st.mods[k] - CFG.dtMin);
+    });
   }
 
-  function stepSim(st){
-    const dt = CFG.dtMin, dtH = dt / 60;
-    const mods = st.mods;
+  function step(st, silent){
+    const dtH = CFG.dtMin / 60;
+    tickMods(st);
 
-    /* 场景倒计时 */
-    ['pvDrop', 'surge', 'gridLimit', 'outage'].forEach(function(k){
-      if(mods[k] > 0){ mods[k] = Math.max(0, mods[k] - dt); }
-    });
-
-    const weather = mods.weather;
-    const sun = sunAt(st.t) * (weather === 'cloud' ? 0.35 : weather === 'night' ? 0 : 1);
-    let pvAvail = CFG.pvKwp * sun * (mods.pvScale == null ? 1 : mods.pvScale) * (mods.pvDrop > 0 ? 0.15 : 1);
-    let demand = loadDemand(st.t) * (mods.loadScale == null ? 1 : mods.loadScale) * (mods.surge > 0 ? 1.35 : 1);
-    demand = Math.min(demand, CFG.chargers * CFG.chargerKw);
-    const price = priceAt(st.t);
-
-    if(st.strategy === 'manual'){
-      pvAvail = clamp(st.manual.pv, 0, CFG.pvKwp);
-      demand = clamp(st.manual.load, 0, CFG.chargers * CFG.chargerKw);
+    /* 电网断电 / 限功率：临时收紧约束 */
+    const limits = Object.assign({}, st.limits);
+    if (st.mods.outage > 0){ limits.reverseKw = 0; limits.kva = null; limits.demandKw = null; limits.importKw = 0; }
+    else if (st.mods.gridLimit > 0){
+      limits.reverseKw = 0;
+      limits.importKw = Math.min(limits.importKw == null ? 300 : limits.importKw, 300);
     }
 
-    const maxCharge = Math.min(CFG.bessKw, Math.max(0, (CFG.socMax - st.soc) * CFG.bessKwh / (dtH * CFG.etaCh)));
-    const maxDis = Math.min(CFG.bessKw, Math.max(0, (st.soc - CFG.socMin) * CFG.bessKwh * CFG.etaDis / dtH));
-
-    let impLimit = (mods.importLimit == null ? 1e6 : mods.importLimit);
-    let expLimit = (mods.exportLimit == null ? 1e6 : mods.exportLimit);
-    if(mods.gridLimit > 0){ impLimit = Math.min(impLimit, 300); expLimit = Math.min(expLimit, 0); }
-    if(mods.outage > 0){ impLimit = 0; expLimit = 0; }
-
-    const plan = planFor(st.strategy, {
-      t: st.t, pv: pvAvail, load: demand, soc: st.soc, price: price,
-      maxCharge: maxCharge, maxDis: maxDis, impLimit: impLimit, expLimit: expLimit,
-      manual: st.manual
-    });
-    expLimit = plan.expLimit;
-    impLimit = plan.impLimit;
-
-    let pcs = clamp(plan.pcs, -maxDis, maxCharge);
-    let pv = pvAvail, load = demand, shed = 0, curtailed = 0;
-    let grid = load + pcs - pv;
-    const flags = [];
-
-    /* 不允许倒送：把多余功率充进电池，充不下就压光伏 */
-    if(grid < -expLimit){
-      let over = -grid - expLimit;
-      const add = Math.max(0, Math.min(over, maxCharge - pcs));
-      pcs += add; over -= add;
-      if(over > 0.01){ curtailed = Math.min(over, pv); pv = Math.max(0, pv - curtailed); }
-      else curtailed = 0;
-      grid = load + pcs - pv;
-      if(curtailed > 0.5) flags.push('pv-curtail');
-      if(-grid - expLimit > 0.5) flags.push('export-limit');
+    let env;
+    let cmd;
+    if (st.objective === 'manual'){
+      env = { sun: sunAt(st.t), pv: clamp(st.manual.pv, 0, CFG.pvKwp), load: clamp(st.manual.load, 0, CFG.chargers * CFG.chargerKw) };
+      cmd = clamp(st.manual.pcs, -CFG.bessKw, CFG.bessKw);
+    }else{
+      env = actualEnv(st.t, st.mods);
+      cmd = st.plan && isFinite(st.plan.pcs[st.t]) ? st.plan.pcs[st.t] : 0;
     }
 
-    /* 不允许超限购电：增加放电，仍不够就压负荷 */
-    if(grid > impLimit){
-      let over = grid - impLimit;
-      const add = Math.max(0, Math.min(over, pcs + maxDis));
-      pcs -= add; over -= add;
-      if(over > 0.01){ shed = Math.min(over, load); load = Math.max(0, load - shed); }
-      else shed = 0;
-      grid = load + pcs - pv;
-      if(shed > 0.5) flags.push('load-shed');
-      if(grid > impLimit + 0.5) flags.push('import-limit');
-    }
+    const r = solve({ soc: st.soc, limits, win: st.win }, cmd, env);
 
     const socBefore = st.soc;
-    if(pcs > 0) st.soc += pcs * dtH * CFG.etaCh / CFG.bessKwh;
-    else if(pcs < 0) st.soc -= (-pcs) * dtH / (CFG.etaDis * CFG.bessKwh);
-    st.soc = clamp(st.soc, 0, 1);
-
-    if(st.soc <= CFG.socMin + 0.005) flags.push('soc-low');
-    if(st.soc >= CFG.socMax - 0.005) flags.push('soc-high');
-    if(pcs > 0.5 && st.soc >= CFG.socMax - 0.001) flags.push('charge-limited');
-    if(pcs < -0.5 && st.soc <= CFG.socMin + 0.001) flags.push('discharge-limited');
-
+    st.soc = clamp(nextSoc(st.soc, r.pcs, dtH), 0, 1);
+    const grid = r.load + r.pcs - r.pv;
     const gridImport = Math.max(0, grid), gridExport = Math.max(0, -grid);
-    const costDelta = gridImport * dtH * price - gridExport * dtH * price * CFG.feedInRatio;
-    st.cost += costDelta;
-    st.ePv += pv * dtH; st.eLoad += load + shed; st.eIn += gridImport * dtH; st.eOut += gridExport * dtH;
+    const price = priceAt(st.t);
 
-    st.pv = pv; st.load = load; st.pcs = pcs; st.grid = grid; st.price = price; st.sun = sun;
-    st.seq++;
+    st.win.push(gridImport);
+    if (st.win.length > 15) st.win.shift();
+    const demand15 = st.win.reduce(function(a, b){ return a + b; }, 0) / Math.min(15, st.win.length);
 
-    const active = load < 30 ? 0 : Math.max(1, Math.min(CFG.chargers, Math.round(load / CFG.chargerKw)));
-    const per = active > 0 ? load / active : 0;
+    st.cost += (gridImport * price - gridExport * TARIFF.feedIn) * dtH;
+    st.eIn += gridImport * dtH; st.eOut += gridExport * dtH;
+    st.eCurt += r.curtailed * dtH; st.eShed += r.shed * dtH;
+
+    const planP = st.plan ? st.plan.pcs[st.t] : 0;
+    const planSoc = st.plan ? st.plan.soc[st.t] : st.soc;
+    const err = Math.abs(r.pcs - planP);
+    st.trackSum += err; st.trackN++;
+    const socDev = st.soc - (planSoc + (planP * dtH * (planP > 0 ? CFG.etaCh : 1 / CFG.etaDis)) / CFG.bessKwh);
+    st.socDevMax = Math.max(st.socDevMax, Math.abs(socDev));
+    if (r.reasons.length) st.intercepts++;
+
+    st.pv = r.pv; st.load = r.load; st.pcs = r.pcs; st.grid = grid; st.seq++;
+
+    const active = r.load < 30 ? 0 : Math.max(1, Math.min(CFG.chargers, Math.round(r.load / CFG.chargerKw)));
+    const per = active > 0 ? r.load / active : 0;
     const chargers = [];
-    for(let i = 0; i < CFG.chargers; i++) chargers.push(i < active ? per : 0);
+    for (let i = 0; i < CFG.chargers; i++) chargers.push(i < active ? per : 0);
 
     const snap = {
-      seq: st.seq, t: st.t, time: fmtMin(st.t), strategy: st.strategy,
-      sun: sun, weather: weather, price: price, priceName: priceName(st.t),
-      pvAvail: pvAvail, pv: pv, curtailed: curtailed,
-      demand: demand, load: load, shed: shed,
-      pcs: pcs, pcsMode: pcs > 0.5 ? 'charge' : (pcs < -0.5 ? 'discharge' : 'idle'),
-      socBefore: socBefore, soc: st.soc,
-      grid: grid, gridImport: gridImport, gridExport: gridExport,
-      gridMode: grid > 0.5 ? 'import' : (grid < -0.5 ? 'export' : 'zero'),
-      costDelta: costDelta, cost: st.cost,
-      ePv: st.ePv, eLoad: st.eLoad, eIn: st.eIn, eOut: st.eOut,
-      battery: { powerKw: CFG.bessKw, energyKwh: CFG.bessKwh, maxCharge: maxCharge, maxDis: maxDis,
+      seq: st.seq, t: st.t, time: fmtMin(st.t), objective: st.objective,
+      sun: env.sun, weather: st.mods.weather, price, priceName: priceName(st.t),
+      pvAvail: env.pv, pv: r.pv, load: r.load, demand: env.load,
+      pcs: r.pcs, grid, gridImport, gridExport,
+      curtailed: r.curtailed, shed: r.shed,
+      socBefore, soc: st.soc, socPlan: planSoc, socDev,
+      planPcs: planP, trackErr: err,
+      demand15, kvaLoad: Math.abs(grid) / CFG.pf,
+      reasons: r.reasons, flags: r.reasons.map(function(x){ return x.code; }),
+      battery: { powerKw: CFG.bessKw, energyKwh: CFG.bessKwh, maxCharge: r.caps.maxCharge, maxDis: r.caps.maxDis,
                  usableKwh: Math.max(0, (st.soc - CFG.socMin)) * CFG.bessKwh },
-      plan: plan, flags: flags, activeChargers: active, chargerPower: per, chargers: chargers,
-      mods: { weather: weather, gridLimit: mods.gridLimit > 0, outage: mods.outage > 0,
-              pvDrop: mods.pvDrop > 0, surge: mods.surge > 0 }
+      activeChargers: active, chargerPower: per, chargers,
+      cost: st.cost, eIn: st.eIn, eOut: st.eOut, eCurt: st.eCurt, eShed: st.eShed,
+      trackMae: st.trackN ? st.trackSum / st.trackN : 0,
+      intercepts: st.intercepts, replans: st.replans,
+      mods: { weather: st.mods.weather, outage: st.mods.outage > 0, gridLimit: st.mods.gridLimit > 0,
+              pvDrop: st.mods.pvDrop > 0, surge: st.mods.surge > 0 }
     };
-
     st.snap = snap;
-    st.history.push({ t: snap.t, pv: pv, load: load, pcs: pcs, soc: st.soc, grid: grid, price: price });
-    if(st.history.length > 240) st.history.shift();
 
-    /* 决策日志：策略/代码/方向/重要标记变化时记录 */
-    const key = st.strategy + '|' + plan.code + '|' + sign(pcs) + '|' + flags.join(',');
-    if(key !== st._key){
-      st._key = key;
+    st.history.push({ day: st.day, t: snap.t, pv: snap.pv, load: snap.load, pcs: snap.pcs, planPcs: snap.planPcs,
+                      soc: snap.soc, socPlan: snap.socPlan, grid, demand15,
+                      reasons: snap.reasons.slice(), curtailed: snap.curtailed, shed: snap.shed });
+    if (st.history.length > 1440) st.history.shift();
+
+    if (!silent){
       addLog(st, snap);
-    }else if(st.seq % 10 === 0){
-      addLog(st, snap);
+      /* 滚动重计划：每 15 min、或 SOC 偏差、或事件触发 */
+      const dev = Math.abs(socDev);
+      if (st.events.length){
+        const ev = st.events.shift();
+        replan(st, ev);
+      }else if ((st.t + 1) % 15 === 0 || dev > 0.03){
+        replan(st, dev > 0.03 ? 'soc-deviation' : 'roll');
+      }
     }
-    st.t = (st.t + dt) % 1440;
+
+    st.t = (st.t + CFG.dtMin) % 1440;
+    if (st.t === 0){
+      st.day++;
+      st.history.length = 0;          /* 新的一天从零点重新累积，未来时段不画线 */
+      if (!silent) replan(st, 'new-day');
+    }
     return snap;
   }
 
-  function addLog(st, snap){
+  const stepSim = step;
+
+  function replan(st, reason){
+    st.plan = makePlan(st);
+    st.replans++;
+    addLog(st, st.snap, reason);
+    return st.plan;
+  }
+
+  const LOG_TEXT = {
+    roll: '滚动重计划：按当前 SOC 重算剩余时段',
+    'soc-deviation': 'SOC 偏差超 3%，触发重计划',
+    'new-day': '跨日：按日初 SOC 重新生成全天计划',
+    'scenario': '场景突变，计划失效，立即重计划',
+    'manual': '手动重计划'
+  };
+
+  function addLog(st, snap, reason){
+    if (!snap) return;
+    if (reason === 'roll') return;                        /* 定时滚动不刷屏 */
+    const key = reason ? ('R:' + reason) : ('C:' + snap.reasons.map(function(r){ return r.code; }).join(','));
+    if (!reason && st._lastKey === key) return;           /* 同一约束原因不重复记录 */
+    st._lastKey = key;
     const entry = {
-      id: 'L' + st.seq,
-      t: snap.t, time: snap.time, strategy: snap.strategy, title: snap.plan.target,
-      note: snap.plan.note, code: snap.plan.code, flags: snap.flags.slice(),
+      seq: st.seq, time: snap.time, t: snap.t,
+      kind: reason ? 'replan' : (snap.reasons.length ? 'intercept' : 'plan'),
+      text: reason ? (LOG_TEXT[reason] || reason) : '',
+      reasons: snap.reasons,
       snap: {
-        pv: snap.pv, pvAvail: snap.pvAvail, curtailed: snap.curtailed,
-        load: snap.load, demand: snap.demand, shed: snap.shed,
-        pcs: snap.pcs, soc: snap.soc, socBefore: snap.socBefore,
-        grid: snap.grid, gridImport: snap.gridImport, gridExport: snap.gridExport,
-        price: snap.price, priceName: snap.priceName,
-        battery: snap.battery, plan: snap.plan, mods: snap.mods, active: snap.activeChargers
+        planPcs: snap.planPcs, pcs: snap.pcs, grid: snap.grid,
+        pv: snap.pv, load: snap.load, soc: snap.soc, socPlan: snap.socPlan,
+        demand15: snap.demand15, curtailed: snap.curtailed, shed: snap.shed,
+        objective: snap.objective, priceName: snap.priceName
       }
     };
     st.log.push(entry);
-    if(st.log.length > 80) st.log.shift();
+    if (st.log.length > 120) st.log.shift();
   }
 
-  function resetSim(st){
-    st.t = 8 * 60; st.soc = 0.55; st.cost = 0;
-    st.ePv = st.eLoad = st.eIn = st.eOut = 0;
-    st.history.length = 0; st.log.length = 0; st.seq = 0; st._key = '';
-    st.mods = { weather:'clear', pvScale:1, loadScale:1, importLimit:null, exportLimit:null,
-                pvDrop:0, surge:0, gridLimit:0, outage:0, lowSoc:false };
-    st.manual = { pcs:0, pv:0, load:0 };
-    return stepSim(st);
-  }
-
+  /* ---------------- 场景 ---------------- */
   function applyScenario(st, kind){
     const m = st.mods;
+    let reset = false;
     switch(kind){
-      case 'day': m.weather = 'clear'; st.t = 12 * 60; break;
-      case 'night': m.weather = 'night'; st.t = 21 * 60 + 30; break;
+      case 'day': m.weather = 'clear'; st.t = 12 * 60; reset = true; break;
+      case 'night': m.weather = 'night'; st.t = 21 * 60 + 30; reset = true; break;
       case 'cloud': m.weather = 'cloud'; break;
       case 'pvdrop': m.pvDrop = 20; break;
       case 'surge': m.surge = 20; break;
-      case 'lowsoc': st.soc = 0.12; break;
-      case 'gridlimit': m.gridLimit = 20; break;
       case 'outage': m.outage = 15; break;
+      case 'gridlimit': m.gridLimit = 20; break;
       case 'clear':
-        m.weather = 'clear'; m.pvScale = 1; m.loadScale = 1; m.importLimit = null; m.exportLimit = null;
-        m.pvDrop = 0; m.surge = 0; m.gridLimit = 0; m.outage = 0;
+        m.weather = 'clear'; m.pvDrop = 0; m.surge = 0; m.outage = 0; m.gridLimit = 0; reset = true;
         break;
     }
-    return stepSim(st);
+    if (reset){
+      /* 时间跳变后原计划作废 */
+      st.plan = makePlan(st);
+      st.replans++;
+    }
+    st.events.push('scenario');
+    return step(st, false);
   }
 
-  const API = { CFG, TOPO, createSim, stepSim, resetSim, applyScenario, planFor,
-                sunAt, priceAt, priceName, loadDemand, fmtMin, fmtKw, fmtKwh, clamp };
+  function setObjective(st, obj){
+    if (OBJECTIVES.indexOf(obj) < 0 && obj !== 'manual') return;
+    st.objective = obj;
+    st.plan = makePlan(st);
+    st.replans++;
+    return st.plan;
+  }
+
+  function setLimits(st, patch){
+    Object.assign(st.limits, patch);
+    st.plan = makePlan(st);
+    st.replans++;
+    return st.plan;
+  }
+
+  function resetSim(st){
+    st.t = 0; st.soc = 0.55; st.socEnd = 0.55;
+    st.cost = st.eIn = st.eOut = st.eCurt = st.eShed = 0;
+    st.trackSum = st.trackN = 0; st.socDevMax = 0; st.intercepts = 0; st.replans = 1;
+    st.history.length = 0; st.log.length = 0; st.events.length = 0; st.seq = 0; st.win.length = 0;
+    st.day = 0;
+    st.mods = { weather:'clear', pvDrop:0, surge:0, outage:0, gridLimit:0 };
+    st.plan = makePlan(st);
+    st.snap = step(st, true);
+    return st.snap;
+  }
+
+  function metricsOf(st){
+    return {
+      cost: st.cost, eIn: st.eIn, eOut: st.eOut, eCurt: st.eCurt, eShed: st.eShed,
+      trackMae: st.trackN ? st.trackSum / st.trackN : 0,
+      socDevMax: st.socDevMax, intercepts: st.intercepts, replans: st.replans,
+      demand15: st.snap ? st.snap.demand15 : 0
+    };
+  }
+
+  /* ---------------- 昼夜：给 3D 场景的光照参数 ---------------- */
+  function lerpHex(a, b, t){
+    const ar = (a >> 16) & 255, ag = (a >> 8) & 255, ab = a & 255;
+    const br = (b >> 16) & 255, bg = (b >> 8) & 255, bb = b & 255;
+    return (Math.round(ar + (br - ar) * t) << 16) |
+           (Math.round(ag + (bg - ag) * t) << 8) |
+            Math.round(ab + (bb - ab) * t);
+  }
+  function timeOfDay(min, wx){
+    const m = ((min % 1440) + 1440) % 1440;
+    const h = m / 60;
+    const w = wx == null ? 1 : clamp(wx, 0, 1);          /* 天气对光照的削弱：1 晴，0.6 阴 */
+    /* 太阳高度：6 点地平线 → 12 点最高 → 18 点落下 → 夜间为负 */
+    const elev = Math.sin(Math.PI * (h - 6) / 12);
+    const up = Math.max(0, elev);
+    /* 白天亮度曲线：8:00 就应达到满亮度，不能等正午才亮起来 */
+    const b = clamp(0.12 + 1.75 * up, 0.12, 1);
+    /* 日出 / 日落各 1.2 小时的暖色窗口 */
+    const dusk = Math.min(1, Math.max(0, 1 - Math.abs(h - 6) / 1.2) + Math.max(0, 1 - Math.abs(h - 18) / 1.2));
+    /* 方位：东 (+x, 6 点) → 西 (−x, 18 点) */
+    const az = Math.cos(Math.PI * (h - 6) / 12);
+    const clearSky = lerpHex(lerpHex(0x070d18, 0x30567c, b), 0x3a2436, Math.min(0.7, dusk * 0.75));
+    const sky = lerpHex(clearSky, 0x24303f, (1 - w) * 0.5);
+    return {
+      hour: h, elev: elev, day: b, dusk: dusk, weather: w,
+      sky: sky, fog: sky,
+      sunX: 88 * az,
+      sunY: 34 + 74 * Math.max(0.08, b),
+      sunZ: 62,
+      sunI: (0.50 + 3.35 * b) * (0.45 + 0.55 * w),
+      sunColor: dusk > 0.35 ? 0xffb277 : (b < 0.20 ? 0x92a8c8 : 0xfff2dc),
+      hemiI: (0.60 + 2.10 * b) * (0.62 + 0.38 * w),
+      ambI: 0.50 + 0.80 * b,
+      exposure: 1.00 + 0.45 * b,
+      fillI: 0.34 - 0.04 * b,
+      fillColor: b < 0.20 ? 0x33518f : 0x4a78c8,
+      lampOn: up < 0.02
+    };
+  }
+
+  const API = {
+    CFG, TARIFF, TOPO, OBJECTIVES, OBJECTIVE_NAME,
+    createSim, stepSim, makePlan, replan, applyScenario, resetSim,
+    setObjective, setLimits, metricsOf, timeOfDay,
+    sunAt, priceAt, priceName, loadDemand, forecastEnv, actualEnv, socCaps, solve,
+    fmtMin, r1, clamp
+  };
   root.SIMCORE = API;
 })(typeof window !== 'undefined' ? window : globalThis);
 </script>
@@ -854,7 +1107,7 @@ const SC = (function(){
   }
 
   function initMats(){
-    MAT.ground = std(0x223040, { roughness:.95, metalness:.05 });
+    MAT.ground = new THREE.MeshStandardMaterial({ color:0x33445a, roughness:.96, metalness:.02, emissive:0x16202c, emissiveIntensity:.6 });
     MAT.pad = std(0x2b3949, { roughness:.9, metalness:.08 });
     MAT.steel = std(0x7b8ca1, { roughness:.42, metalness:.75 });
     MAT.dark = std(0x2a3543, { roughness:.6, metalness:.5 });
@@ -1527,6 +1780,33 @@ const SC = (function(){
     return { power:power, color:color, dir:dir, active:active };
   }
 
+  /* ---------------- 渐变天空 ---------------- */
+  let skyCanvas = null, skyCtx = null, skyTex = null, lastSkyHour = -1;
+  function hex(c){ return ('000000' + (c >>> 0).toString(16)).slice(-6); }
+  function mixHex(a, b, t){
+    const ar=(a>>16)&255, ag=(a>>8)&255, ab=a&255, br=(b>>16)&255, bg=(b>>8)&255, bb=b&255;
+    return (Math.round(ar+(br-ar)*t)<<16) | (Math.round(ag+(bg-ag)*t)<<8) | Math.round(ab+(bb-ab)*t);
+  }
+  function updateSky(tod){
+    if(!skyCanvas){
+      skyCanvas = document.createElement('canvas'); skyCanvas.width = 16; skyCanvas.height = 256;
+      skyCtx = skyCanvas.getContext('2d');
+      skyTex = new THREE.CanvasTexture(skyCanvas);
+      skyTex.colorSpace = THREE.SRGBColorSpace;
+      scene.background = skyTex;
+      lastSkyHour = -99;
+    }
+    if(Math.abs(tod.hour - lastSkyHour) < 0.03 && scene.background === skyTex && !skyTex.userData.force) return;
+    lastSkyHour = tod.hour; skyTex.userData.force = false;
+    const top = mixHex(tod.sky, 0x0a1220, 0.30);
+    const horizon = mixHex(tod.sky, tod.dusk > 0.25 ? 0xb87a5a : 0x9cc3e2, 0.62);
+    const g = skyCtx.createLinearGradient(0, 0, 0, 256);
+    g.addColorStop(0, '#' + hex(top));
+    g.addColorStop(0.62, '#' + hex(tod.sky));
+    g.addColorStop(1, '#' + hex(horizon));
+    skyCtx.fillStyle = g; skyCtx.fillRect(0, 0, 16, 256);
+    skyTex.needsUpdate = true;
+  }
   function update(snap, dt){
     if(!renderer) return;
     lastSnap = snap;
@@ -1536,16 +1816,21 @@ const SC = (function(){
     orbit.target.lerp(orbit.wantTarget, 0.1);
     applyCamera();
 
-    const daylight = Math.max(0.05, Math.min(1, snap.sun * 1.8 + 0.15));
-    sun.intensity = 0.9 + daylight * 2.8;
-    sun.color.setHex(snap.sun < 0.12 ? 0x9fb6d8 : 0xfff0d6);
-    hemi.intensity = 0.6 + daylight * 1.05;
-    ambient.intensity = 0.5 + daylight * 0.4;
-    renderer.toneMappingExposure = 1.0 + daylight * 0.32;
+    const tod = window.SIMCORE.timeOfDay(snap.t, snap.weather === 'cloud' ? 0.6 : 1);
+    updateSky(tod);
+    scene.fog.color.setHex(tod.sky);
+    sun.position.set(tod.sunX, tod.sunY, tod.sunZ);
+    sun.intensity = tod.sunI;
+    sun.color.setHex(tod.sunColor);
+    hemi.intensity = tod.hemiI;
+    ambient.intensity = tod.ambI;
+    renderer.toneMappingExposure = tod.exposure;
+    fill.intensity = tod.fillI;
+    MAT.ground.emissiveIntensity = 0.22 + 0.62 * tod.day;
+    fill.color.setHex(tod.fillColor);
     lamps.forEach(function(l){
-      const on = snap.sun < 0.12;
-      l.mesh.material.opacity = on ? 0.95 : 0.0;
-      l.light.intensity = on ? 2.6 : 0;
+      l.mesh.material.opacity = tod.lampOn ? 0.95 : 0.0;
+      l.light.intensity = tod.lampOn ? 2.6 : 0;
     });
 
     flows.forEach(function(f){ f.selected = !!selectedId && (f.edge.from === selectedId || f.edge.to === selectedId); });
@@ -1608,7 +1893,7 @@ const SC = (function(){
 <script>
 'use strict';
 /* =====================================================================
-   界面：数据面板、图表、决策日志、仿真循环
+   界面：计划 / 跟踪 / 约束 / 决策日志
    ===================================================================== */
 const UI = (function(){
   const $ = function(id){ return document.getElementById(id); };
@@ -1616,36 +1901,22 @@ const UI = (function(){
   const TICK_MS = 200;
   let sim = SIMCORE.createSim();
   let snap = sim.snap;
-  let running = true, acc = 0, last = performance.now();
-  let lastUI = 0, lastChart = 0, lastLogId = null;
+  let running = true;
+  let speed = 1;
   let selectedId = 'pv';
+  let lastLogSeq = -1;
+  let lastLogLen = -1;
+  let zoomSpan = 1440;
+  let chartHits = [];
+  let chartGeom = null;
+  let bigSpan = 240;
+  let bigCenter = null;
+  let bigHits = [];
+  let bigOpen = false;
+  let bigFollow = true;
 
-  const WHY = {
-    'pv-charge': '光伏是“免费电”，优先用它满足负荷；用不完的部分如果直接上网只能拿到约三分之一的电价，所以先给电池充电更划算。',
-    'pv-export': '光伏富余，但电池已经充满或 PCS 到了功率上限，剩下的电只能送入电网。',
-    'pv-deficit': '此时光伏不够用，缺口先由电池补，电池补不上的部分再向电网购买。',
-    'balanced': '光伏出力与充电负荷几乎相等，储能与电网都不需要动作。',
-    'anti-curtail': '防逆流模式不允许倒送电网，电池又充不下，只能压低光伏出力（弃光）。',
-    'anti-charge': '防逆流模式把多余光伏全部充进电池，避免向电网倒送。',
-    'anti-discharge': '防逆流模式不限制买电，储能按能力补足缺口，剩余由电网提供。',
-    'tou-charge': '谷段电价最低，用市电把电池充满，相当于“低买”；这些电留到峰段“高卖”。',
-    'tou-discharge': '峰段电价最高，让电池放电替代市电，直接降低充电成本。',
-    'tou-pv-charge': '平段按光伏优先运行，富余电量给电池充电。',
-    'tou-pv-discharge': '平段光伏不足，储能补缺，剩余由电网提供。',
-    'bess-discharge': '储能优先模式让电池承担大部分负荷，减少高价市电购电。',
-    'bess-charge': 'SOC 偏低，光伏富余优先回充电池，为下一次负荷高峰做准备。',
-    'bess-charge2': 'SOC 已进入安全区间，光伏富余给电池充电。',
-    'bess-discharge2': 'SOC 已进入安全区间，电池按能力补足光伏缺口。',
-    'manual-charge': '手动模式：PCS 充电指令由操作员设定，EMS 只校核 SOC 与功率上限。',
-    'manual-discharge': '手动模式：PCS 放电指令由操作员设定，EMS 只校核 SOC 与功率上限。',
-    'manual-idle': '手动模式下 PCS 待机，功率平衡全部由电网承担。'
-  };
-
-  /* ---------------- 格式化 ---------------- */
-  function num(v, d){ return (Math.round(v * Math.pow(10, d || 0)) / Math.pow(10, d || 0)).toFixed(d || 0); }
-  function kw(v){ return (v >= 0 ? '' : '−') + Math.abs(v).toFixed(0); }
-  function pct(v){ return (v * 100).toFixed(1); }
-  function money(v){ return (Math.abs(v) < 0.005 ? 0 : v).toFixed(2); }
+  const OBJ_LABEL = SIMCORE.OBJECTIVE_NAME;
+  const LIMIT_LABEL = { reverseKw: '防逆流', kva: '防超容', demandKw: '防超需' };
 
   /* ---------------- 初始化 ---------------- */
   function init(){
@@ -1664,9 +1935,10 @@ const UI = (function(){
     let ticks = 0;
     setInterval(function(){
       if(!running) return;
-      doStep();
+      for(let k = 0; k < speed; k++) SIMCORE.stepSim(sim);
+      snap = sim.snap;
       updateAll();
-      if(++ticks % 2 === 0) drawAllCharts();
+      if(++ticks % 3 === 0) drawAllCharts();
     }, TICK_MS);
     setTimeout(function(){
       const l = $('loader');
@@ -1709,14 +1981,13 @@ const UI = (function(){
       const id = b.dataset.id;
       b.classList.toggle('on', id === selectedId);
       const st = b.querySelector('[data-st]');
-      if(!st) return;
-      if(!snap){ st.textContent = ''; return; }
+      if(!st || !snap) return;
       if(id === 'pv' || id === 'pvinv') st.textContent = snap.pv > 1 ? snap.pv.toFixed(0) + 'kW' : '待机';
       else if(id === 'bess' || id === 'pcs') st.textContent = snap.pcs > 1 ? '充 ' + snap.pcs.toFixed(0) : (snap.pcs < -1 ? '放 ' + Math.abs(snap.pcs).toFixed(0) : '待机');
       else if(id === 'tr' || id === 'sw10' || id === 'grid' || id === 'bus') st.textContent = Math.abs(snap.grid) > 1 ? (snap.grid > 0 ? '购 ' : '售 ') + Math.abs(snap.grid).toFixed(0) : '0';
       else if(id === 'chg') st.textContent = snap.load.toFixed(0) + 'kW';
       else if(id.indexOf('ev') === 0) st.textContent = (snap.chargers[+id.slice(2) - 1] || 0) > 1 ? '充电中' : '空闲';
-      else if(id === 'ems') st.textContent = snap.plan.target;
+      else if(id === 'ems') st.textContent = OBJ_LABEL[sim.objective] || '手动';
       else st.textContent = '';
     });
   }
@@ -1736,60 +2007,137 @@ const UI = (function(){
       host.querySelector('h3').textContent = '场站总览';
       $('selTags').innerHTML = '<span>1 MWp</span><span>1 MWh</span><span>10 桩</span>';
       $('selDesc').textContent = '光储充一体化场站：光伏 1MWp、储能 500kW/1MWh、10 台 120kW 充电桩，经 0.4/10kV 变压器并入电网。';
-      $('selLive').innerHTML = '<div>运行策略<b>' + strategyName(sim.strategy) + '</b></div><div>仿真时间<b>' + snap.time + '</b></div>';
+      $('selLive').innerHTML = '<div>运行目标<b>' + objName() + '</b></div><div>仿真时间<b>' + snap.time + '</b></div>';
       return;
     }
     host.querySelector('h3').textContent = n.name;
     $('selTags').innerHTML = (n.tags || []).map(function(t){ return '<span>' + t + '</span>'; }).join('');
     $('selDesc').textContent = n.desc;
-    const rows = liveRows(selectedId);
-    $('selLive').innerHTML = rows.map(function(r){ return '<div>' + r[0] + '<b>' + r[1] + '</b></div>'; }).join('');
+    $('selLive').innerHTML = liveRows(selectedId).map(function(r){ return '<div>' + r[0] + '<b>' + r[1] + '</b></div>'; }).join('');
   }
 
   function liveRows(id){
     if(id === 'pv' || id === 'pvinv') return [['当前功率', snap.pv.toFixed(0) + ' kW'], ['辐照度', (snap.sun * 100).toFixed(0) + ' %']];
     if(id === 'bess'){
       const dcV = 640 + snap.soc * 200;
-      const dcI = Math.abs(snap.pcs) * 1000 / dcV;
-      const temp = 25 + Math.abs(snap.pcs) / 500 * 8 + (snap.pcs > 1 ? 1.5 : 0);
-      return [['SOC / SOH', pct(snap.soc) + ' % / 98 %'], ['剩余电量', snap.battery.usableKwh.toFixed(0) + ' kWh'],
-              ['直流电压', dcV.toFixed(0) + ' V'], ['直流电流', dcI.toFixed(0) + ' A'],
-              ['舱内温度', temp.toFixed(1) + ' ℃'], ['电池状态', snap.pcs > 1 ? '充电' : (snap.pcs < -1 ? '放电' : '待机')]];
+      return [['SOC / 计划', (snap.soc * 100).toFixed(1) + ' % / ' + (snap.socPlan * 100).toFixed(1) + ' %'],
+              ['剩余电量', snap.battery.usableKwh.toFixed(0) + ' kWh'],
+              ['直流电压', dcV.toFixed(0) + ' V'],
+              ['计划功率', snap.planPcs.toFixed(0) + ' kW'],
+              ['实际功率', snap.pcs.toFixed(0) + ' kW']];
     }
-    if(id === 'pcs') return [['功率', (snap.pcs >= 0 ? '充 ' : '放 ') + Math.abs(snap.pcs).toFixed(0) + ' kW'], ['可用功率', snap.battery.maxCharge.toFixed(0) + ' / ' + snap.battery.maxDis.toFixed(0) + ' kW']];
+    if(id === 'pcs') return [['计划 / 实际', snap.planPcs.toFixed(0) + ' / ' + snap.pcs.toFixed(0) + ' kW'],
+                             ['可充 / 可放', snap.battery.maxCharge.toFixed(0) + ' / ' + snap.battery.maxDis.toFixed(0) + ' kW']];
     if(id === 'chg') return [['充电负荷', snap.load.toFixed(0) + ' kW'], ['运行桩数', snap.activeChargers + ' / 10']];
     if(id.indexOf('ev') === 0){
       const i = +id.slice(2) - 1;
       return [['输出功率', (snap.chargers[i] || 0).toFixed(0) + ' kW'], ['状态', (snap.chargers[i] || 0) > 1 ? '充电中' : '空闲']];
     }
     if(id === 'tr' || id === 'sw10' || id === 'grid' || id === 'bus'){
-      return [['交换功率', Math.abs(snap.grid).toFixed(0) + ' kW'], ['方向', snap.grid > 0 ? '电网 → 场站' : (snap.grid < 0 ? '场站 → 电网' : '零功率')],
-              ['10kV 侧', (Math.abs(snap.grid) * CFG.transformerEff).toFixed(0) + ' kW'], ['今日购电', snap.eIn.toFixed(0) + ' kWh']];
+      return [['交换功率', Math.abs(snap.grid).toFixed(0) + ' kW'],
+              ['方向', snap.grid > 0 ? '电网 → 场站' : (snap.grid < 0 ? '场站 → 电网' : '零功率')],
+              ['配变负载', (snap.kvaLoad / CFG.kva * 100).toFixed(0) + ' %'],
+              ['15min 需量', snap.demand15.toFixed(0) + ' kW']];
     }
-    if(id === 'ems') return [['当前策略', strategyName(sim.strategy)], ['本分钟决策', snap.plan.target]];
+    if(id === 'ems') return [['运行目标', objName()], ['滚动计划', '每 15 min 重算'], ['今日重计划', snap.replans + ' 次']];
     return [['—', '—']];
   }
 
-  function strategyName(s){
-    return { pv:'光伏优先', bess:'储能优先', tou:'峰谷电价', anti:'防逆流', manual:'手动控制' }[s] || s;
+  function objName(){
+    return sim.objective === 'manual' ? '手动控制' : (OBJ_LABEL[sim.objective] || sim.objective);
   }
 
   /* ---------------- 控件 ---------------- */
   function bindControls(){
     $('btnPlay').addEventListener('click', toggleRun);
-    $('btnStep').addEventListener('click', stepOnce);
+    $('btnStep').addEventListener('click', function(){ if(running) running = false; stepOnce(); });
     $('btnReset').addEventListener('click', reset);
-
     $('btnTransparent').addEventListener('click', function(){ SC.setTransparent(!$('btnTransparent').classList.contains('on')); });
     $('btnExplode').addEventListener('click', function(){ if(selectedId) SC.toggleExplode(selectedId); });
     $('btnResetView').addEventListener('click', function(){ SC.resetView(); });
-
-    $('strategy').addEventListener('click', function(e){
-      const b = e.target.closest('button'); if(!b) return;
-      setStrategy(b.dataset.s);
+    $('btnReplan').addEventListener('click', function(){
+      SIMCORE.replan(sim, 'manual'); snap = sim.snap; updateAll(); drawAllCharts();
+      SC.toast('已按当前 SOC 重新生成剩余时段计划');
     });
 
-    ['mPcs', 'mPv', 'mLoad'].forEach(function(id){
+    $('zoomBtns').addEventListener('click', function(e){
+      const b = e.target.closest('button'); if(!b) return;
+      zoomSpan = +b.dataset.z;
+      document.querySelectorAll('#zoomBtns button').forEach(function(x){ x.classList.toggle('on', x === b); });
+      drawAllCharts();
+    });
+
+    const cv = $('chartPlan');
+    cv.addEventListener('mousemove', function(e){
+      const r = cv.getBoundingClientRect();
+      const x = e.clientX - r.left, y = e.clientY - r.top;
+      let best = null, bd = 14;
+      chartHits.forEach(function(mk){
+        const d = Math.sqrt((mk.x - x) * (mk.x - x) + (mk.y - y) * (mk.y - y));
+        if(d < bd){ bd = d; best = mk; }
+      });
+      const tip = $('chartTip');
+      if(!best){ tip.style.display = 'none'; return; }
+      const m = best.m;
+      const dev = Math.round(m.pcs - m.planPcs);
+      tip.innerHTML = '<span class="t">' + SIMCORE.fmtMin(m.t) + '</span> · 计划 <b>' + fmtP(m.planPcs) + '</b> / 实际 <b>' + fmtP(m.pcs) + '</b><br>' +
+        (m.reasons && m.reasons.length ? '<span class="why">' + reasonText(m.reasons[0]) + '</span>'
+                                       : '<span class="why">偏差 ' + (dev > 0 ? '+' : '') + dev + ' kW（SOC/功率上限）</span>');
+      tip.style.display = 'block';
+      const pr = cv.parentNode.getBoundingClientRect();
+      let left = x + 14, top = y - 10;
+      if(left + 250 > pr.width) left = Math.max(4, x - 250);
+      tip.style.left = left + 'px';
+      tip.style.top = Math.max(2, Math.min(pr.height - 80, top)) + 'px';
+    });
+    cv.addEventListener('mouseleave', function(){ $('chartTip').style.display = 'none'; });
+    cv.addEventListener('click', function(e){
+      const r = cv.getBoundingClientRect();
+      const x = e.clientX - r.left, y = e.clientY - r.top;
+      let best = null, bd = 14;
+      chartHits.forEach(function(mk){
+        const d = Math.sqrt((mk.x - x) * (mk.x - x) + (mk.y - y) * (mk.y - y));
+        if(d < bd){ bd = d; best = mk; }
+      });
+      let centerT = snap.t;
+      if(best) centerT = best.m.t;
+      else {
+        const w = chartWindow();
+        const f = (x - 30) / Math.max(1, cv.clientWidth - 36);
+        centerT = w.from + Math.max(0, Math.min(1, f)) * (w.to - w.from);
+      }
+      bigCenter = centerT;
+      openBigChart(best ? best.m : null);
+    });
+
+    $('speedSel').addEventListener('change', function(){
+      speed = +$('speedSel').value;
+      SC.toast('仿真速度 ×' + speed + '（一天约 ' + (1440 / 60 / (5 * speed)).toFixed(1) + ' 分钟看完）');
+    });
+
+    $('objSel').addEventListener('change', function(){
+      SIMCORE.setObjective(sim, $('objSel').value);
+      snap = sim.snap;
+      updateAll(); drawAllCharts();
+      SC.toast('目标切换为：' + objName() + '，计划已重算');
+    });
+
+    [['limReverse','reverseKw'],['limKva','kva'],['limDemand','demandKw']].forEach(function(pair){
+      $(pair[0]).addEventListener('click', function(){
+        const btn = $(pair[0]);
+        const on = !btn.classList.contains('on');
+        const patch = {};
+        if(pair[1] === 'reverseKw') patch.reverseKw = on ? 0 : null;
+        if(pair[1] === 'kva') patch.kva = on ? CFG.kva : null;
+        if(pair[1] === 'demandKw') patch.demandKw = on ? CFG.demandKw : null;
+        SIMCORE.setLimits(sim, patch);
+        snap = sim.snap;
+        updateAll(); drawAllCharts();
+        SC.toast(LIMIT_LABEL[pair[1]] + (on ? ' 已启用' : ' 已关闭') + '，计划已重算');
+      });
+    });
+
+    ['mPcs','mPv','mLoad'].forEach(function(id){
       $(id).addEventListener('input', function(){
         sim.manual.pcs = +$('mPcs').value;
         sim.manual.pv = +$('mPv').value;
@@ -1797,7 +2145,6 @@ const UI = (function(){
         $('oPcs').textContent = sim.manual.pcs + ' kW';
         $('oPv').textContent = sim.manual.pv + ' kW';
         $('oLoad').textContent = sim.manual.load + ' kW';
-        sim._key = '';
       });
     });
 
@@ -1806,15 +2153,14 @@ const UI = (function(){
       const kind = b.dataset.sc;
       SIMCORE.applyScenario(sim, kind);
       snap = sim.snap;
-      updateAll();
-      const names = { day:'白天模式', night:'夜间模式', cloud:'阴天模式', pvdrop:'光伏突降 20 min', surge:'充电负荷突增 20 min', lowsoc:'SOC 拉到 12%', gridlimit:'电网限功率 20 min', outage:'电网断电 15 min', clear:'已恢复晴好天气' };
+      updateAll(); drawAllCharts();
+      const names = { day:'白天模式', night:'夜间模式', cloud:'阴天模式', pvdrop:'光伏骤降 20 min', surge:'充电负荷突增 20 min', gridlimit:'电网限功率 20 min', outage:'电网断电 15 min', clear:'已恢复晴好天气' };
       SC.toast(names[kind] || kind);
-      if(kind === 'lowsoc') SC.toast('SOC 已置为 12%，观察 EMS 的低 SOC 保护');
     });
 
     document.addEventListener('click', function(e){
       const row = e.target.closest('.logrow');
-      if(row) showLog(row.dataset.id);
+      if(row) showLog(+row.dataset.i);
       if(e.target.id === 'modal' || e.target.classList.contains('close')) closeModal();
     });
     document.addEventListener('keydown', function(e){
@@ -1823,214 +2169,333 @@ const UI = (function(){
     });
   }
 
-  function setStrategy(s){
-    sim.strategy = s;
-    sim._key = '';
-    if(s === 'manual'){
-      sim.manual.pv = Math.round(snap.pv);
-      sim.manual.load = Math.round(snap.load);
-      sim.manual.pcs = 0;
-      $('mPcs').value = 0; $('mPv').value = sim.manual.pv; $('mLoad').value = sim.manual.load;
-      $('oPcs').textContent = '0 kW'; $('oPv').textContent = sim.manual.pv + ' kW'; $('oLoad').textContent = sim.manual.load + ' kW';
-    }
-    updateStrategyUI();
-    const t = { pv:'光伏优先：先用光伏满足充电负荷，富余给电池，最后才上网。',
-                bess:'储能优先：SOC 允许时由电池承担大部分负荷。',
-                tou:'峰谷电价：谷段充电、峰段放电。',
-                anti:'防逆流：禁止向电网倒送，多余光伏先充电、再弃光。',
-                manual:'手动控制：PCS、光伏、负荷由你设定。' }[s];
-    SC.toast(t);
-  }
-
-  function updateStrategyUI(){
-    document.querySelectorAll('#strategy button').forEach(function(b){ b.classList.toggle('on', b.dataset.s === sim.strategy); });
-    $('manualPanel').classList.toggle('show', sim.strategy === 'manual');
-    ['mPcs', 'mPv', 'mLoad'].forEach(function(id){ $(id).disabled = sim.strategy !== 'manual'; });
-    $('modeName').textContent = '策略 · ' + strategyName(sim.strategy);
-    $('hudMode').textContent = (running ? '自动 · ' : '已暂停 · ') + strategyName(sim.strategy);
-  }
-
   function toggleRun(){ running = !running; updateRunUI(); }
   function stepOnce(){
-    if(running) running = false;
-    doStep(); updateRunUI(); updateAll(); drawAllCharts();
+    SIMCORE.stepSim(sim); snap = sim.snap;
+    updateRunUI(); updateAll(); drawAllCharts();
   }
   function reset(){
     sim = SIMCORE.createSim();
     snap = sim.snap;
     running = true;
-    lastLogId = null;
-    updateRunUI(); updateAll();
+    lastLogSeq = -1;
+    lastLogLen = -1;
+    updateRunUI(); updateAll(); drawAllCharts();
     SC.resetView();
-    SC.toast('系统已重置：08:00 · SOC 55%');
+    SC.toast('系统已重置：00:00 · SOC 55% · 全天计划已生成');
   }
   function updateRunUI(){
     $('simState').className = 'pill ' + (running ? 'run' : 'warn');
     $('simState').innerHTML = '<i></i>' + (running ? '仿真运行中' : '仿真已暂停');
     $('btnPlay').textContent = running ? '暂停' : '继续';
     $('btnPlay').classList.toggle('on', !running);
-    $('hudMode').textContent = (running ? '自动 · ' : '已暂停 · ') + strategyName(sim.strategy);
+    $('hudMode').textContent = (running ? '自动' : '已暂停') + ' · ' + objName();
   }
 
-  function doStep(){
-    SIMCORE.stepSim(sim);
-    snap = sim.snap;
+  function frame(now){
+    requestAnimationFrame(frame);
+    SC.update(snap, 0.016);
   }
 
   /* ---------------- 刷新 ---------------- */
-  function frame(now){
-    requestAnimationFrame(frame);
-    window.__frames = (window.__frames || 0) + 1;
-    const dt = Math.min(0.05, (now - last) / 1000);
-    last = now;
-    SC.update(snap, dt);
-  }
-
   function updateAll(){
     updateRunUI();
     updateKpis();
-    updateStrategyUI();
+    updateLimitsUI();
     syncTree();
     renderSelCard();
-    updateScenarioUI();
+    renderCmd();
+    renderTracking();
     renderLog();
     $('clock').innerHTML = snap.time + '<small>SIM TIME</small>';
     $('weatherName').textContent = '天气 · ' + ({ clear:'晴', cloud:'阴', night:'夜' }[snap.weather] || '晴');
     $('hudFlow').textContent = flowSummary();
-    const warn = warnings();
+    $('modeName').textContent = '目标 · ' + objName();
     const w = $('hudWarn');
-    if(warn.length){ w.style.display = ''; w.textContent = warn[0]; w.className = 'tag on'; }
-    else w.style.display = 'none';
-  }
-
-  function flowSummary(){
-    if(snap.pv > snap.load + 20) return '功率流向：光伏 → 负荷' + (snap.pcs > 20 ? ' / 电池' : '') + (snap.grid < -20 ? ' / 电网' : '');
-    if(snap.grid > 20 && snap.pcs < -20) return '功率流向：电池 + 电网 → 负荷';
-    if(snap.grid > 20) return '功率流向：电网 → 负荷';
-    if(snap.pcs < -20) return '功率流向：电池 → 负荷';
-    return '功率流向：功率平衡';
-  }
-  function warnings(){
-    const a = [];
-    if(snap.flags.indexOf('load-shed') >= 0) a.push('⚠ 负荷受限 ' + snap.shed.toFixed(0) + ' kW');
-    if(snap.flags.indexOf('pv-curtail') >= 0) a.push('⚠ 光伏限发 ' + snap.curtailed.toFixed(0) + ' kW');
-    if(snap.flags.indexOf('soc-low') >= 0) a.push('⚠ SOC 接近下限');
-    if(snap.flags.indexOf('soc-high') >= 0) a.push('⚠ SOC 接近上限');
-    if(snap.flags.indexOf('export-limit') >= 0) a.push('⚠ 反向送电受限');
-    return a;
+    if(snap.reasons.length){
+      const r = snap.reasons[0];
+      w.style.display = ''; w.className = 'tag on';
+      w.textContent = '约束拦截 · ' + reasonText(r);
+    }else w.style.display = 'none';
   }
 
   function updateKpis(){
     $('kpiPV').innerHTML = snap.pv.toFixed(0) + '<small>kW</small>';
-    $('kpiPV2').textContent = '辐照 ' + (snap.sun * 100).toFixed(0) + '% · 可用 ' + snap.pvAvail.toFixed(0) + ' kW';
+    $('kpiPV2').textContent = '可用 ' + snap.pvAvail.toFixed(0) + ' kW';
     $('kpiLoad').innerHTML = snap.load.toFixed(0) + '<small>kW</small>';
     $('kpiLoad2').textContent = snap.activeChargers + ' 桩 · 需求 ' + snap.demand.toFixed(0) + ' kW';
     const pcs = snap.pcs;
     $('kpiBESS').innerHTML = (pcs >= 0 ? '+' : '−') + Math.abs(pcs).toFixed(0) + '<small>kW</small>';
-    $('kpiBESS2').textContent = pcs > 1 ? '充电中' : (pcs < -1 ? '放电中' : '待机');
+    $('kpiBESS2').textContent = (pcs > 1 ? '充电中' : (pcs < -1 ? '放电中' : '待机')) + ' · 计划 ' + (snap.planPcs >= 0 ? '+' : '−') + Math.abs(snap.planPcs).toFixed(0);
     $('kpiGrid').innerHTML = (snap.grid >= 0 ? '+' : '−') + Math.abs(snap.grid).toFixed(0) + '<small>kW</small>';
-    $('kpiGrid2').textContent = snap.grid > 1 ? '购电' : (snap.grid < -1 ? '上网' : '零交换') + ' · ' + snap.priceName;
-    const net = snap.pv - snap.load;
-    $('kpiStation').textContent = '净功率 ' + (net >= 0 ? '+' : '−') + Math.abs(net).toFixed(0) + ' kW · ' + snap.priceName;
-    $('kpiPrice').textContent = '电价 ' + snap.price.toFixed(2) + ' 元 · 今日 ' + money(sim.cost) + ' 元';
-    $('socVal').textContent = pct(snap.soc) + '%';
+    $('kpiGrid2').textContent = (snap.grid > 1 ? '购电' : (snap.grid < -1 ? '上网' : '零交换')) + ' · ' + snap.priceName;
+    $('kpiStation').textContent = '需量 ' + snap.demand15.toFixed(0) + ' kW · 配变 ' + (snap.kvaLoad / CFG.kva * 100).toFixed(0) + '%';
+    $('kpiPrice').textContent = '电价 ' + snap.price.toFixed(2) + ' 元 · 今日 ' + (snap.cost >= 0 ? '' : '−') + Math.abs(snap.cost).toFixed(0) + ' 元';
+    $('socVal').textContent = (snap.soc * 100).toFixed(1) + '%';
     $('socFill').style.width = (snap.soc * 100).toFixed(1) + '%';
     $('socMeta').textContent = '可用 ' + snap.battery.usableKwh.toFixed(0) + ' kWh';
   }
 
-  function updateScenarioUI(){
-    document.querySelectorAll('#scenarios button').forEach(function(b){
-      const k = b.dataset.sc;
-      let on = false;
-      if(k === 'night') on = snap.weather === 'night';
-      else if(k === 'cloud') on = snap.weather === 'cloud';
-      else if(k === 'day') on = snap.weather === 'clear';
-      else if(k === 'pvdrop') on = snap.mods.pvDrop;
-      else if(k === 'surge') on = snap.mods.surge;
-      else if(k === 'gridlimit') on = snap.mods.gridLimit;
-      else if(k === 'outage') on = snap.mods.outage;
-      b.classList.toggle('on', !!on);
-    });
+  function updateLimitsUI(){
+    const st = sim;
+    const rev = st.limits.reverseKw === 0;
+    const kva = st.limits.kva != null;
+    const dem = st.limits.demandKw != null;
+    $('limReverse').classList.toggle('on', rev);
+    $('limReverse').textContent = (rev ? '✓' : '○') + ' 防逆流 ' + (rev ? '0 kW' : '关闭');
+    $('limKva').classList.toggle('on', kva);
+    $('limKva').textContent = (kva ? '✓' : '○') + ' 防超容 ' + (kva ? CFG.kva + ' kVA' : '关闭');
+    $('limDemand').classList.toggle('on', dem);
+    $('limDemand').textContent = (dem ? '✓' : '○') + ' 防超需 ' + (dem ? CFG.demandKw + ' kW' : '关闭');
+    $('objSel').value = st.objective;
+    $('manualPanel').classList.toggle('show', st.objective === 'manual');
+    ['mPcs','mPv','mLoad'].forEach(function(id){ $(id).disabled = st.objective !== 'manual'; });
+  }
+
+  function renderCmd(){
+    $('cmdPlan').textContent = (snap.planPcs >= 0 ? '+' : '−') + Math.abs(snap.planPcs).toFixed(0) + ' kW';
+    const cut = snap.pcs - snap.planPcs;
+    $('cmdCut').textContent = Math.abs(cut) < 0.5 ? '未裁剪' : ((cut > 0 ? '+' : '−') + Math.abs(cut).toFixed(0) + ' kW');
+    $('cmdCut').className = Math.abs(cut) < 0.5 ? '' : 'warn';
+    $('cmdActual').textContent = (snap.pcs >= 0 ? '+' : '−') + Math.abs(snap.pcs).toFixed(0) + ' kW';
+    $('cmdWhy').textContent = snap.reasons.length ? reasonText(snap.reasons[0]) : '在约束内，按计划执行';
+    $('cmdWhy').className = snap.reasons.length ? 'warn' : '';
+  }
+
+  function reasonText(r){
+    if(r.code === 'reverse') return '逆流限制：需多消纳 ' + r.need.toFixed(0) + ' kW' + (r.curtailed > 0.5 ? '，弃光 ' + r.curtailed.toFixed(0) + ' kW' : '');
+    if(r.code === 'kva') return '配变容量：超出 ' + r.over.toFixed(0) + ' kW，压功率 ' + r.cut.toFixed(0) + (r.shed > 0.5 ? '，限负荷 ' + r.shed.toFixed(0) : '');
+    if(r.code === 'import') return '购电上限：超出 ' + r.over.toFixed(0) + ' kW' + (r.shed > 0.5 ? '，限负荷 ' + r.shed.toFixed(0) : '');
+    if(r.code === 'demand') return '需量约束：本分钟允许 ' + r.allow.toFixed(0) + ' kW，压功率 ' + r.cut.toFixed(0) + (r.shed > 0.5 ? '，限负荷 ' + r.shed.toFixed(0) : '');
+    return r.code;
+  }
+
+  function renderTracking(){
+    $('trkMae').textContent = snap.trackMae.toFixed(1) + ' kW';
+    $('trkSoc').textContent = ((snap.soc - snap.socPlan) * 100 >= 0 ? '+' : '') + ((snap.soc - snap.socPlan) * 100).toFixed(1) + ' %';
+    $('trkReplan').textContent = snap.replans + ' 次';
+    $('trkIntercept').textContent = snap.intercepts + ' 次';
+    $('sumCost').textContent = (snap.cost >= 0 ? '' : '−') + Math.abs(snap.cost).toFixed(1) + ' 元';
+    $('sumInOut').textContent = snap.eIn.toFixed(0) + ' / ' + snap.eOut.toFixed(0) + ' kWh';
+    $('sumDemand').textContent = snap.demand15.toFixed(0) + ' kW';
+    $('sumCurt').textContent = snap.eCurt.toFixed(0) + ' kWh';
+  }
+
+  function flowSummary(){
+    if(snap.reasons.length) return '约束生效：' + reasonText(snap.reasons[0]);
+    if(snap.pcs > 20) return '功率流向：光伏 / 电网 → 电池 + 负荷';
+    if(snap.pcs < -20) return '功率流向：电池 → 负荷';
+    return '功率流向：光伏 → 负荷' + (snap.grid > 20 ? ' / 电网' : '');
   }
 
   /* ---------------- 日志 ---------------- */
   function renderLog(){
-    const list = sim.log;
-    if(!list.length) return;
-    const lastId = list[list.length - 1].id + ':' + list.length;
-    if(lastId === lastLogId) return;
-    lastLogId = lastId;
+    const last = sim.log[sim.log.length - 1];
+    if(!last || (last.seq === lastLogSeq && sim.log.length === lastLogLen)) return;
+    lastLogSeq = last.seq; lastLogLen = sim.log.length;
     const host = $('logList');
     const frag = document.createDocumentFragment();
-    for(let i = list.length - 1; i >= 0; i--){
-      const e = list[i];
+    for(let i = sim.log.length - 1; i >= 0 && i >= sim.log.length - 40; i--){
+      const e = sim.log[i];
       const row = document.createElement('div');
-      row.className = 'logrow' + (e.flags.indexOf('load-shed') >= 0 || e.flags.indexOf('pv-curtail') >= 0 ? ' warn' : '') + (e.flags.indexOf('soc-low') >= 0 ? ' bad' : '');
-      row.dataset.id = e.id;
-      row.innerHTML = '<span class="t">' + e.time + '</span><span class="m"><span class="tag">' + strategyName(e.strategy) + '</span><b>' + e.title + '</b> · ' +
-        (e.snap.pcs >= 0 ? '充电 ' + e.snap.pcs.toFixed(0) : '放电 ' + Math.abs(e.snap.pcs).toFixed(0)) + ' kW' +
-        (Math.abs(e.snap.grid) > 1 ? ' · 电网 ' + (e.snap.grid > 0 ? '购 ' : '售 ') + Math.abs(e.snap.grid).toFixed(0) + ' kW' : '') +
-        '</span>';
+      row.className = 'logrow' + (e.kind === 'intercept' ? ' warn' : '');
+      row.dataset.i = i;
+      let body = '';
+      if(e.kind === 'replan') body = '<b>重计划</b> · ' + e.text;
+      else if(e.kind === 'intercept') body = '计划 ' + fmtP(e.snap.planPcs) + ' → 实际 ' + fmtP(e.snap.pcs) + '：' + reasonText(e.reasons[0]);
+      else body = '<b>计划</b> · ' + (OBJ_LABEL[e.snap.objective] || e.snap.objective) + '，SOC 计划 ' + (e.snap.socPlan * 100).toFixed(0) + '%';
+      row.innerHTML = '<span class="t">' + e.time + '</span><span class="m">' + body + '</span>';
       frag.appendChild(row);
     }
     host.innerHTML = '';
     host.appendChild(frag);
   }
 
-  function showLog(id){
-    const e = sim.log.filter(function(x){ return x.id === id; })[0];
+  function fmtP(v){ return (v >= 0 ? '充电 ' : '放电 ') + Math.abs(v).toFixed(0) + ' kW'; }
+
+  function showLog(idx){
+    const e = sim.log[idx];
     if(!e) return;
     const s = e.snap;
-    const plan = s.plan;
-    const why = WHY[plan.code] || plan.note;
-    const flags = [];
-    if(s.curtailed > 0.5) flags.push('光伏被限发 ' + s.curtailed.toFixed(0) + ' kW：不允许倒送或电池已满。');
-    if(s.shed > 0.5) flags.push('负荷被削减 ' + s.shed.toFixed(0) + ' kW：电网进线受限或断电，必须限负荷。');
-    if(s.soc >= CFG.socMax - 0.001) flags.push('SOC 到达 95% 上限，不能再充。');
-    if(s.soc <= CFG.socMin + 0.001) flags.push('SOC 到达 10% 下限，不能再放。');
-    const bal = [];
-    if(s.pv > 0.5) bal.push('光伏 ' + s.pv.toFixed(0));
-    if(s.gridImport > 0.5) bal.push('电网购入 ' + s.gridImport.toFixed(0));
-    if(s.pcs < -0.5) bal.push('电池放电 ' + Math.abs(s.pcs).toFixed(0));
-    if(s.load > 0.5) bal.push('负荷 ' + s.load.toFixed(0));
-    if(s.pcs > 0.5) bal.push('电池充电 ' + s.pcs.toFixed(0));
-    if(s.gridExport > 0.5) bal.push('上网 ' + s.gridExport.toFixed(0));
-
-    const html =
-      '<div class="mh"><b>' + e.title + '</b><span>' + e.time + ' · ' + strategyName(e.strategy) + '</span></div>' +
-      '<div class="sub">EMS DECISION · 决策编号 ' + e.id + '</div>' +
-      '<div class="grid2">' +
-        '<div>光伏出力<b>' + s.pv.toFixed(0) + ' kW</b></div>' +
-        '<div>充电负荷<b>' + s.load.toFixed(0) + ' kW</b></div>' +
-        '<div>储能 SOC<b>' + pct(s.soc) + ' %</b></div>' +
-        '<div>电价时段<b>' + s.priceName + ' ' + s.price.toFixed(2) + ' 元</b></div>' +
-        '<div>PCS 指令<b>' + (s.pcs >= 0 ? '充电 ' + s.pcs.toFixed(0) : '放电 ' + Math.abs(s.pcs).toFixed(0)) + ' kW</b></div>' +
-        '<div>电网功率<b>' + (s.grid >= 0 ? '购电 ' : '上网 ') + Math.abs(s.grid).toFixed(0) + ' kW</b></div>' +
-      '</div>' +
-      '<h4>1 · 当前系统状态</h4>' +
-      '<p>' + e.time + '，光伏可用 <b>' + s.pvAvail.toFixed(0) + ' kW</b>（实际出力 ' + s.pv.toFixed(0) + ' kW），充电负荷 <b>' + s.demand.toFixed(0) + ' kW</b>，' +
-      '电池 SOC <b>' + pct(s.socBefore) + '%</b>，电价处于<b>' + s.priceName + '</b>（' + s.price.toFixed(2) + ' 元/kWh）。</p>' +
-      '<h4>2 · EMS 的判断</h4>' +
-      '<p>' + why + '</p>' +
-      '<h4>3 · 约束校核</h4>' +
-      '<ul>' +
-        '<li>PCS 额定 500 kW；本分钟最多可充 <b>' + s.battery.maxCharge.toFixed(0) + ' kW</b>、可放 <b>' + s.battery.maxDis.toFixed(0) + ' kW</b>。</li>' +
-        '<li>SOC 允许区间 10%–95%，当前 ' + pct(s.socBefore) + '%。</li>' +
-        '<li>电网约束：' + (s.mods.outage ? '电网断电，进线与上网都被封锁。' : (s.mods.gridLimit ? '电网限功率：购电上限 300 kW，禁止倒送。' : '购售电未受限。')) + '</li>' +
-      '</ul>' +
-      '<h4>4 · 功率平衡计算</h4>' +
-      '<p>' + bal.join(' + ') + '。</p>' +
-      '<p>代入校验：负荷 ' + s.load.toFixed(0) + ' + 充电 ' + (s.pcs > 0 ? s.pcs.toFixed(0) : 0) + ' − 光伏 ' + s.pv.toFixed(0) + ' − 放电 ' + (s.pcs < 0 ? Math.abs(s.pcs).toFixed(0) : 0) + ' = 电网 ' + s.grid.toFixed(0) + ' kW。</p>' +
-      '<h4>5 · 最终结果</h4>' +
-      '<p>SOC ' + pct(s.socBefore) + '% → <b>' + pct(s.soc) + '%</b>，本分钟电费 ' + money(s.gridImport * (CFG.dtMin / 60) * s.price - s.gridExport * (CFG.dtMin / 60) * s.price * CFG.feedInRatio) + ' 元。' +
-      (flags.length ? '<br>' + flags.join('<br>') : '') + '</p>' +
-      '<h4>6 · 一句话总结</h4>' +
-      '<p><b>' + plan.target + '</b>：' + plan.note + '</p>' +
-      '<button class="close">关闭</button>';
+    const rows = [
+      ['计划功率', fmtP(s.planPcs)],
+      ['实际下发', fmtP(s.pcs)],
+      ['光伏 / 负荷', s.pv.toFixed(0) + ' / ' + s.load.toFixed(0) + ' kW'],
+      ['电网', (s.grid >= 0 ? '购 ' : '售 ') + Math.abs(s.grid).toFixed(0) + ' kW'],
+      ['SOC', (s.soc * 100).toFixed(1) + '%（计划 ' + (s.socPlan * 100).toFixed(1) + '%）'],
+      ['15min 需量', s.demand15.toFixed(0) + ' kW'],
+      ['电价时段', s.priceName]
+    ];
+    let html = '<div class="mh"><b>' + e.time + ' · ' + (e.kind === 'replan' ? '重计划' : (e.kind === 'intercept' ? '约束拦截' : '计划')) + '</b><span>' + (OBJ_LABEL[s.objective] || s.objective) + '</span></div>';
+    html += '<div class="grid2">' + rows.map(function(r){ return '<div>' + r[0] + '<b>' + r[1] + '</b></div>'; }).join('') + '</div>';
+    html += '<h4>约束检查</h4><p>' + (e.reasons.length ? e.reasons.map(reasonText).join('；') : '本分钟未触发任何约束，按计划功率下发。') + '</p>';
+    if(e.kind === 'replan') html += '<h4>为什么重计划</h4><p>' + e.text + '</p>';
+    html += '<h4>说明</h4><p>计划由预测数据生成，实际执行时用真实数据做约束校核；两者之差就是跟踪误差。</p>';
+    html += '<button class="close">关闭</button>';
     $('modalContent').innerHTML = html;
     $('modal').classList.add('show');
   }
-  function closeModal(){ $('modal').classList.remove('show'); }
+  function closeModal(){
+    bigOpen = false;
+    $('modal').classList.remove('show');
+    const box = $('modal').querySelector('.mbox');
+    if(box) box.classList.remove('wide');
+  }
+
+  function pointHtml(m){
+    if(!m) return '点击图中任意位置可重新居中；圆点是"实际偏离计划 ≥25 kW"的分钟。';
+    const dev = Math.round(m.pcs - m.planPcs);
+    return '<b>' + SIMCORE.fmtMin(m.t) + '</b> · 计划 <b>' + fmtP(m.planPcs) + '</b> / 实际 <b>' + fmtP(m.pcs) +
+      '</b> · 偏差 <b>' + (dev >= 0 ? '+' : '') + dev + ' kW</b><br>' +
+      '光伏 ' + Math.round(m.pv) + ' kW · 负荷 ' + Math.round(m.load) + ' kW · 电网 ' +
+      (m.grid >= 0 ? '购 ' : '售 ') + Math.round(Math.abs(m.grid)) + ' kW · SOC ' + (m.soc * 100).toFixed(1) + '%<br>' +
+      (m.reasons && m.reasons.length
+        ? '<span class="why">' + m.reasons.map(reasonText).join('；') + '</span>'
+        : '<span class="why">未触发约束，偏差来自 SOC 或功率上限</span>');
+  }
+
+  function openBigChart(selPoint){
+    const html =
+      '<div class="mh"><b>计划 vs 实际 · 放大视图</b><span>' + SIMCORE.fmtMin(Math.round(bigCenter)) + ' 前后</span></div>' +
+      '<div class="bigbar">窗口 ' +
+        '<span class="zbtns" id="bigZoom"><button data-z="120">2h</button><button data-z="240" class="on">4h</button><button data-z="480">8h</button><button data-z="1440">24h</button></span>' +
+        '<span class="sp"></span><button id="bigFollow" class="' + (bigFollow ? 'on' : '') + '">跟随当前时刻</button>' +
+        '<span style="color:#7d8fa3">点击图中任意位置重新居中</span></div>' +
+      '<div class="bigchart"><canvas id="bigChart"></canvas></div>' +
+      '<div class="biglegend">' +
+        '<span><i style="background:#28e0d0"></i>计划（面积）</span>' +
+        '<span><i style="background:#f5a524"></i>实际</span>' +
+        '<span><i style="background:#ff6b4a"></i>逆流拦截</span>' +
+        '<span><i style="background:#f5a524"></i>需量拦截</span>' +
+        '<span><i style="background:#a78bfa"></i>配变/购电上限</span>' +
+        '<span><i style="background:#8ea6c8"></i>其他（SOC/功率）</span>' +
+      '</div>' +
+      '<div class="bigdetail" id="bigDetail">' + pointHtml(selPoint) + '</div>' +
+      '<h4>怎么读</h4><p>青色面积是计划，橙色实线是实际；橙线跑出面积说明被约束拦住，圆点就是这些分钟。点圆点看原因。</p>' +
+      '<button class="close">关闭</button>';
+    $('modalContent').innerHTML = html;
+    bigOpen = true;
+    $('modal').querySelector('.mbox').classList.add('wide');
+    $('modal').classList.add('show');
+    $('bigFollow').addEventListener('click', function(){
+      bigFollow = !bigFollow;
+      this.classList.toggle('on', bigFollow);
+      if(bigFollow) bigCenter = snap.t;
+      drawBigChart();
+    });
+    $('bigZoom').addEventListener('click', function(e){
+      const b = e.target.closest('button'); if(!b) return;
+      bigSpan = +b.dataset.z;
+      document.querySelectorAll('#bigZoom button').forEach(function(x){ x.classList.toggle('on', x === b); });
+      drawBigChart();
+    });
+    const bc = $('bigChart');
+    bc.addEventListener('mousemove', function(e){
+      const r = bc.getBoundingClientRect();
+      const x = e.clientX - r.left, y = e.clientY - r.top;
+      let best = null, bd = 14;
+      bigHits.forEach(function(mk){
+        const d = Math.sqrt((mk.x - x) * (mk.x - x) + (mk.y - y) * (mk.y - y));
+        if(d < bd){ bd = d; best = mk; }
+      });
+      $('bigDetail').innerHTML = pointHtml(best ? best.m : null);
+    });
+    bc.addEventListener('click', function(e){
+      const r = bc.getBoundingClientRect();
+      const x = e.clientX - r.left, y = e.clientY - r.top;
+      let best = null, bd = 14;
+      bigHits.forEach(function(mk){
+        const d = Math.sqrt((mk.x - x) * (mk.x - x) + (mk.y - y) * (mk.y - y));
+        if(d < bd){ bd = d; best = mk; }
+      });
+      if(best){ bigFollow = false; $('bigFollow').classList.remove('on'); bigCenter = best.m.t; bigSpan = 120; drawBigChart(); $('bigDetail').innerHTML = pointHtml(best.m); return; }
+      if(chartGeom){
+        const g = bigGeom;
+        if(g){
+          const f = (x - g.padL) / Math.max(1, (g.w - g.padL - g.padR));
+          bigFollow = false; $('bigFollow').classList.remove('on');
+          bigCenter = g.from + Math.max(0, Math.min(1, f)) * (g.to - g.from);
+          drawBigChart();
+        }
+      }
+    });
+    requestAnimationFrame(drawBigChart);
+  }
+
+  let bigGeom = null;
+  function drawBigChart(){
+    const span = Math.min(1440, bigSpan);
+    if(bigFollow && span < 1440) bigCenter = snap.t;
+    let from, to;
+    if(span >= 1440){ from = 0; to = 1440; }
+    else {
+      from = Math.round(bigCenter - span / 2);
+      from = Math.max(0, Math.min(1440 - span, from));
+      to = from + span;
+    }
+    bigGeom = { from: from, to: to, padL: 30, padR: 6, w: $('bigChart').clientWidth || 900 };
+    if(bigGeom.w < 100) bigGeom.w = 900;
+    const today = sim.history.filter(function(x){ return x.day === sim.day; });
+    const planPts = [], actPts = [];
+    if(sim.plan){
+      const pf = sim.plan.from || 0;
+      for(let t = Math.max(pf, from - 2); t < Math.min(1440, to + 2); t += 1){
+        planPts.push([t, sim.plan.pcs[t]]);
+      }
+    }
+    today.forEach(function(x){ if(x.t >= from - 2 && x.t <= to + 2) actPts.push([x.t, x.pcs]); });
+    const devs = today.filter(function(x){
+      return x.t >= from && x.t <= to && Math.abs(x.pcs - x.planPcs) >= 25;
+    });
+    if(planPts.length < 2 && actPts.length < 2){
+      const g0 = $('bigChart').getContext('2d');
+      const w0 = $('bigChart').clientWidth, h0 = $('bigChart').clientHeight;
+      g0.clearRect(0, 0, w0, h0);
+      g0.fillStyle = 'rgba(140,170,200,.6)';
+      g0.font = '12px "Microsoft YaHei",sans-serif';
+      g0.fillText('该时段暂无数据（点图上别的位置，或把窗口切到 24h）', 30, h0 / 2);
+      bigHits = [];
+      return;
+    }
+    const cvEl = $('bigChart');
+    cvEl.dataset.draws = (+cvEl.dataset.draws || 0) + 1;
+    cvEl.dataset.win = Math.round(from) + '-' + Math.round(to);
+    bigHits = dayChart($('bigChart'), {
+      lo: -600, hi: 600, nowT: snap.t, areaBase: 0, from: from, to: to,
+      bands: [[10, 12], [17, 21]], markers: devs,
+      series: [
+        { pts: planPts, color: 'rgba(127,243,232,.85)', dash: [5, 5], w: 1.3, area: 'rgba(40,224,208,.13)' },
+        { pts: actPts, color: '#f5a524', w: 2.0 }
+      ],
+      top: '+600', bot: '−600'
+    }) || [];
+    chartGeom = { from: win.from, to: win.to, padL: 30, padR: 6, w: $('chartPlan').clientWidth || 300 };
+  }
+
+  function showTrackPoint(m){
+    const dev = m.pcs - m.planPcs;
+    let html = '<div class="mh"><b>' + SIMCORE.fmtMin(m.t) + ' · 跟踪偏差</b><span>' +
+      (m.reasons && m.reasons.length ? '约束拦截' : '无约束拦截') + '</span></div>';
+    html += '<div class="grid2">' +
+      '<div>计划功率<b>' + fmtP(m.planPcs) + '</b></div>' +
+      '<div>实际功率<b>' + fmtP(m.pcs) + '</b></div>' +
+      '<div>偏差<b>' + (dev >= 0 ? '+' : '') + Math.round(dev) + ' kW</b></div>' +
+      '<div>光伏 / 负荷<b>' + Math.round(m.pv) + ' / ' + Math.round(m.load) + ' kW</b></div>' +
+      '<div>电网<b>' + (m.grid >= 0 ? '购 ' : '售 ') + Math.round(Math.abs(m.grid)) + ' kW</b></div>' +
+      '<div>SOC<b>' + (m.soc * 100).toFixed(1) + ' %</b></div>' +
+      '</div>';
+    html += '<h4>为什么没跟上计划</h4><p>' +
+      (m.reasons && m.reasons.length ? m.reasons.map(reasonText).join('；')
+                                     : '没有触发约束，偏差来自 SOC 上下限或 PCS 功率上限。') + '</p>';
+    html += '<h4>当时的约束</h4><ul>' +
+      '<li>防逆流：并网点不得倒送（当前电网 ' + (m.grid >= 0 ? '购 ' + Math.round(m.grid) : '售 ' + Math.round(-m.grid)) + ' kW）</li>' +
+      '<li>防超需：15 min 均值不超过 ' + CFG.demandKw + ' kW（当时 ' + Math.round(m.demand15) + ' kW）</li>' +
+      '<li>防超容：视在功率不超过 ' + CFG.kva + ' kVA</li></ul>';
+    html += '<h4>怎么读</h4><p>橙色圆点表示"计划功率"和"实际下发"差得多的分钟；红色=逆流，橙黄=需量，紫色=配变/购电上限，灰色=其他（SOC 或功率上限）。</p>';
+    html += '<button class="close">关闭</button>';
+    $('modalContent').innerHTML = html;
+    $('modal').classList.add('show');
+  }
 
   /* ---------------- 图表 ---------------- */
   function prep(canvas){
@@ -2044,138 +2509,171 @@ const UI = (function(){
     g.clearRect(0, 0, w, h);
     return { g:g, w:w, h:h };
   }
-  function gridLines(g, w, h, pad){
+
+  function dayChart(canvas, opts){
+    const p = prep(canvas), g = p.g, w = p.w, h = p.h;
+    const pad = { l: 30, r: 6, t: 8, b: 13 };
+    const t0 = opts.from == null ? 0 : opts.from;
+    const t1 = opts.to == null ? 1440 : opts.to;
+    const span = Math.max(10, t1 - t0);
+    const X = function(t){ return pad.l + (w - pad.l - pad.r) * (t - t0) / span; };
+    const Y = function(v){ return h - pad.b - (h - pad.t - pad.b) * (v - opts.lo) / (opts.hi - opts.lo); };
+    (opts.bands || []).forEach(function(b){
+      const bx0 = Math.max(X(b[0] * 60), pad.l), bx1 = Math.min(X(b[1] * 60), w - pad.r);
+      if(bx1 <= bx0) return;
+      g.fillStyle = 'rgba(245,165,36,.05)';
+      g.fillRect(bx0, pad.t, bx1 - bx0, h - pad.t - pad.b);
+    });
+    /* 计划起点之前：仿真还没开始的时段，标出来免得被当成缺数据 */
+    if(opts.planFrom != null && opts.planFrom > 30 && opts.planFrom > t0){
+      const px = X(opts.planFrom);
+      g.fillStyle = 'rgba(120,150,180,.05)';
+      g.fillRect(pad.l, pad.t, px - pad.l, h - pad.t - pad.b);
+      g.strokeStyle = 'rgba(120,150,180,.35)';
+      g.setLineDash([3, 3]); g.lineWidth = 1;
+      g.beginPath(); g.moveTo(px, pad.t); g.lineTo(px, h - pad.b); g.stroke();
+      g.setLineDash([]);
+      g.fillStyle = 'rgba(140,170,200,.55)'; g.font = '9px ui-monospace,monospace';
+      g.fillText('仿真起点前 · 无计划', pad.l + 6, h - pad.b - 6);
+    }
     g.strokeStyle = 'rgba(100,160,225,.10)'; g.lineWidth = 1;
-    for(let i = 0; i <= 3; i++){
-      const y = pad.t + (h - pad.t - pad.b) * i / 3;
+    for(let i = 0; i <= 4; i++){
+      const y = pad.t + (h - pad.t - pad.b) * i / 4;
       g.beginPath(); g.moveTo(pad.l, y); g.lineTo(w - pad.r, y); g.stroke();
     }
-    for(let i = 0; i <= 4; i++){
-      const x = pad.l + (w - pad.l - pad.r) * i / 4;
+    const tickStep = span <= 240 ? 30 : (span <= 720 ? 120 : 240);
+    g.fillStyle = 'rgba(120,150,180,.75)'; g.font = '8px ui-monospace,monospace';
+    for(let tt = Math.ceil(t0 / tickStep) * tickStep; tt <= t1; tt += tickStep){
+      const x = X(tt);
+      g.strokeStyle = 'rgba(100,160,225,.10)';
+      g.beginPath(); g.moveTo(x, pad.t); g.lineTo(x, h - pad.b); g.stroke();
+      const hh = Math.floor(tt / 60), mm = tt % 60;
+      const lab = span <= 240 ? (String(hh).padStart(2,'0') + ':' + String(mm).padStart(2,'0')) : (String(hh).padStart(2,'0') + ':' + (mm ? String(mm).padStart(2,'0') : '00'));
+      g.fillText(lab, x - (span <= 240 ? 10 : 6), h - 2);
+    }
+    (opts.series || []).forEach(function(s){
+      if(!s.pts || s.pts.length < 2) return;
+      const path = new Path2D();
+      let prevT = -1;
+      s.pts.forEach(function(pt, i){
+        const x = X(pt[0]), y = Y(pt[1]);
+        /* 时间回跳（跨零点）或断档超过 30 分钟时断线，避免连出斜线 */
+        if(i === 0 || pt[0] < prevT || pt[0] - prevT > 30) path.moveTo(x, y);
+        else path.lineTo(x, y);
+        prevT = pt[0];
+      });
+      if(s.area){
+        const first = s.pts[0][0], last = s.pts[s.pts.length - 1][0];
+        const base = Y(opts.areaBase == null ? opts.lo : opts.areaBase);
+        const fillPath = new Path2D(path);
+        fillPath.lineTo(X(last), base);
+        fillPath.lineTo(X(first), base);
+        fillPath.closePath();
+        g.fillStyle = s.area;
+        g.fill(fillPath);
+      }
+      if(s.glow){
+        g.strokeStyle = s.glow; g.lineWidth = (s.w || 1.5) + 3;
+        g.lineJoin = 'round'; g.lineCap = 'round';
+        g.stroke(path);
+      }
+      g.strokeStyle = s.color; g.lineWidth = s.w || 1.5;
+      if(s.dash) g.setLineDash(s.dash);
+      g.stroke(path);
+      g.setLineDash([]);
+    });
+    const marks = [];
+    (opts.markers || []).forEach(function(m){
+      const x = X(m.t), y = Y(m.pcs);
+      if(x < pad.l || x > w - pad.r || y < pad.t || y > h - pad.b) return;
+      const code = (m.reasons && m.reasons[0]) ? m.reasons[0].code : '';
+      const col = code === 'reverse' ? '#ff6b4a' : (code === 'demand' ? '#f5a524'
+                : (code === 'kva' || code === 'import' ? '#a78bfa' : '#8ea6c8'));
+      g.beginPath(); g.arc(x, y, 3.2, 0, Math.PI * 2);
+      g.fillStyle = col; g.fill();
+      g.strokeStyle = 'rgba(5,10,18,.85)'; g.lineWidth = 1; g.stroke();
+      marks.push({ x: x, y: y, m: m });
+    });
+    if(opts.nowT != null){
+      const x = X(opts.nowT);
+      g.strokeStyle = 'rgba(232,241,251,.35)'; g.lineWidth = 1;
       g.beginPath(); g.moveTo(x, pad.t); g.lineTo(x, h - pad.b); g.stroke();
     }
-  }
-  function lineChart(canvas, dataA, dataB, colorA, colorB, ymax, labelA, labelB){
-    const p = prep(canvas), g = p.g, w = p.w, h = p.h;
-    const pad = { l:26, r:6, t:6, b:12 };
-    gridLines(g, w, h, pad);
-    const n = Math.max(2, dataA.length);
-    const X = function(i){ return pad.l + (w - pad.l - pad.r) * i / (n - 1); };
-    const Y = function(v){ return h - pad.b - (h - pad.t - pad.b) * Math.max(0, Math.min(1, v / ymax)); };
-    function draw(data, color){
-      if(!data.length) return;
-      g.strokeStyle = color; g.lineWidth = 1.6; g.beginPath();
-      data.forEach(function(v, i){ const x = X(i), y = Y(v); i ? g.lineTo(x, y) : g.moveTo(x, y); });
-      g.stroke();
-      const grd = g.createLinearGradient(0, pad.t, 0, h - pad.b);
-      grd.addColorStop(0, color + '44'); grd.addColorStop(1, color + '00');
-      g.lineTo(X(data.length - 1), h - pad.b); g.lineTo(X(0), h - pad.b); g.closePath();
-      g.fillStyle = grd; g.fill();
-    }
-    draw(dataA, colorA);
-    if(dataB) draw(dataB, colorB);
     g.fillStyle = 'rgba(120,150,180,.8)'; g.font = '8px ui-monospace,monospace';
-    g.fillText(ymax >= 1000 ? (ymax / 1000).toFixed(1) + 'MW' : ymax.toFixed(0), 2, pad.t + 7);
-    g.fillText('0', 2, h - pad.b);
-    g.fillStyle = 'rgba(120,150,180,.55)'; g.fillText('−4h', pad.l, h - 2);
-    g.textAlign = 'right'; g.fillText('现在', w - pad.r, h - 2); g.textAlign = 'left';
-  }
-  function barChart(canvas, data, ymax, posColor, negColor){
-    const p = prep(canvas), g = p.g, w = p.w, h = p.h;
-    const pad = { l:26, r:6, t:6, b:12 };
-    gridLines(g, w, h, pad);
-    const n = Math.max(2, data.length);
-    const zero = h - pad.b - (h - pad.t - pad.b) * 0.5;
-    g.strokeStyle = 'rgba(150,180,210,.35)'; g.beginPath(); g.moveTo(pad.l, zero); g.lineTo(w - pad.r, zero); g.stroke();
-    const bw = Math.max(1, (w - pad.l - pad.r) / n - 1);
-    data.forEach(function(v, i){
-      const x = pad.l + (w - pad.l - pad.r) * i / (n - 1);
-      const hh = (h - pad.t - pad.b) * 0.5 * Math.min(1, Math.abs(v) / ymax);
-      g.fillStyle = v >= 0 ? posColor : negColor;
-      if(v >= 0) g.fillRect(x - bw / 2, zero - hh, bw, hh);
-      else g.fillRect(x - bw / 2, zero, bw, hh);
-    });
-    g.fillStyle = 'rgba(120,150,180,.8)'; g.font = '8px ui-monospace,monospace';
-    g.fillText('+' + ymax, 2, pad.t + 7);
-    g.fillText('−' + ymax, 2, h - pad.b);
-  }
-  function socChart(canvas, data){
-    const p = prep(canvas), g = p.g, w = p.w, h = p.h;
-    const pad = { l:26, r:6, t:6, b:12 };
-    gridLines(g, w, h, pad);
-    const n = Math.max(2, data.length);
-    const X = function(i){ return pad.l + (w - pad.l - pad.r) * i / (n - 1); };
-    const Y = function(v){ return h - pad.b - (h - pad.t - pad.b) * v; };
-    /* 上下限带 */
-    g.fillStyle = 'rgba(255,107,74,.10)';
-    g.fillRect(pad.l, Y(0.10), w - pad.l - pad.r, h - pad.b - Y(0.10));
-    g.fillStyle = 'rgba(245,165,36,.08)';
-    g.fillRect(pad.l, Y(1), w - pad.l - pad.r, Y(0.95) - Y(1));
-    if(data.length){
-      g.strokeStyle = '#28e0d0'; g.lineWidth = 1.6; g.beginPath();
-      data.forEach(function(v, i){ const x = X(i), y = Y(v); i ? g.lineTo(x, y) : g.moveTo(x, y); });
-      g.stroke();
-      g.lineTo(X(data.length - 1), h - pad.b); g.lineTo(X(0), h - pad.b); g.closePath();
-      const grd = g.createLinearGradient(0, pad.t, 0, h - pad.b);
-      grd.addColorStop(0, 'rgba(40,224,208,.32)'); grd.addColorStop(1, 'rgba(40,224,208,0)');
-      g.fillStyle = grd; g.fill();
-    }
-    g.fillStyle = 'rgba(120,150,180,.8)'; g.font = '8px ui-monospace,monospace';
-    g.fillText('100%', 2, pad.t + 7); g.fillText('0%', 2, h - pad.b);
-  }
-  function balanceChart(canvas, s){
-    const p = prep(canvas), g = p.g, w = p.w, h = p.h;
-    const src = [];
-    if(s.pv > 0.5) src.push({ n:'光伏', v:s.pv, c:'#f5a524' });
-    if(s.pcs < -0.5) src.push({ n:'电池', v:-s.pcs, c:'#28e0d0' });
-    if(s.gridImport > 0.5) src.push({ n:'电网', v:s.gridImport, c:'#ff6b4a' });
-    const sink = [];
-    if(s.load > 0.5) sink.push({ n:'负荷', v:s.load, c:'#4a90ff' });
-    if(s.pcs > 0.5) sink.push({ n:'充电', v:s.pcs, c:'#28e0d0' });
-    if(s.gridExport > 0.5) sink.push({ n:'上网', v:s.gridExport, c:'#4ade80' });
-    const total = Math.max(1, src.reduce(function(a, b){ return a + b.v; }, 0), sink.reduce(function(a, b){ return a + b.v; }, 0));
-    const top = 6, bh = h - 26, bw = Math.min(46, w * 0.2);
-    function stack(items, x, label){
-      g.fillStyle = 'rgba(160,190,220,.75)'; g.font = '8px ui-monospace,monospace'; g.textAlign = 'left';
-      g.fillText(label, x, 10);
-      let y = top + 12;
-      items.forEach(function(it){
-        const hh = bh * it.v / total;
-        g.fillStyle = it.c;
-        g.fillRect(x, y, bw, Math.max(1, hh));
-        if(hh > 9){ g.fillStyle = 'rgba(4,10,16,.85)'; g.font = '8px "Microsoft YaHei"'; g.fillText(it.n, x + 3, y + 9); }
-        y += hh;
-      });
-    }
-    stack(src, 10, '源');
-    stack(sink, w - bw - 10, '荷');
-    g.strokeStyle = 'rgba(120,160,210,.25)'; g.beginPath(); g.moveTo(w / 2, top + 12); g.lineTo(w / 2, top + 12 + bh); g.stroke();
-    g.fillStyle = 'rgba(120,150,180,.8)'; g.font = '8px ui-monospace,monospace'; g.textAlign = 'center';
-    g.fillText(total.toFixed(0) + ' kW', w / 2, h - 6); g.textAlign = 'left';
-  }
-  function drawAllCharts(){
-    window.__charts = (window.__charts || 0) + 1;
-    const hs = sim.history;
-    const pv = hs.map(function(h){ return h.pv; });
-    const load = hs.map(function(h){ return h.load; });
-    const pcs = hs.map(function(h){ return h.pcs; });
-    const soc = hs.map(function(h){ return h.soc; });
-    const grid = hs.map(function(h){ return h.grid; });
-    lineChart($('chartPv'), pv, load, '#f5a524', '#4a90ff', 1000, 'PV', 'LOAD');
-    barChart($('chartBess'), pcs, 500, '#28e0d0', '#ff8a4c');
-    socChart($('chartSoc'), soc);
-    barChart($('chartGrid'), grid, 800, '#ff6b4a', '#4ade80');
-    balanceChart($('chartBal'), snap);
-    $('chPvV').textContent = snap.pv.toFixed(0) + ' / ' + snap.load.toFixed(0) + ' kW';
-    $('chBessV').textContent = (snap.pcs >= 0 ? '+' : '−') + Math.abs(snap.pcs).toFixed(0) + ' kW';
-    $('chSocV').textContent = pct(snap.soc) + '%';
-    $('chGridV').textContent = (snap.grid >= 0 ? '+' : '−') + Math.abs(snap.grid).toFixed(0) + ' kW';
-    const src = snap.pv + Math.max(0, -snap.pcs) + snap.gridImport;
-    const sink = snap.load + Math.max(0, snap.pcs) + snap.gridExport;
-    $('chBalV').textContent = '源 ' + src.toFixed(0) + ' = 荷 ' + sink.toFixed(0) + ' kW';
+    g.fillText(opts.top || '', 2, pad.t + 7);
+    g.fillText(opts.bot || '', 2, h - pad.b);
+    return marks;
   }
 
-  /* ---------------- 导出 ---------------- */
+  function chartWindow(){
+    const span = Math.min(1440, zoomSpan);
+    let from = Math.round(snap.t - span / 2);
+    from = Math.max(0, Math.min(1440 - span, from));
+    return { from: from, to: from + span };
+  }
+  function inWin(pts, win){
+    return pts.filter(function(p){ return p[0] >= win.from - 2 && p[0] <= win.to + 2; });
+  }
+
+  function drawAllCharts(){
+    const win = chartWindow();
+    const planPts = [], planSoc = [];
+    if(sim.plan){
+      const from = sim.plan.from || 0;
+      for(let t = from; t < 1440; t += 2){
+        planPts.push([t, sim.plan.pcs[t]]);
+        planSoc.push([t, sim.plan.soc[t]]);
+      }
+    }
+    const today = sim.history.filter(function(x){ return x.day === sim.day; });
+    const actPts = today.map(function(x){ return [x.t, x.pcs]; });
+    const actSoc = today.map(function(x){ return [x.t, x.soc]; });
+    /* 偏差点：与计划差 25 kW 以上，最多取 90 个 */
+    const devs = today.filter(function(x){ return Math.abs(x.pcs - x.planPcs) >= 25; });
+    const dstep = Math.max(1, Math.ceil(devs.length / 90));
+    const marks = devs.filter(function(_, i){ return i % dstep === 0; });
+
+    chartHits = dayChart($('chartPlan'), {
+      lo: -600, hi: 600, nowT: snap.t, areaBase: 0, planFrom: sim.plan ? sim.plan.from : 0,
+      from: win.from, to: win.to, markers: marks,
+      bands: [[10, 12], [17, 21]],
+      series: [
+        { pts: inWin(planPts, win), color: 'rgba(127,243,232,.85)', dash: [5, 5], w: 1.2, area: 'rgba(40,224,208,.13)' },
+        { pts: inWin(actPts, win), color: '#f5a524', w: 1.9 }
+      ],
+      top: '+600', bot: '−600'
+    }) || [];
+    dayChart($('chartSoc'), {
+      lo: 0, hi: 1, nowT: snap.t, areaBase: 0, planFrom: sim.plan ? sim.plan.from : 0,
+      from: win.from, to: win.to,
+      series: [
+        { pts: inWin(planSoc, win), color: 'rgba(127,243,232,.85)', dash: [5, 5], w: 1.2, area: 'rgba(40,224,208,.13)' },
+        { pts: inWin(actSoc, win), color: '#f5a524', w: 1.9 }
+      ],
+      top: '100%', bot: '0%'
+    });
+
+    /* 约束余量：需量 / 配变（近 8 小时） */
+    const tail = today.slice(-480);
+    const demPts = tail.map(function(x){ return [x.t, Math.max(0, 1 - x.demand15 / (sim.limits.demandKw || CFG.demandKw))]; });
+    const kvaPts = tail.map(function(x){ return [x.t, Math.max(0, 1 - Math.abs(x.grid) / CFG.pf / (sim.limits.kva || CFG.kva))]; });
+    dayChart($('chartMargin'), {
+      lo: 0, hi: 1, nowT: snap.t, from: win.from, to: win.to,
+      series: [
+        { pts: kvaPts, color: '#4a90ff', w: 1.4 },
+        { pts: demPts, color: '#f5a524', w: 1.7 }
+      ],
+      top: '余量 100%', bot: '0%'
+    });
+
+    if(bigOpen && document.getElementById('bigChart')) drawBigChart();
+    $('chPlanV').innerHTML = '<i style="color:#7ff3e8;font-style:normal">计划 ' + fmtP(snap.planPcs) +
+      '</i> · <i style="color:#f5a524;font-style:normal">实际 ' + fmtP(snap.pcs) + '</i>';
+    $('chSocV').innerHTML = '<i style="color:#f5a524;font-style:normal">实际 ' + (snap.soc * 100).toFixed(0) +
+      '%</i> · <i style="color:#7ff3e8;font-style:normal">计划 ' + (snap.socPlan * 100).toFixed(0) + '%</i>';
+    $('chMarginV').textContent = '需量 ' + snap.demand15.toFixed(0) + ' · 配变 ' + (snap.kvaLoad / CFG.kva * 100).toFixed(0) + '%';
+  }
+
   return { init: init, onSelect: onSelect, get sim(){ return sim; }, get snap(){ return snap; } };
 })();
 window.UI = UI;
@@ -2183,3 +2681,12 @@ UI.init();
 </script>
 </body>
 </html>
+
+
+
+
+
+
+
+
+
