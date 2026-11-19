@@ -35,6 +35,23 @@ for (const code of scripts) {
   assert.doesNotThrow(() => new Function(code), '内联脚本必须保持合法 JavaScript');
 }
 
+/* ---------- 一次接线图 ---------- */
+for (const id of ['sldPanel', 'sldSvg', 'btnSLD', 'sldClose', 'sldGridP', 'sldGridState',
+                  'sldKva', 'sldKvaPct', 'sldPvP', 'sldPvDc', 'sldPcsP', 'sldSoc',
+                  'sldLoadP', 'sldBusSrc', 'sldBusLoad', 'sldLim1', 'sldLim2', 'sldLim3']) {
+  assert.match(page, new RegExp('id="' + id + '"'), '一次接线图缺少元素 #' + id);
+}
+for (let i = 1; i <= 10; i++) {
+  assert.match(page, new RegExp('id="sldEv' + i + '"'), '一次接线图缺少充电桩分支 #' + i);
+}
+assert.equal((page.match(/<svg/g) || []).length, (page.match(/<\/svg>/g) || []).length, 'SVG 标签必须成对');
+assert.match(page, /function updateSLD\(/, '一次接线图应有实时功率刷新逻辑');
+assert.match(page, /sldFlow\('lnPv'/, '光伏支路应随功率方向流动');
+assert.match(page, /sldFlow\('lnGrid'/, '电网支路应随购售电方向流动');
+assert.match(page, /sldFlow\('lnPcs'/, '储能支路应随充放电方向流动');
+assert.match(page, /if\s*\(sldOpen\)\s*updateSLD\(snap\)/, '接线图打开时应随仿真步刷新');
+assert.match(page, /kvaLoad \/ CFG\.kva/, '接线图应显示变压器负载率');
+
 /* ---------- 仿真内核 ---------- */
 const core = page.match(/<script id="sim-core">([\s\S]*?)<\/script>/)[1];
 const ctx = { console };
